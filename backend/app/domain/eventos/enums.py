@@ -1,0 +1,8 @@
+from enum import Enum
+
+class StatusEvento(str, Enum):
+    AGENDADO = "AGENDADO"
+    PRESENCA_ABERTA = "PRESENCA_ABERTA"
+    VOTACAO_ABERTA = "VOTACAO_ABERTA"
+    ENCERRADO = "ENCERRADO"
+    CANCELADO = "CANCELADO"

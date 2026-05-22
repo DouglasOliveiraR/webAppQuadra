@@ -1,2 +1,7 @@
 .env
 docs/
+.agents/
+venv/
+artefato_contrato_arquiteto.json
+graphify-out/
+.graphifyignore

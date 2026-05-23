@@ -63,19 +63,26 @@ class EncerrarVotacaoUseCase:
             "LAFON": -1
         }
         
-        usuarios_atualizados = {}
+        todos_vencedores = set()
+        vencedores_por_categoria = {}
         
         for cat_nome, contagem in apuracao.items():
             if not contagem:
                 continue
             max_votos = max(contagem.values())
             vencedores = [cand_id for cand_id, qtd in contagem.items() if qtd == max_votos]
-            pontos = pontos_map.get(cat_nome, 0)
+            vencedores_por_categoria[cat_nome] = vencedores
+            todos_vencedores.update(vencedores)
             
+        usuarios_atualizados = {}
+        if todos_vencedores:
+            usuarios_models = await self.usuario_repo.buscar_por_ids(list(todos_vencedores))
+            for u in usuarios_models:
+                usuarios_atualizados[u.id] = u
+
+        for cat_nome, vencedores in vencedores_por_categoria.items():
+            pontos = pontos_map.get(cat_nome, 0)
             for v_id in vencedores:
-                if v_id not in usuarios_atualizados:
-                    u = await self.usuario_repo.buscar_por_id(v_id)
-                    if u: usuarios_atualizados[v_id] = u
                 if v_id in usuarios_atualizados:
                     usuarios_atualizados[v_id].pontos_ranking += pontos
                     

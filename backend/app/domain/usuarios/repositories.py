@@ -12,6 +12,10 @@ class UsuarioRepository(ABC):
         pass
 
     @abstractmethod
+    async def buscar_por_ids(self, usuario_ids: List[int]) -> List[Usuario]:
+        pass
+
+    @abstractmethod
     async def listar_todos(self) -> List[Usuario]:
         pass
 

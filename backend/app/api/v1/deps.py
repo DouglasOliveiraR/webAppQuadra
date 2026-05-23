@@ -39,7 +39,7 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
     return usuario
 
-def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
+async def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
     if current_user.perfil.value != "ADMIN":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Privilégios insuficientes")
     return current_user

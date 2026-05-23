@@ -18,13 +18,21 @@ export function BottomNav() {
         <NavLink
           key={to}
           to={to}
+          aria-label={label}
           className={({ isActive }) => cn(
-            "flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors",
-            isActive ? "text-primary" : "text-tertiary-fixed-variant hover:text-primary/70"
+            "relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-standard",
+            isActive ? "text-primary" : "text-on-background/60 hover:text-primary/70"
           )}
         >
-          <Icon size={24} strokeWidth={2.5} />
-          <span className="text-[10px] font-bold tracking-wider">{label}</span>
+          {({ isActive }) => (
+            <>
+              <div className="relative">
+                <Icon size={24} strokeWidth={2.5} aria-hidden="true" />
+                {isActive && <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" aria-hidden="true" />}
+              </div>
+              <span className="text-[10px] font-bold tracking-wider max-[359px]:sr-only">{label}</span>
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

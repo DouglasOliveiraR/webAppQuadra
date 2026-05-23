@@ -44,6 +44,12 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         model = self.session.query(UsuarioModel).filter(UsuarioModel.telefone == telefone).first()
         return self._to_entity(model)
 
+    async def buscar_por_ids(self, usuario_ids: List[int]) -> List[Usuario]:
+        if not usuario_ids:
+            return []
+        models = self.session.query(UsuarioModel).filter(UsuarioModel.id.in_(usuario_ids)).all()
+        return [self._to_entity(m) for m in models]
+
     async def listar_todos(self) -> List[Usuario]:
         models = self.session.query(UsuarioModel).all()
         return [self._to_entity(m) for m in models]

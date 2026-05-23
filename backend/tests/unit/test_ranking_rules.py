@@ -105,7 +105,16 @@ async def test_encerrar_votacao_empates_e_pontos(mock_repos):
         if uid == 4: return u4
         return None
         
+    async def mock_buscar_usuarios(uids):
+        res = []
+        for uid in uids:
+            if uid == 2: res.append(u2)
+            if uid == 3: res.append(u3)
+            if uid == 4: res.append(u4)
+        return res
+
     mock_repos["usuario_repo"].buscar_por_id.side_effect = mock_buscar_usuario
+    mock_repos["usuario_repo"].buscar_por_ids.side_effect = mock_buscar_usuarios
     
     resultado = await use_case.executar(1)
     

@@ -5,3 +5,6 @@ venv/
 artefato_contrato_arquiteto.json
 graphify-out/
 .graphifyignore
+__pycache__/
+*.py[cod]
+*$py.class

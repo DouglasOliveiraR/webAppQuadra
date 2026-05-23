@@ -2,12 +2,18 @@ import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom
 import { BottomNav } from './components/layout/BottomNav';
 import { ToastContainer } from './components/ui/Toast';
 
-import { LoginPage } from './features/auth/LoginPage';
-import { HomePage } from './features/home/HomePage';
-import { AdminPage } from './features/admin/AdminPage';
-import { VotosPage } from './features/votos/VotosPage';
-import { RankingPage } from './features/ranking/RankingPage';
-import { FinanceiroPage } from './features/financeiro/FinanceiroPage';
+import React, { Suspense } from 'react';
+
+// Impacto: Uso de React.lazy permite o Code Splitting pelo Vite.
+// Isso reduz o Initial Bundle Size (o bundle inicial carrega apenas o App e o layout),
+// e diminui o Time To Interactive (TTI), carregando as páginas apenas sob demanda.
+const LoginPage = React.lazy(() => import('./features/auth/LoginPage').then(module => ({ default: module.LoginPage })));
+const HomePage = React.lazy(() => import('./features/home/HomePage').then(module => ({ default: module.HomePage })));
+const AdminPage = React.lazy(() => import('./features/admin/AdminPage').then(module => ({ default: module.AdminPage })));
+const VotosPage = React.lazy(() => import('./features/votos/VotosPage').then(module => ({ default: module.VotosPage })));
+const RankingPage = React.lazy(() => import('./features/ranking/RankingPage').then(module => ({ default: module.RankingPage })));
+const FinanceiroPage = React.lazy(() => import('./features/financeiro/FinanceiroPage').then(module => ({ default: module.FinanceiroPage })));
+
 import { ForceVoteGuard } from './hooks/useForceVote';
 
 function ProtectedRoute() {
@@ -51,19 +57,21 @@ export default function App() {
     <>
       <ToastContainer />
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          
-          <Route element={<ProtectedRoute />}>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/votos" element={<VotosPage />} />
-              <Route path="/ranking" element={<RankingPage />} />
-              <Route path="/financeiro" element={<FinanceiroPage />} />
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-on-surface-variant font-body-md">Carregando...</div>}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/votos" element={<VotosPage />} />
+                <Route path="/ranking" element={<RankingPage />} />
+                <Route path="/financeiro" element={<FinanceiroPage />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </>
   );

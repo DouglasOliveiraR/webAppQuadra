@@ -164,3 +164,79 @@ async def test_encerrar_votacao_sem_votos(mock_repos):
     mock_repos["evento_repo"].salvar.assert_called_once_with(evento)
     mock_repos["usuario_repo"].salvar.assert_not_called()
     assert resultado == {}
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_mesmo_usuario_ganha_varias_categorias(mock_repos):
+    use_case = EncerrarVotacaoUseCase(mock_repos["evento_repo"], mock_repos["voto_repo"], mock_repos["usuario_repo"])
+
+    evento = Evento(id=1, data_jogo=date.today(), hora_inicio=time(20,0), hora_fim=time(22,0), status_evento=StatusEvento.VOTACAO_ABERTA, flag_churrasco=False, valor_churrasco=0)
+    mock_repos["evento_repo"].buscar_por_id.return_value = evento
+
+    # Usuário 2 ganha Bola Cheia (+3) e Gol Bonito (+2)
+    # Total de pontos a receber: +5
+    votos = [
+        Voto(id=1, evento_id=1, eleitor_id=1, candidato_id=2, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=2, evento_id=1, eleitor_id=3, candidato_id=2, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=3, evento_id=1, eleitor_id=1, candidato_id=2, categoria=CategoriaVoto.GOL_BONITO),
+    ]
+    mock_repos["voto_repo"].listar_por_evento.return_value = votos
+
+    u2 = Usuario(id=2, nome="U2", telefone="2", senha_hash="", perfil=PerfilUsuario.MENSALISTA, status=StatusUsuario.ATIVO, nota_admin=0.0, nota_galera_media=0.0, pontos_ranking=10)
+
+    async def mock_buscar_usuario(uid):
+        if uid == 2: return u2
+        return None
+
+    async def mock_buscar_usuarios(uids):
+        if 2 in uids: return [u2]
+        return []
+
+    mock_repos["usuario_repo"].buscar_por_id.side_effect = mock_buscar_usuario
+    mock_repos["usuario_repo"].buscar_por_ids.side_effect = mock_buscar_usuarios
+
+    resultado = await use_case.executar(1)
+
+    assert evento.status_evento == StatusEvento.ENCERRADO
+    assert u2.pontos_ranking == 15
+    assert resultado["BOLA_CHEIA"][2] == 2
+    assert resultado["GOL_BONITO"][2] == 1
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_vencedor_nao_encontrado(mock_repos):
+    use_case = EncerrarVotacaoUseCase(mock_repos["evento_repo"], mock_repos["voto_repo"], mock_repos["usuario_repo"])
+
+    evento = Evento(id=1, data_jogo=date.today(), hora_inicio=time(20,0), hora_fim=time(22,0), status_evento=StatusEvento.VOTACAO_ABERTA, flag_churrasco=False, valor_churrasco=0)
+    mock_repos["evento_repo"].buscar_por_id.return_value = evento
+
+    # Usuário 999 (inexistente) ganha Bola Cheia (+3)
+    # Usuário 2 ganha Gol Bonito (+2)
+    votos = [
+        Voto(id=1, evento_id=1, eleitor_id=1, candidato_id=999, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=2, evento_id=1, eleitor_id=1, candidato_id=2, categoria=CategoriaVoto.GOL_BONITO),
+    ]
+    mock_repos["voto_repo"].listar_por_evento.return_value = votos
+
+    u2 = Usuario(id=2, nome="U2", telefone="2", senha_hash="", perfil=PerfilUsuario.MENSALISTA, status=StatusUsuario.ATIVO, nota_admin=0.0, nota_galera_media=0.0, pontos_ranking=10)
+
+    async def mock_buscar_usuario(uid):
+        if uid == 2: return u2
+        return None
+
+    async def mock_buscar_usuarios(uids):
+        res = []
+        if 2 in uids: res.append(u2)
+        # 999 não é retornado
+        return res
+
+    mock_repos["usuario_repo"].buscar_por_id.side_effect = mock_buscar_usuario
+    mock_repos["usuario_repo"].buscar_por_ids.side_effect = mock_buscar_usuarios
+
+    resultado = await use_case.executar(1)
+
+    assert evento.status_evento == StatusEvento.ENCERRADO
+
+    # U2 ganha +2
+    assert u2.pontos_ranking == 12
+    # Nenhuma exceção para o usuário não encontrado, mas a votação dele está na apuração
+    assert resultado["BOLA_CHEIA"][999] == 1
+    assert resultado["GOL_BONITO"][2] == 1

@@ -85,8 +85,7 @@ def get_encerrar_votacao_use_case(db: Session = Depends(get_db)):
 def get_registrar_voto_use_case(db: Session = Depends(get_db)):
     voto_repo = SQLAlchemyVotoRepository(db)
     evento_repo = SQLAlchemyEventoRepository(db)
-    usuario_repo = SQLAlchemyUsuarioRepository(db)
-    return RegistrarVotoUseCase(voto_repo, evento_repo, usuario_repo)
+    return RegistrarVotoUseCase(voto_repo, evento_repo)
 
 def get_listar_ranking_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyUsuarioRepository(db)

@@ -66,3 +66,17 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             self.session.commit()
             return True
         return False
+
+    async def atualizar_lote(self, usuarios: List[Usuario]) -> bool:
+        if not usuarios:
+            return True
+
+        models = [self._to_model(u) for u in usuarios]
+        for model in models:
+            if model.id:
+                self.session.merge(model)
+            else:
+                self.session.add(model)
+
+        self.session.commit()
+        return True

@@ -79,8 +79,8 @@ class EncerrarVotacaoUseCase:
                 if v_id in usuarios_atualizados:
                     usuarios_atualizados[v_id].pontos_ranking += pontos
                     
-        for u in usuarios_atualizados.values():
-            await self.usuario_repo.salvar(u)
+        if usuarios_atualizados:
+            await self.usuario_repo.atualizar_lote(list(usuarios_atualizados.values()))
             
         evento.status_evento = StatusEvento.ENCERRADO
         await self.evento_repo.salvar(evento)

@@ -22,3 +22,7 @@ class UsuarioRepository(ABC):
     @abstractmethod
     async def deletar(self, usuario_id: int) -> bool:
         pass
+
+    @abstractmethod
+    async def atualizar_lote(self, usuarios: List[Usuario]) -> bool:
+        pass

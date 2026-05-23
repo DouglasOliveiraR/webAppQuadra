@@ -18,7 +18,8 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { telefone, senha });
+      const telefoneLimpo = telefone.replace(/\D/g, '');
+      const response = await api.post('/auth/login', { telefone: telefoneLimpo, senha });
       localStorage.setItem('token', response.data.access_token);
       navigate('/');
     } catch (err) {
@@ -53,6 +54,7 @@ export function LoginPage() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               error={error}
+              autoComplete="current-password"
               required
             />
 

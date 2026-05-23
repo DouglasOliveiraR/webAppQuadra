@@ -9,10 +9,15 @@ from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from api.db.repositories.evento_repo import SQLAlchemyEventoRepository
 from api.db.repositories.presenca_repo import SQLAlchemyPresencaRepository
 from api.db.repositories.voto_repo import SQLAlchemyVotoRepository
+from api.db.repositories.financeiro_repo import SQLAlchemyFinanceiroRepository
 
 from application.auth.use_cases import LoginUseCase
-from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
+from application.eventos.use_cases import CriarEventoUseCase, ListarEventosUseCase
+from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase, RegistrarPresencaUseCase
+from application.admin.use_cases import RealizarCheckinUseCase
 from application.votos.use_cases import RegistrarVotoUseCase
+from application.ranking.use_cases import ListarRankingUseCase
+from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
 from domain.usuarios.entities import Usuario
 
 security = HTTPBearer()
@@ -69,8 +74,20 @@ def get_atualizar_presenca_use_case(
 def get_checkin_use_case(repo: SQLAlchemyPresencaRepository = Depends(get_presenca_repo)) -> CheckinUseCase:
     return CheckinUseCase(repo)
 
-def get_registrar_voto_use_case(
-    voto_repo: SQLAlchemyVotoRepository = Depends(get_voto_repo),
-    evento_repo: SQLAlchemyEventoRepository = Depends(get_evento_repo)
-) -> RegistrarVotoUseCase:
-    return RegistrarVotoUseCase(voto_repo, evento_repo)
+def get_registrar_voto_use_case(db: Session = Depends(get_db)):
+    voto_repo = SQLAlchemyVotoRepository(db)
+    evento_repo = SQLAlchemyEventoRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return RegistrarVotoUseCase(voto_repo, evento_repo, usuario_repo)
+
+def get_listar_ranking_use_case(db: Session = Depends(get_db)):
+    repo = SQLAlchemyUsuarioRepository(db)
+    return ListarRankingUseCase(repo)
+
+def get_listar_financeiro_use_case(db: Session = Depends(get_db)):
+    repo = SQLAlchemyFinanceiroRepository(db)
+    return ListarFinanceiroUseCase(repo)
+
+def get_baixar_pagamento_use_case(db: Session = Depends(get_db)):
+    repo = SQLAlchemyFinanceiroRepository(db)
+    return BaixarPagamentoUseCase(repo)

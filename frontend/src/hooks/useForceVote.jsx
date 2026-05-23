@@ -1,19 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { useEvento } from './useEvento';
 
 /**
- * Este componente simula o Guard Pattern de Force Vote.
- * Em um app real, ele bateria na API `/api/eventos/atual/status` para descobrir se 
- * o evento está em 'VOTACAO_ABERTA' e se o usuário atual tem pendências de voto.
- * 
- * Por enquanto, estamos usando um mock simples no localStorage para simular o comportamento.
+ * Componente que intercepta a navegação (Guard Pattern) e obriga o jogador a votar
+ * caso haja uma votação aberta pós-jogo e ele ainda não tenha votado.
  */
 export function ForceVoteGuard({ children }) {
   const location = useLocation();
-  const forceVoteAtivo = localStorage.getItem('mock_force_vote') === 'true';
+  const { evento, loading } = useEvento(1);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Verifica se o evento está em votação aberta e o usuário logado não votou ainda
+  const forceVoteAtivo = evento?.status_evento === 'VOTACAO_ABERTA' && evento?.usuario_ja_votou === false;
 
   if (forceVoteAtivo && location.pathname !== '/votos') {
-    // Redireciona o usuário sempre para a página de votos
+    // Redireciona o usuário para a página de votos
     return <Navigate to="/votos" replace />;
   }
 

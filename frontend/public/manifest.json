@@ -1,0 +1,16 @@
+{
+  "short_name": "Pelada FC",
+  "name": "Pelada FC Manager",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#121318",
+  "theme_color": "#A8C7FA",
+  "display": "standalone",
+  "orientation": "portrait"
+}

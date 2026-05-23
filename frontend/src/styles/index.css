@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,17 +7,40 @@
 
 @layer base {
   body {
-    @apply bg-background text-on-background font-body antialiased selection:bg-primary/20 selection:text-primary;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply bg-background text-on-background font-body-md antialiased min-h-screen selection:bg-primary-container selection:text-on-primary-container;
+    min-height: max(884px, 100dvh);
   }
 }
 
-@layer components {
-  /* Utilitários padrão que vieram do DESIGN.md */
+@layer utilities {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .icon-fill {
+    font-variation-settings: 'FILL' 1;
+  }
+  
+  .shadow-ambient-1 {
+      box-shadow: 0 1px 4px 0 rgba(188, 199, 222, 0.4);
+  }
+  .shadow-ambient-2 {
+      box-shadow: 0 4px 12px 0 rgba(188, 199, 222, 0.5);
+      transform: translateY(-2px);
+  }
+  
   .glass-panel {
-    @apply bg-surface/80 backdrop-blur-md border border-white/40 shadow-glass;
+      background: rgba(247, 249, 251, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Autofill dark mode override para campos de input escuros (ex: Login) */
+  input.dark-autofill:-webkit-autofill,
+  input.dark-autofill:-webkit-autofill:hover, 
+  input.dark-autofill:-webkit-autofill:focus, 
+  input.dark-autofill:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px #111827 inset !important;
+      -webkit-text-fill-color: white !important;
+      transition: background-color 5000s ease-in-out 0s;
   }
 }

@@ -16,6 +16,12 @@ from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUse
 from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
 from application.ranking.use_cases import ListarRankingUseCase
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
+from application.eventos.use_cases import ObterEventoUseCase, CriarEventoUseCase, ListarEventosUseCase
+from application.eventos.iniciar_votacao_use_case import IniciarVotacaoUseCase
+from application.eventos.sorteio_use_case import SorteioUseCase
+from application.eventos.atualizar_churrasco_use_case import AtualizarChurrascoUseCase
+from application.eventos.cancelar_evento_use_case import CancelarEventoUseCase
+from application.usuarios.atualizar_nota_admin_use_case import AtualizarNotaAdminUseCase
 from domain.usuarios.entities import Usuario
 
 security = HTTPBearer()
@@ -95,3 +101,40 @@ def get_listar_financeiro_use_case(db: Session = Depends(get_db)):
 def get_baixar_pagamento_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyFinanceiroRepository(db)
     return BaixarPagamentoUseCase(repo)
+
+def get_obter_evento_use_case(db: Session = Depends(get_db)) -> ObterEventoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    presenca_repo = SQLAlchemyPresencaRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    voto_repo = SQLAlchemyVotoRepository(db)
+    return ObterEventoUseCase(evento_repo, presenca_repo, usuario_repo, voto_repo)
+
+def get_criar_evento_use_case(db: Session = Depends(get_db)) -> CriarEventoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return CriarEventoUseCase(evento_repo)
+
+def get_listar_eventos_use_case(db: Session = Depends(get_db)) -> ListarEventosUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return ListarEventosUseCase(evento_repo)
+
+def get_iniciar_votacao_use_case(db: Session = Depends(get_db)) -> IniciarVotacaoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return IniciarVotacaoUseCase(evento_repo)
+
+def get_sorteio_use_case(db: Session = Depends(get_db)) -> SorteioUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    presenca_repo = SQLAlchemyPresencaRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return SorteioUseCase(evento_repo, presenca_repo, usuario_repo)
+
+def get_atualizar_churrasco_use_case(db: Session = Depends(get_db)) -> AtualizarChurrascoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return AtualizarChurrascoUseCase(evento_repo)
+
+def get_cancelar_evento_use_case(db: Session = Depends(get_db)) -> CancelarEventoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return CancelarEventoUseCase(evento_repo)
+
+def get_atualizar_nota_admin_use_case(db: Session = Depends(get_db)) -> AtualizarNotaAdminUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return AtualizarNotaAdminUseCase(usuario_repo)

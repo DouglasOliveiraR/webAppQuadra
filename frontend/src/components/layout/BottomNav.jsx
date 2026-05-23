@@ -1,40 +1,52 @@
 import React from 'react';
-import { Home, ClipboardList, TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '../ui/Button';
 
 export function BottomNav() {
+  let isAdmin = false;
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      isAdmin = payload.perfil === 'ADMIN';
+    }
+  } catch (e) {
+    console.error('Erro ao ler token no BottomNav', e);
+  }
+
   const links = [
-    { to: '/', icon: Home, label: 'Início' },
-    { to: '/ranking', icon: Trophy, label: 'Ranking' },
-    { to: '/votos', icon: TrendingUp, label: 'Votação' },
-    { to: '/financeiro', icon: Wallet, label: 'Carteira' },
-    { to: '/checkin', icon: ClipboardList, label: 'Check-in' },
+    { to: '/', icon: 'home', label: 'Home' },
+    { to: '/ranking', icon: 'social_leaderboard', label: 'Ranking' },
+    { to: '/votos', icon: 'thumbs_up_down', label: 'Votos' },
+    { to: '/financeiro', icon: 'payments', label: 'Finanças' },
   ];
 
+  if (isAdmin) {
+    links.push({ to: '/admin', icon: 'settings_suggest', label: 'Admin' });
+  }
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-t border-surface-variant flex justify-around items-center px-4 pb-safe z-50">
-      {links.map(({ to, icon: Icon, label }) => (
-        <NavLink
-          key={to}
-          to={to}
-          aria-label={label}
-          className={({ isActive }) => cn(
-            "relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors",
-            isActive ? "text-primary" : "text-tertiary-fixed-variant hover:text-primary/70"
-          )}
-        >
-          {({ isActive }) => (
-            <>
-              {isActive && (
-                <span className="absolute top-0 w-8 h-1 rounded-b-md bg-primary" aria-hidden="true" />
-              )}
-              <Icon size={24} strokeWidth={2.5} aria-hidden="true" />
-              <span className="text-[10px] font-bold tracking-wider hidden min-[360px]:block">{label}</span>
-            </>
-          )}
-        </NavLink>
-      ))}
+    <nav className="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface dark:bg-surface-dim shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
+      <div className="flex justify-around items-center w-full px-2 py-3 pb-safe">
+        {links.map(({ to, icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            aria-label={label}
+            className={({ isActive }) => cn(
+              "flex flex-col items-center justify-center rounded-full px-2 py-1 transition-colors active:scale-90 duration-150 ease-in-out",
+              isActive ? "bg-primary-container text-on-primary-container px-4" : "text-on-surface-variant hover:bg-surface-variant/50"
+            )}
+          >
+            {({ isActive }) => (
+              <>
+                <span className={cn("material-symbols-outlined", isActive && "icon-fill")}>{icon}</span>
+                <span className="font-label-bold text-label-bold mt-1 text-[10px] min-[360px]:text-[12px]">{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </div>
     </nav>
   );
 }

@@ -1,98 +1,121 @@
-import React from 'react';
-import { useFinanceiro } from '../../hooks/useFinanceiro';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Wallet, CheckCircle, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import api from '../../services/api';
 
 export function FinanceiroPage() {
-  const { pendencias, loading, actionLoading, error, baixarPagamento } = useFinanceiro();
+  const [transacoes, setTransacoes] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Decodificando token para verificar perfil ADMIN (simples para o MVP)
-  const token = localStorage.getItem('token');
-  let isAdmin = false;
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      isAdmin = payload.perfil === 'ADMIN';
-    } catch (e) {
-      console.error("Erro ao ler token", e);
-    }
-  }
+  useEffect(() => {
+    const fetchFinanceiro = async () => {
+      try {
+        const response = await api.get('/financeiro/me');
+        setTransacoes(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFinanceiro();
+  }, []);
 
-  if (loading) {
+  const saldo = transacoes?.reduce((acc, curr) => 
+    curr.tipo === 'ENTRADA' ? acc + curr.valor : acc - curr.valor, 0
+  ) || 0;
+
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full pt-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent"></div>
       </div>
     );
   }
 
-  // Estatísticas
-  const totalPendente = pendencias.filter(p => p.status_pagamento === 'PENDENTE').reduce((acc, curr) => acc + curr.valor, 0);
-
   return (
-    <div className="flex flex-col gap-6 p-4 pt-8 pb-32">
-      <header className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-          <Wallet className="text-primary" size={24} />
+    <div className="flex flex-col gap-unit-3 p-4">
+      {/* Page Header */}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+          <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>account_balance_wallet</span>
         </div>
-        <div>
-          <h2 className="text-headline-md text-tertiary">Sua Carteira</h2>
-          <h1 className="text-headline-lg-mobile text-on-background font-bold">Resumo Financeiro</h1>
-        </div>
-      </header>
-
-      {/* Resumo Card */}
-      <Card variant="filled" className="bg-gradient-to-br from-surface to-surface-variant border border-primary/20 p-6">
-        <p className="text-sm text-on-background/70 mb-1">Total Pendente</p>
-        <h2 className={`text-4xl font-black ${totalPendente > 0 ? 'text-error' : 'text-primary'}`}>
-          R$ {totalPendente.toFixed(2).replace('.', ',')}
-        </h2>
-        {totalPendente === 0 && (
-          <div className="mt-4 flex items-center gap-2 text-primary text-sm font-bold">
-            <CheckCircle size={16} /> Tudo em dia! Você é um exemplo.
-          </div>
-        )}
-      </Card>
-
-      {error && <p className="text-error text-center">{error}</p>}
-
-      {/* Lista de Transações */}
-      <div className="flex flex-col gap-3 mt-4">
-        <h3 className="font-bold text-on-background mb-2">Histórico de Cobranças</h3>
-        
-        {pendencias.length === 0 ? (
-          <p className="text-center text-on-background/50">Nenhuma cobrança encontrada.</p>
-        ) : (
-          pendencias.map((item) => (
-            <Card key={item.id} variant="elevated" className="flex items-center justify-between p-4 border-l-4" style={{ borderLeftColor: item.status_pagamento === 'PAGO' ? '#10B981' : '#EF4444' }}>
-              <div className="flex flex-col">
-                <span className="font-bold text-on-background capitalize">{item.tipo}</span>
-                <span className="text-sm text-on-background/60 flex items-center gap-1 mt-1">
-                  {item.status_pagamento === 'PAGO' ? <CheckCircle size={14} className="text-green-500" /> : <Clock size={14} className="text-error" />}
-                  {item.status_pagamento}
-                </span>
-              </div>
-              
-              <div className="flex flex-col items-end gap-2">
-                <span className="font-bold text-lg text-on-background">R$ {item.valor.toFixed(2).replace('.', ',')}</span>
-                
-                {item.status_pagamento === 'PENDENTE' && isAdmin && (
-                  <Button 
-                    variant="primary" 
-                    size="sm"
-                    className="text-xs px-2 py-1 h-auto"
-                    disabled={actionLoading}
-                    onClick={() => baixarPagamento(item.id)}
-                  >
-                    Dar Baixa
-                  </Button>
-                )}
-              </div>
-            </Card>
-          ))
-        )}
+        <h2 className="font-headline-md text-headline-md text-on-surface">Meu Financeiro</h2>
       </div>
+
+      {error && (
+        <div className="p-3 bg-error-container text-on-error-container text-body-sm rounded-standard font-medium">
+          Erro ao carregar dados do financeiro.
+        </div>
+      )}
+
+      {/* Status da Mensalidade Card */}
+      <section className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant/50 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,110,47,0.08)] hover:-translate-y-[2px]">
+        {/* Subtle indicator line */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-error"></div>
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-1">Mensalidade</h3>
+            <p className="font-body-md text-body-md text-on-surface font-semibold">Maio/2026</p>
+          </div>
+          <div className="bg-error-container text-on-error-container px-3 py-1.5 rounded-full flex items-center gap-1">
+            <span className="material-symbols-outlined text-[16px]">warning</span>
+            <span className="font-label-bold text-label-bold">Pendente</span>
+          </div>
+        </div>
+        <div className="flex items-end gap-2 mt-2">
+          <span className="font-body-sm text-body-sm text-on-surface-variant">Valor:</span>
+          <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ 60,00</span>
+        </div>
+        <button className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all">
+          <span className="material-symbols-outlined text-[20px]">content_copy</span>
+          Copiar Chave Pix do Admin
+        </button>
+      </section>
+
+      {/* Caixa Extra (Transparência) */}
+      <section className="bg-on-tertiary-fixed text-on-primary rounded-xl p-5 shadow-lg flex flex-col gap-5 relative overflow-hidden mt-2">
+        {/* Decorative pattern/gradient */}
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary to-transparent pointer-events-none"></div>
+        
+        <div className="relative z-10 flex items-center gap-2 mb-1">
+          <span className="material-symbols-outlined text-primary-fixed-dim">account_balance</span>
+          <h3 className="font-label-bold text-label-bold uppercase tracking-wider text-tertiary-fixed-dim">Caixa da Pelada (Transparência)</h3>
+        </div>
+        
+        <div className="relative z-10">
+          <p className="font-body-sm text-body-sm text-tertiary-fixed-dim mb-1">Em caixa atual</p>
+          <p className="font-display-lg text-display-lg font-extrabold text-on-primary">
+            R$ {saldo.toFixed(2).replace('.', ',')}
+          </p>
+        </div>
+        
+        <div className="relative z-10 mt-2">
+          <h4 className="font-label-bold text-label-bold text-tertiary-fixed-dim border-b border-white/10 pb-2 mb-3">Últimas Movimentações</h4>
+          <ul className="flex flex-col gap-3">
+            {transacoes?.length === 0 ? (
+              <li className="text-sm text-tertiary-fixed-dim">Nenhuma movimentação registrada.</li>
+            ) : (
+              transacoes?.map(t => (
+                <li key={t.id} className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    t.tipo === 'ENTRADA' ? 'bg-primary-container/20 text-primary-fixed-dim' : 'bg-surface-variant/20 text-surface-dim'
+                  }`}>
+                    <span className="material-symbols-outlined text-[18px]">
+                      {t.tipo === 'ENTRADA' ? 'arrow_downward' : 'arrow_upward'}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-body-sm text-body-sm font-semibold text-on-primary">
+                      {t.tipo === 'ENTRADA' ? '+' : '-'} R$ {t.valor.toFixed(2).replace('.', ',')}
+                    </p>
+                    <p className="font-label-bold text-label-bold text-tertiary-fixed-dim font-normal">{t.descricao}</p>
+                  </div>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }

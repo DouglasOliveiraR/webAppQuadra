@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { showToast } from '../components/ui/Toast';
 
 export function useFinanceiro() {
   const [pendencias, setPendencias] = useState([]);
@@ -25,10 +26,13 @@ export function useFinanceiro() {
       await api.put(`/financeiro/${id}/baixar`);
       // Atualiza o estado localmente sem refazer requisição
       setPendencias((prev) => 
-        prev.map(item => item.id === id ? { ...item, status_pagamento: 'PAGO' } : item)
+      prev.map(item => item.id === id ? { ...item, status_pagamento: 'PAGO' } : item)
       );
+      showToast('Pagamento baixado com sucesso!');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Erro ao dar baixa no pagamento.');
+      const msg = err.response?.data?.detail || 'Erro ao dar baixa no pagamento.';
+      setError(msg);
+      showToast(msg, 'error');
     } finally {
       setActionLoading(false);
     }

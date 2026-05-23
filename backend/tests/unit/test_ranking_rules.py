@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import AsyncMock
 from application.presencas.use_cases import CheckinUseCase
 from application.votos.use_cases import EncerrarVotacaoUseCase
+from core.exceptions import RegraDeNegocioError
 from domain.usuarios.entities import Usuario
 from domain.presencas.entities import Presenca
 from domain.eventos.entities import Evento
@@ -121,3 +122,36 @@ async def test_encerrar_votacao_empates_e_pontos(mock_repos):
     
     assert resultado["BOLA_CHEIA"][2] == 2
     assert resultado["BOLA_CHEIA"][3] == 2
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_evento_nao_encontrado(mock_repos):
+    use_case = EncerrarVotacaoUseCase(mock_repos["evento_repo"], mock_repos["voto_repo"], mock_repos["usuario_repo"])
+    mock_repos["evento_repo"].buscar_por_id.return_value = None
+
+    with pytest.raises(RegraDeNegocioError, match="Evento não encontrado"):
+        await use_case.executar(1)
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_evento_ja_encerrado(mock_repos):
+    use_case = EncerrarVotacaoUseCase(mock_repos["evento_repo"], mock_repos["voto_repo"], mock_repos["usuario_repo"])
+
+    evento = Evento(id=1, data_jogo=date.today(), hora_inicio=time(20,0), hora_fim=time(22,0), status_evento=StatusEvento.ENCERRADO, flag_churrasco=False, valor_churrasco=0)
+    mock_repos["evento_repo"].buscar_por_id.return_value = evento
+
+    with pytest.raises(RegraDeNegocioError, match="Votação já foi encerrada"):
+        await use_case.executar(1)
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_sem_votos(mock_repos):
+    use_case = EncerrarVotacaoUseCase(mock_repos["evento_repo"], mock_repos["voto_repo"], mock_repos["usuario_repo"])
+
+    evento = Evento(id=1, data_jogo=date.today(), hora_inicio=time(20,0), hora_fim=time(22,0), status_evento=StatusEvento.VOTACAO_ABERTA, flag_churrasco=False, valor_churrasco=0)
+    mock_repos["evento_repo"].buscar_por_id.return_value = evento
+    mock_repos["voto_repo"].listar_por_evento.return_value = []
+
+    resultado = await use_case.executar(1)
+
+    assert evento.status_evento == StatusEvento.ENCERRADO
+    mock_repos["evento_repo"].salvar.assert_called_once_with(evento)
+    mock_repos["usuario_repo"].salvar.assert_not_called()
+    assert resultado == {}

@@ -14,14 +14,13 @@ from api.db.repositories.financeiro_repo import SQLAlchemyFinanceiroRepository
 from application.auth.use_cases import LoginUseCase
 from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
 from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
-from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
 from application.ranking.use_cases import ListarRankingUseCase
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
 from domain.usuarios.entities import Usuario
 
 security = HTTPBearer()
 
-def get_current_user(
+async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> Usuario:
@@ -34,15 +33,12 @@ def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         
     repo = SQLAlchemyUsuarioRepository(db)
-    # Aqui deveria ser async se o repositório fosse async no banco real (mas no MVP usamos session síncrona convertida)
-    # Para o MVP SQLite, vamos fazer um mock de chamada ou adaptar
-    import asyncio
-    usuario = asyncio.run(repo.buscar_por_id(int(usuario_id)))
+    usuario = await repo.buscar_por_id(int(usuario_id))
     if usuario is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
     return usuario
 
-def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
+async def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
     if current_user.perfil.value != "ADMIN":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Privilégios insuficientes")
     return current_user
@@ -85,8 +81,7 @@ def get_encerrar_votacao_use_case(db: Session = Depends(get_db)):
 def get_registrar_voto_use_case(db: Session = Depends(get_db)):
     voto_repo = SQLAlchemyVotoRepository(db)
     evento_repo = SQLAlchemyEventoRepository(db)
-    usuario_repo = SQLAlchemyUsuarioRepository(db)
-    return RegistrarVotoUseCase(voto_repo, evento_repo, usuario_repo)
+    return RegistrarVotoUseCase(voto_repo, evento_repo)
 
 def get_listar_ranking_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyUsuarioRepository(db)

@@ -12,10 +12,9 @@ from api.db.repositories.voto_repo import SQLAlchemyVotoRepository
 from api.db.repositories.financeiro_repo import SQLAlchemyFinanceiroRepository
 
 from application.auth.use_cases import LoginUseCase
-from application.eventos.use_cases import CriarEventoUseCase, ListarEventosUseCase
-from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase, RegistrarPresencaUseCase
-from application.admin.use_cases import RealizarCheckinUseCase
-from application.votos.use_cases import RegistrarVotoUseCase
+from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
+from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
+from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
 from application.ranking.use_cases import ListarRankingUseCase
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
 from domain.usuarios.entities import Usuario
@@ -71,8 +70,17 @@ def get_atualizar_presenca_use_case(
 ) -> AtualizarPresencaUseCase:
     return AtualizarPresencaUseCase(presenca_repo, evento_repo)
 
-def get_checkin_use_case(repo: SQLAlchemyPresencaRepository = Depends(get_presenca_repo)) -> CheckinUseCase:
-    return CheckinUseCase(repo)
+def get_checkin_use_case(
+    repo: SQLAlchemyPresencaRepository = Depends(get_presenca_repo),
+    usuario_repo: SQLAlchemyUsuarioRepository = Depends(get_usuario_repo)
+) -> CheckinUseCase:
+    return CheckinUseCase(repo, usuario_repo)
+
+def get_encerrar_votacao_use_case(db: Session = Depends(get_db)):
+    evento_repo = SQLAlchemyEventoRepository(db)
+    voto_repo = SQLAlchemyVotoRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo)
 
 def get_registrar_voto_use_case(db: Session = Depends(get_db)):
     voto_repo = SQLAlchemyVotoRepository(db)

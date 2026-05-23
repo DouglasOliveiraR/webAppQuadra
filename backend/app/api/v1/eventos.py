@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
 from api.schemas.presenca_schemas import PresencaUpdateRequest, PresencaResponse, CheckinRequest
 from api.schemas.voto_schemas import VotoRequest, VotoResponse
 from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
-from application.votos.use_cases import RegistrarVotoUseCase
+from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
 from api.v1.deps import (
     get_current_user, get_admin_user, get_atualizar_presenca_use_case,
-    get_checkin_use_case, get_registrar_voto_use_case
+    get_checkin_use_case, get_registrar_voto_use_case,
+    get_encerrar_votacao_use_case
 )
 from domain.usuarios.entities import Usuario
 from core.exceptions import RegraDeNegocioError
@@ -65,5 +67,16 @@ async def registrar_voto(
             categoria=payload.categoria
         )
         return voto
+    except RegraDeNegocioError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
+
+@router.put("/{id}/encerrar")
+async def encerrar_votacao(
+    id: int,
+    use_case: EncerrarVotacaoUseCase = Depends(get_encerrar_votacao_use_case),
+    admin_user: Usuario = Depends(get_admin_user)
+):
+    try:
+        return await use_case.executar(id)
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)

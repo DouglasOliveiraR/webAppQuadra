@@ -5,6 +5,8 @@ import { LoginPage } from './features/auth/LoginPage';
 import { HomePage } from './features/home/HomePage';
 import { CheckinPage } from './features/admin/CheckinPage';
 import { VotosPage } from './features/votos/VotosPage';
+import { RankingPage } from './features/ranking/RankingPage';
+import { FinanceiroPage } from './features/financeiro/FinanceiroPage';
 import { ForceVoteGuard } from './hooks/useForceVote';
 
 function ProtectedRoute() {
@@ -40,6 +42,8 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/checkin" element={<CheckinPage />} />
             <Route path="/votos" element={<VotosPage />} />
+            <Route path="/ranking" element={<RankingPage />} />
+            <Route path="/financeiro" element={<FinanceiroPage />} />
           </Route>
         </Route>
       </Routes>

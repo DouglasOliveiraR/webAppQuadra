@@ -1,14 +1,15 @@
 import React from 'react';
-import { Home, ClipboardList, TrendingUp, Settings } from 'lucide-react';
+import { Home, ClipboardList, TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '../ui/Button';
 
 export function BottomNav() {
   const links = [
     { to: '/', icon: Home, label: 'Início' },
-    { to: '/checkin', icon: ClipboardList, label: 'Check-in' },
+    { to: '/ranking', icon: Trophy, label: 'Ranking' },
     { to: '/votos', icon: TrendingUp, label: 'Votação' },
-    { to: '/admin', icon: Settings, label: 'Admin' },
+    { to: '/financeiro', icon: Wallet, label: 'Carteira' },
+    { to: '/checkin', icon: ClipboardList, label: 'Check-in' },
   ];
 
   return (

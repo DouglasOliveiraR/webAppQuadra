@@ -53,6 +53,19 @@ def run_e2e_test():
             print("✅ [Agente QA] Aba de Votação carregada com sucesso!")
             
             time.sleep(2)
+
+            print("🏆 [Agente QA] Testando aba de Ranking...")
+            page.click("text='Ranking'")
+            page.wait_for_selector("text='Hall da Fama'")
+            print("✅ [Agente QA] Aba de Ranking carregada com sucesso!")
+            time.sleep(2)
+
+            print("💳 [Agente QA] Testando aba do Financeiro...")
+            page.click("text='Carteira'")
+            page.wait_for_selector("text='Resumo Financeiro'")
+            print("✅ [Agente QA] Aba do Financeiro carregada com sucesso!")
+            time.sleep(2)
+
             print("🎉 [Agente QA] Teste E2E concluído com SUCESSO. Nenhuma falha encontrada na UI!")
 
         except Exception as e:

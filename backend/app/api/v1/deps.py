@@ -33,6 +33,7 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         
     repo = SQLAlchemyUsuarioRepository(db)
+    # Impacto: remove o uso de asyncio.run que bloqueava o event loop do FastAPI, melhorando a performance
     usuario = await repo.buscar_por_id(int(usuario_id))
     if usuario is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")

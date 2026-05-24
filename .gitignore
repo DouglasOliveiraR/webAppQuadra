@@ -11,3 +11,6 @@ __pycache__/
 *.pyd
 .pytest_cache/
 backend/pelada.db
+backend/.venv
+backend/.venv/
+backend/**/__pycache__/

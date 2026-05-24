@@ -14,6 +14,15 @@ export function PerfilPage() {
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
   const [loadingSenha, setLoadingSenha] = useState(false);
+  const [erroSenhaAtual, setErroSenhaAtual] = useState('');
+
+  const handleAbrirModalSenha = () => {
+    setSenhaAtual('');
+    setNovaSenha('');
+    setConfirmarNovaSenha('');
+    setErroSenhaAtual('');
+    setShowSenhaModal(true);
+  };
 
   // Extract info from token
   const token = localStorage.getItem('token');
@@ -73,6 +82,7 @@ export function PerfilPage() {
     }
 
     setLoadingSenha(true);
+    setErroSenhaAtual('');
     try {
       await api.put('/usuarios/me/senha', {
         senha_atual: senhaAtual,
@@ -85,11 +95,18 @@ export function PerfilPage() {
       setConfirmarNovaSenha('');
     } catch (err) {
       const msg = err.response?.data?.detail || 'Erro ao alterar senha. Verifique se a senha atual está correta.';
-      showToast(msg, 'error');
+      if (msg === "Senha atual incorreta.") {
+        setErroSenhaAtual(msg);
+      } else {
+        showToast(msg, 'error');
+      }
     } finally {
       setLoadingSenha(false);
     }
   };
+
+  const senhasNaoConferem = confirmarNovaSenha && novaSenha !== confirmarNovaSenha;
+  const senhaNovaCurta = novaSenha && novaSenha.length < 6;
 
   const isMensalista = perfilTipo === 'MENSALISTA' || perfilTipo === 'ADMIN';
 
@@ -172,7 +189,7 @@ export function PerfilPage() {
       {/* Actions */}
       <section className="flex flex-col gap-3">
         <button 
-          onClick={() => setShowSenhaModal(true)}
+          onClick={handleAbrirModalSenha}
           className="flex items-center justify-between glass-panel rounded-xl p-4 shadow-ambient-1 hover:bg-surface-container-low transition-colors text-left w-full"
         >
           <div className="flex items-center gap-3 text-on-surface">
@@ -214,11 +231,20 @@ export function PerfilPage() {
                 <input 
                   type="password" 
                   value={senhaAtual}
-                  onChange={(e) => setSenhaAtual(e.target.value)}
+                  onChange={(e) => {
+                    setSenhaAtual(e.target.value);
+                    if (erroSenhaAtual) setErroSenhaAtual('');
+                  }}
                   placeholder="Sua senha atual"
-                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  className={`block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border rounded-lg focus:ring-2 transition-all font-body-md text-on-surface ${erroSenhaAtual ? 'border-error focus:ring-error/20' : 'border-transparent focus:border-primary focus:ring-primary/20'}`}
                   autoFocus
                 />
+                {erroSenhaAtual && (
+                  <p className="text-error text-body-sm mt-1 flex items-center gap-1 font-medium">
+                    <span className="material-symbols-outlined text-[16px]">error</span>
+                    {erroSenhaAtual}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -228,8 +254,14 @@ export function PerfilPage() {
                   value={novaSenha}
                   onChange={(e) => setNovaSenha(e.target.value)}
                   placeholder="No mínimo 6 caracteres"
-                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  className={`block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border rounded-lg focus:ring-2 transition-all font-body-md text-on-surface ${senhaNovaCurta ? 'border-error focus:ring-error/20' : 'border-transparent focus:border-primary focus:ring-primary/20'}`}
                 />
+                {senhaNovaCurta && (
+                  <p className="text-error text-body-sm mt-1 flex items-center gap-1 font-medium">
+                    <span className="material-symbols-outlined text-[16px]">error</span>
+                    A nova senha deve ter pelo menos 6 caracteres.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -239,8 +271,14 @@ export function PerfilPage() {
                   value={confirmarNovaSenha}
                   onChange={(e) => setConfirmarNovaSenha(e.target.value)}
                   placeholder="Repita a nova senha"
-                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  className={`block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border rounded-lg focus:ring-2 transition-all font-body-md text-on-surface ${senhasNaoConferem ? 'border-error focus:ring-error/20' : 'border-transparent focus:border-primary focus:ring-primary/20'}`}
                 />
+                {senhasNaoConferem && (
+                  <p className="text-error text-body-sm mt-1 flex items-center gap-1 font-medium">
+                    <span className="material-symbols-outlined text-[16px]">error</span>
+                    As senhas não coincidem.
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">

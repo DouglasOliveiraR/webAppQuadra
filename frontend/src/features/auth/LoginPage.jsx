@@ -45,8 +45,10 @@ export function LoginPage() {
         )}
         
         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-lg flex items-center px-4 py-3 focus-within:ring-2 focus-within:ring-green-500/50 focus-within:border-green-500 transition-all duration-200">
-          <span className="material-symbols-outlined text-gray-400 mr-3">phone_iphone</span>
+          <span className="material-symbols-outlined text-gray-400 mr-3" aria-hidden="true">phone_iphone</span>
+          <label htmlFor="telefone" className="sr-only">Telefone</label>
           <input 
+            id="telefone"
             type="tel"
             value={telefone}
             onChange={(e) => setTelefone(e.target.value)}
@@ -58,8 +60,10 @@ export function LoginPage() {
         </div>
         
         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-lg flex items-center px-4 py-3 focus-within:ring-2 focus-within:ring-green-500/50 focus-within:border-green-500 transition-all duration-200">
-          <span className="material-symbols-outlined text-gray-400 mr-3">lock</span>
+          <span className="material-symbols-outlined text-gray-400 mr-3" aria-hidden="true">lock</span>
+          <label htmlFor="senha" className="sr-only">Senha</label>
           <input 
+            id="senha"
             type={showPassword ? "text" : "password"}
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
@@ -71,9 +75,10 @@ export function LoginPage() {
           <button 
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="text-gray-400 hover:text-white transition-colors ml-2 focus:outline-none"
+            className="text-gray-400 hover:text-white transition-colors ml-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full p-1"
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
           >
-            <span className="material-symbols-outlined">
+            <span className="material-symbols-outlined" aria-hidden="true">
               {showPassword ? 'visibility' : 'visibility_off'}
             </span>
           </button>

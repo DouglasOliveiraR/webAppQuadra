@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import logging
 from api.db.database import engine
 from api.db.models import Base
 from core.config import settings
@@ -26,6 +28,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logging.exception("Erro não tratado")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Ocorreu um erro interno no servidor."},
+    )
 
 # Registra os Routers
 app.include_router(auth_router)

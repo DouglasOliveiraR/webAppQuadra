@@ -16,9 +16,9 @@ export function BottomNav() {
 
   const links = [
     { to: '/', icon: 'home', label: 'Home' },
-    { to: '/ranking', icon: 'social_leaderboard', label: 'Ranking' },
-    { to: '/votos', icon: 'thumbs_up_down', label: 'Votos' },
     { to: '/financeiro', icon: 'payments', label: 'Finanças' },
+    { to: '/votos', icon: 'how_to_vote', label: 'Votos' },
+    { to: '/perfil', icon: 'person', label: 'Perfil' },
   ];
 
   if (isAdmin) {
@@ -26,8 +26,8 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface dark:bg-surface-dim shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
-      <div className="flex justify-around items-center w-full px-2 py-3 pb-safe">
+    <nav className="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface dark:bg-surface-dim shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="flex justify-around items-center w-full max-w-screen-xl mx-auto px-2 py-3 pb-safe">
         {links.map(({ to, icon, label }) => (
           <NavLink
             key={to}

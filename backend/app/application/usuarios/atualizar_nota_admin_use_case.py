@@ -6,7 +6,7 @@ class AtualizarNotaAdminUseCase:
     def __init__(self, usuario_repo: UsuarioRepository):
         self.usuario_repo = usuario_repo
 
-    async def executar(self, usuario_id: int, nota: float) -> Usuario:
+    async def executar(self, usuario_id: int, nota: int) -> Usuario:
         if nota < 0 or nota > 10:
             raise RegraDeNegocioError("Nota deve estar entre 0 e 10.")
             

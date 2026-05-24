@@ -1,3 +1,4 @@
+import uuid
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -15,4 +16,9 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+
+# ID único gerado a cada inicialização do servidor.
+# Tokens JWT emitidos em sessões anteriores são invalidados automaticamente
+# pois carregam um session_id diferente do atual.
+SERVER_SESSION_ID: str = str(uuid.uuid4())
 

@@ -4,11 +4,13 @@ from api.schemas.presenca_schemas import PresencaUpdateRequest, PresencaResponse
 from api.schemas.voto_schemas import VotoRequest, VotoResponse
 from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
 from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
-from api.schemas.evento_schemas import EventoRequest, EventoResponse, ChurrascoRequest, SorteioRequest
+from api.schemas.evento_schemas import EventoRequest, EventoResponse, ChurrascoRequest, SorteioRequest, ChavePixRequest, MensalidadeRequest
 from application.eventos.use_cases import ObterEventoUseCase, CriarEventoUseCase, ListarEventosUseCase
 from application.eventos.iniciar_votacao_use_case import IniciarVotacaoUseCase
 from application.eventos.sorteio_use_case import SorteioUseCase
 from application.eventos.atualizar_churrasco_use_case import AtualizarChurrascoUseCase
+from application.eventos.atualizar_chave_pix_use_case import AtualizarChavePixUseCase
+from application.eventos.atualizar_mensalidade_use_case import AtualizarMensalidadeUseCase
 from application.eventos.cancelar_evento_use_case import CancelarEventoUseCase
 from domain.eventos.entities import Evento
 from domain.eventos.enums import StatusEvento
@@ -18,6 +20,8 @@ from api.v1.deps import (
     get_encerrar_votacao_use_case, get_obter_evento_use_case,
     get_criar_evento_use_case, get_iniciar_votacao_use_case,
     get_sorteio_use_case, get_atualizar_churrasco_use_case,
+    get_atualizar_chave_pix_use_case,
+    get_atualizar_mensalidade_use_case,
     get_cancelar_evento_use_case, get_listar_eventos_use_case
 )
 from domain.usuarios.entities import Usuario
@@ -39,7 +43,10 @@ async def criar_evento(
             hora_fim=payload.hora_fim,
             status_evento=StatusEvento.PRESENCA_ABERTA,
             flag_churrasco=payload.flag_churrasco,
-            valor_churrasco=payload.valor_churrasco
+            valor_churrasco=payload.valor_churrasco,
+            endereco=payload.endereco,
+            chave_pix=payload.chave_pix,
+            valor_mensalidade=payload.valor_mensalidade
         )
         return await use_case.executar(evento)
     except Exception as e:
@@ -65,6 +72,30 @@ async def atualizar_churrasco(
 ):
     try:
         return await use_case.executar(id, payload.flag_churrasco, payload.valor_churrasco)
+    except RegraDeNegocioError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
+
+@router.put("/{id}/chave-pix", response_model=EventoResponse)
+async def atualizar_chave_pix(
+    id: int,
+    payload: ChavePixRequest,
+    admin_user: Usuario = Depends(get_admin_user),
+    use_case: AtualizarChavePixUseCase = Depends(get_atualizar_chave_pix_use_case)
+):
+    try:
+        return await use_case.executar(id, payload.chave_pix)
+    except RegraDeNegocioError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
+
+@router.put("/{id}/mensalidade", response_model=EventoResponse)
+async def atualizar_mensalidade(
+    id: int,
+    payload: MensalidadeRequest,
+    admin_user: Usuario = Depends(get_admin_user),
+    use_case: AtualizarMensalidadeUseCase = Depends(get_atualizar_mensalidade_use_case)
+):
+    try:
+        return await use_case.executar(id, payload.valor_mensalidade)
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
 

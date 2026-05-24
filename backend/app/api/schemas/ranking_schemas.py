@@ -4,7 +4,7 @@ class RankingResponse(BaseModel):
     id: int
     nome: str
     pontos_ranking: int
-    nota_admin: float
+    nota_admin: int
     nota_galera_media: float
 
     class Config:

@@ -35,7 +35,7 @@ export function VotosPage() {
     setErrorAction('');
     setLoadingAction(`${categoria}-${candidato_id}`);
     try {
-      await api.post(`/eventos/1/votos`, { categoria, candidato_id });
+      await api.post(`/eventos/${evento.id}/votos`, { categoria, candidato_id });
       setVotosFeitos(prev => ({ ...prev, [categoria]: candidato_id }));
       await refetch();
       showToast('Voto computado com sucesso!');
@@ -53,7 +53,8 @@ export function VotosPage() {
       // API call to finalize voting could be added here if backend supports it.
       // Currently, force vote guard handles redirect based on user_ja_votou.
       // The individual votes are already saved.
-      showToast('Votos confirmados!');
+      showToast('Votos confirmados! Agora avalie a galera.');
+      window.location.href = '/avaliacao-galera';
   };
 
   const candidatos = evento?.presencas?.filter(p => p.checkin_validado && p.usuario_id !== currentUserId) || [];

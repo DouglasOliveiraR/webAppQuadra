@@ -11,8 +11,10 @@ const LoginPage = React.lazy(() => import('./features/auth/LoginPage').then(modu
 const HomePage = React.lazy(() => import('./features/home/HomePage').then(module => ({ default: module.HomePage })));
 const AdminPage = React.lazy(() => import('./features/admin/AdminPage').then(module => ({ default: module.AdminPage })));
 const VotosPage = React.lazy(() => import('./features/votos/VotosPage').then(module => ({ default: module.VotosPage })));
+const AvaliacaoGaleraPage = React.lazy(() => import('./features/votos/AvaliacaoGaleraPage').then(module => ({ default: module.AvaliacaoGaleraPage })));
 const RankingPage = React.lazy(() => import('./features/ranking/RankingPage').then(module => ({ default: module.RankingPage })));
 const FinanceiroPage = React.lazy(() => import('./features/financeiro/FinanceiroPage').then(module => ({ default: module.FinanceiroPage })));
+const PerfilPage = React.lazy(() => import('./features/perfil/PerfilPage').then(module => ({ default: module.PerfilPage })));
 
 import { ForceVoteGuard } from './hooks/useForceVote';
 
@@ -66,8 +68,10 @@ export default function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/votos" element={<VotosPage />} />
+                <Route path="/avaliacao-galera" element={<AvaliacaoGaleraPage />} />
                 <Route path="/ranking" element={<RankingPage />} />
                 <Route path="/financeiro" element={<FinanceiroPage />} />
+                <Route path="/perfil" element={<PerfilPage />} />
               </Route>
             </Route>
           </Routes>

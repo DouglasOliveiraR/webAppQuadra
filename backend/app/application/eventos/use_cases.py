@@ -68,6 +68,9 @@ class ObterEventoUseCase:
             "status_evento": evento.status_evento.value,
             "flag_churrasco": evento.flag_churrasco,
             "valor_churrasco": evento.valor_churrasco,
+            "endereco": evento.endereco,
+            "chave_pix": evento.chave_pix,
+            "valor_mensalidade": evento.valor_mensalidade,
             "usuario_ja_votou": usuario_ja_votou,
             "presencas": presencas_detalhadas
         }

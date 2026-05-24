@@ -1,0 +1,268 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import { showToast } from '../../components/ui/Toast';
+
+export function PerfilPage() {
+  const navigate = useNavigate();
+  const [meusDados, setMeusDados] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // States para o modal de alterar senha
+  const [showSenhaModal, setShowSenhaModal] = useState(false);
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
+  const [loadingSenha, setLoadingSenha] = useState(false);
+
+  // Extract info from token
+  const token = localStorage.getItem('token');
+  let currentUserId = null;
+  let nomeBase = 'Jogador';
+  let perfilTipo = 'AVULSO';
+
+  if (token) {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payloadBase64));
+      currentUserId = parseInt(decodedPayload.sub);
+      nomeBase = decodedPayload.nome || 'Jogador';
+      perfilTipo = decodedPayload.perfil || 'AVULSO';
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        // Fetch ranking to get points and stats as a workaround for MVP
+        const { data } = await api.get('/ranking');
+        const eu = data.find(u => u.id === currentUserId);
+        if (eu) {
+          setMeusDados(eu);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar meus dados', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMe();
+  }, [currentUserId]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+    showToast('Logout realizado com sucesso', 'success');
+  };
+
+  const handleAlterarSenha = async (e) => {
+    e.preventDefault();
+    if (!senhaAtual.trim() || !novaSenha.trim() || !confirmarNovaSenha.trim()) {
+      showToast('Todos os campos são obrigatórios.', 'error');
+      return;
+    }
+    if (novaSenha !== confirmarNovaSenha) {
+      showToast('A nova senha e a confirmação não conferem.', 'error');
+      return;
+    }
+    if (novaSenha.length < 6) {
+      showToast('A nova senha deve ter pelo menos 6 caracteres.', 'error');
+      return;
+    }
+
+    setLoadingSenha(true);
+    try {
+      await api.put('/usuarios/me/senha', {
+        senha_atual: senhaAtual,
+        nova_senha: novaSenha
+      });
+      showToast('Senha alterada com sucesso!');
+      setShowSenhaModal(false);
+      setSenhaAtual('');
+      setNovaSenha('');
+      setConfirmarNovaSenha('');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao alterar senha. Verifique se a senha atual está correta.';
+      showToast(msg, 'error');
+    } finally {
+      setLoadingSenha(false);
+    }
+  };
+
+  const isMensalista = perfilTipo === 'MENSALISTA' || perfilTipo === 'ADMIN';
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full pb-8">
+      {/* Header */}
+      <header className="flex items-center justify-center py-4 relative mb-6">
+        <h2 className="font-headline-md text-headline-md text-primary font-bold text-[20px]">Meu Perfil</h2>
+        <button className="absolute right-0 text-primary p-2">
+          <span className="material-symbols-outlined">notifications</span>
+        </button>
+      </header>
+
+      {/* Avatar & Info */}
+      <section className="flex flex-col items-center mb-8">
+        <div className="relative mb-4">
+          <div className="w-24 h-24 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-4xl font-bold border-4 border-surface shadow-sm overflow-hidden">
+            {nomeBase.charAt(0)}
+          </div>
+          <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-md border-2 border-surface hover:bg-primary/90 transition-colors">
+            <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+          </button>
+        </div>
+        
+        <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">{nomeBase}</h1>
+        
+        <div className={`px-3 py-1 rounded-full flex items-center gap-1 font-label-bold text-label-bold ${isMensalista ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined text-[14px]">verified</span>
+          {isMensalista ? 'Mensalista' : 'Avulso'}
+        </div>
+      </section>
+
+      {/* Trophy Room */}
+      <section className="mb-8">
+        <h3 className="font-headline-md text-headline-md text-on-surface mb-4">Minha Sala de Troféus</h3>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary-container flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">star</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Bola Cheia</span>
+          </div>
+
+          <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">warning</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">O Bagre</span>
+          </div>
+
+          <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-tertiary/20 text-tertiary flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">shield</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Paredão</span>
+          </div>
+
+          <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">emoji_events</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1 text-primary">{meusDados?.pontos || 0}</span>
+            <span className="font-body-sm text-body-sm text-primary">Total de Pontos</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Actions */}
+      <section className="flex flex-col gap-3">
+        <button 
+          onClick={() => setShowSenhaModal(true)}
+          className="flex items-center justify-between glass-panel rounded-xl p-4 shadow-ambient-1 hover:bg-surface-container-low transition-colors text-left w-full"
+        >
+          <div className="flex items-center gap-3 text-on-surface">
+            <span className="material-symbols-outlined">lock</span>
+            <span className="font-body-md text-body-md font-medium">Trocar Minha Senha</span>
+          </div>
+          <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+        </button>
+
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 bg-error/10 border border-error/20 text-error rounded-xl p-4 shadow-ambient-1 hover:bg-error/20 transition-colors w-full text-left"
+        >
+          <span className="material-symbols-outlined">logout</span>
+          <span className="font-body-md text-body-md font-medium">Sair do Aplicativo</span>
+        </button>
+      </section>
+
+      {/* Modal de Alterar Senha */}
+      {showSenhaModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-surface dark:bg-surface-dim rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-outline-variant/30 animate-scale-up space-y-4">
+            <div className="flex justify-between items-center border-b border-outline-variant/20 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[24px] text-primary">lock_reset</span>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Trocar Senha</h3>
+              </div>
+              <button 
+                onClick={() => setShowSenhaModal(false)}
+                className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleAlterarSenha} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Senha Atual</label>
+                <input 
+                  type="password" 
+                  value={senhaAtual}
+                  onChange={(e) => setSenhaAtual(e.target.value)}
+                  placeholder="Sua senha atual"
+                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  autoFocus
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Nova Senha</label>
+                <input 
+                  type="password" 
+                  value={novaSenha}
+                  onChange={(e) => setNovaSenha(e.target.value)}
+                  placeholder="No mínimo 6 caracteres"
+                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Confirmar Nova Senha</label>
+                <input 
+                  type="password" 
+                  value={confirmarNovaSenha}
+                  onChange={(e) => setConfirmarNovaSenha(e.target.value)}
+                  placeholder="Repita a nova senha"
+                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => setShowSenhaModal(false)}
+                  className="flex-1 py-3 border-2 border-outline-variant text-on-surface rounded-xl font-label-bold text-label-bold hover:bg-surface-variant/50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  disabled={loadingSenha}
+                  className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-bold text-label-bold hover:bg-primary/90 transition-colors flex justify-center items-center gap-2"
+                >
+                  {loadingSenha ? 'Salvando...' : 'Confirmar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

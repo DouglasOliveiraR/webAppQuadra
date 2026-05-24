@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import jwt
 
 from api.db.database import get_db
-from core.config import settings
+from core.config import settings, SERVER_SESSION_ID
 from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from api.db.repositories.evento_repo import SQLAlchemyEventoRepository
 from api.db.repositories.presenca_repo import SQLAlchemyPresencaRepository
@@ -20,8 +20,14 @@ from application.eventos.use_cases import ObterEventoUseCase, CriarEventoUseCase
 from application.eventos.iniciar_votacao_use_case import IniciarVotacaoUseCase
 from application.eventos.sorteio_use_case import SorteioUseCase
 from application.eventos.atualizar_churrasco_use_case import AtualizarChurrascoUseCase
+from application.eventos.atualizar_chave_pix_use_case import AtualizarChavePixUseCase
+from application.eventos.atualizar_mensalidade_use_case import AtualizarMensalidadeUseCase
 from application.eventos.cancelar_evento_use_case import CancelarEventoUseCase
 from application.usuarios.atualizar_nota_admin_use_case import AtualizarNotaAdminUseCase
+from application.usuarios.listar_usuarios_use_case import ListarUsuariosUseCase
+from application.usuarios.criar_usuario_use_case import CriarUsuarioUseCase
+from application.usuarios.atualizar_usuario_use_case import AtualizarUsuarioUseCase
+from application.usuarios.alterar_senha_use_case import AlterarSenhaUseCase
 from domain.usuarios.entities import Usuario
 
 security = HTTPBearer()
@@ -33,13 +39,16 @@ async def get_current_user(
     try:
         payload = jwt.decode(credentials.credentials, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         usuario_id: str = payload.get("sub")
+        token_sid: str = payload.get("sid")
         if usuario_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+        # Rejeita tokens emitidos em sessões anteriores do servidor
+        if token_sid != SERVER_SESSION_ID:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sessão expirada. Faça login novamente.")
     except jwt.PyJWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         
     repo = SQLAlchemyUsuarioRepository(db)
-    # Impacto: remove o uso de asyncio.run que bloqueava o event loop do FastAPI, melhorando a performance
     usuario = await repo.buscar_por_id(int(usuario_id))
     if usuario is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
@@ -131,6 +140,14 @@ def get_atualizar_churrasco_use_case(db: Session = Depends(get_db)) -> Atualizar
     evento_repo = SQLAlchemyEventoRepository(db)
     return AtualizarChurrascoUseCase(evento_repo)
 
+def get_atualizar_chave_pix_use_case(db: Session = Depends(get_db)) -> AtualizarChavePixUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return AtualizarChavePixUseCase(evento_repo)
+
+def get_atualizar_mensalidade_use_case(db: Session = Depends(get_db)) -> AtualizarMensalidadeUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return AtualizarMensalidadeUseCase(evento_repo)
+
 def get_cancelar_evento_use_case(db: Session = Depends(get_db)) -> CancelarEventoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
     return CancelarEventoUseCase(evento_repo)
@@ -138,3 +155,19 @@ def get_cancelar_evento_use_case(db: Session = Depends(get_db)) -> CancelarEvent
 def get_atualizar_nota_admin_use_case(db: Session = Depends(get_db)) -> AtualizarNotaAdminUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
     return AtualizarNotaAdminUseCase(usuario_repo)
+
+def get_listar_usuarios_use_case(db: Session = Depends(get_db)) -> ListarUsuariosUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return ListarUsuariosUseCase(usuario_repo)
+
+def get_criar_usuario_use_case(db: Session = Depends(get_db)) -> CriarUsuarioUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return CriarUsuarioUseCase(usuario_repo)
+
+def get_atualizar_usuario_use_case(db: Session = Depends(get_db)) -> AtualizarUsuarioUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return AtualizarUsuarioUseCase(usuario_repo)
+
+def get_alterar_senha_use_case(db: Session = Depends(get_db)) -> AlterarSenhaUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return AlterarSenhaUseCase(usuario_repo)

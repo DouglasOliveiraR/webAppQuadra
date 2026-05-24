@@ -20,6 +20,6 @@ class LoginUseCase:
         if usuario.status != StatusUsuario.ATIVO:
             raise CredenciaisInvalidasError("Usuário inativo")
             
-        token_data = {"sub": str(usuario.id), "perfil": usuario.perfil.value}
+        token_data = {"sub": str(usuario.id), "perfil": usuario.perfil.value, "nome": usuario.nome}
         expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         return create_access_token(token_data, expires_delta=expires)

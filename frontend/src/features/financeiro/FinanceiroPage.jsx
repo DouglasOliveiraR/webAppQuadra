@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useEvento } from '../../hooks/useEvento';
+import { showToast } from '../../components/ui/Toast';
 
 export function FinanceiroPage() {
+  const { evento } = useEvento(1);
   const [transacoes, setTransacoes] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,6 +26,30 @@ export function FinanceiroPage() {
   const saldo = transacoes?.reduce((acc, curr) => 
     curr.tipo === 'ENTRADA' ? acc + curr.valor : acc - curr.valor, 0
   ) || 0;
+
+  const formatarMesAno = (dataStr) => {
+    if (!dataStr) return 'Mensalidade';
+    try {
+      const data = new Date(dataStr + 'T00:00:00');
+      return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+        .replace(/^\w/, (c) => c.toUpperCase());
+    } catch (e) {
+      return 'Mensalidade';
+    }
+  };
+
+  const valorMensalidade = evento?.valor_mensalidade !== undefined && evento?.valor_mensalidade !== null
+    ? evento.valor_mensalidade
+    : 60.00;
+
+  const handleCopiarPix = () => {
+    if (evento?.chave_pix) {
+      navigator.clipboard.writeText(evento.chave_pix);
+      showToast('Chave Pix copiada com sucesso!');
+    } else {
+      showToast('Nenhuma chave Pix cadastrada pelo Admin.', 'error');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -55,7 +82,7 @@ export function FinanceiroPage() {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-1">Mensalidade</h3>
-            <p className="font-body-md text-body-md text-on-surface font-semibold">Maio/2026</p>
+            <p className="font-body-md text-body-md text-on-surface font-semibold">{formatarMesAno(evento?.data_jogo)}</p>
           </div>
           <div className="bg-error-container text-on-error-container px-3 py-1.5 rounded-full flex items-center gap-1">
             <span className="material-symbols-outlined text-[16px]">warning</span>
@@ -64,9 +91,12 @@ export function FinanceiroPage() {
         </div>
         <div className="flex items-end gap-2 mt-2">
           <span className="font-body-sm text-body-sm text-on-surface-variant">Valor:</span>
-          <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ 60,00</span>
+          <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {valorMensalidade.toFixed(2).replace('.', ',')}</span>
         </div>
-        <button className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all">
+        <button 
+          onClick={handleCopiarPix}
+          className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all"
+        >
           <span className="material-symbols-outlined text-[20px]">content_copy</span>
           Copiar Chave Pix do Admin
         </button>

@@ -18,7 +18,10 @@ class SQLAlchemyEventoRepository(EventoRepository):
             hora_fim=model.hora_fim,
             status_evento=model.status_evento,
             flag_churrasco=model.flag_churrasco,
-            valor_churrasco=model.valor_churrasco
+            valor_churrasco=model.valor_churrasco,
+            endereco=model.endereco,
+            chave_pix=model.chave_pix,
+            valor_mensalidade=model.valor_mensalidade
         )
 
     def _to_model(self, entity: Evento) -> EventoModel:
@@ -29,7 +32,10 @@ class SQLAlchemyEventoRepository(EventoRepository):
             hora_fim=entity.hora_fim,
             status_evento=entity.status_evento,
             flag_churrasco=entity.flag_churrasco,
-            valor_churrasco=entity.valor_churrasco
+            valor_churrasco=entity.valor_churrasco,
+            endereco=entity.endereco,
+            chave_pix=entity.chave_pix,
+            valor_mensalidade=entity.valor_mensalidade
         )
 
     async def buscar_por_id(self, evento_id: int) -> Optional[Evento]:

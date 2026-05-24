@@ -12,3 +12,6 @@ class Evento:
     status_evento: StatusEvento
     flag_churrasco: bool
     valor_churrasco: float
+    endereco: Optional[str] = None
+    chave_pix: Optional[str] = None
+    valor_mensalidade: Optional[float] = 60.0

@@ -21,7 +21,7 @@ class UsuarioModel(Base):
     senha_hash: Mapped[str] = mapped_column(String)
     perfil: Mapped[PerfilUsuario] = mapped_column(SQLEnum(PerfilUsuario))
     status: Mapped[StatusUsuario] = mapped_column(SQLEnum(StatusUsuario))
-    nota_admin: Mapped[float] = mapped_column(Float)
+    nota_admin: Mapped[int] = mapped_column(Integer)
     nota_galera_media: Mapped[float] = mapped_column(Float)
     pontos_ranking: Mapped[int] = mapped_column(Integer)
 
@@ -45,6 +45,9 @@ class EventoModel(Base):
     status_evento: Mapped[StatusEvento] = mapped_column(SQLEnum(StatusEvento))
     flag_churrasco: Mapped[bool] = mapped_column(Boolean)
     valor_churrasco: Mapped[float] = mapped_column(Float)
+    endereco: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    chave_pix: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    valor_mensalidade: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=60.0)
 
     # Relacionamentos bidirecionais
     presencas: Mapped[List["PresencaModel"]] = relationship(back_populates="evento")

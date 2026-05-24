@@ -18,8 +18,19 @@ export function ForceVoteGuard({ children }) {
     );
   }
 
+  let isAdmin = false;
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      isAdmin = payload.perfil === 'ADMIN';
+    }
+  } catch (e) {
+    console.error('Erro ao ler token no ForceVoteGuard', e);
+  }
+
   // Verifica se o evento está em votação aberta e o usuário logado não votou ainda
-  const forceVoteAtivo = evento?.status_evento === 'VOTACAO_ABERTA' && evento?.usuario_ja_votou === false;
+  const forceVoteAtivo = !isAdmin && evento?.status_evento === 'VOTACAO_ABERTA' && evento?.usuario_ja_votou === false;
 
   if (forceVoteAtivo && location.pathname !== '/votos') {
     // Redireciona o usuário para a página de votos

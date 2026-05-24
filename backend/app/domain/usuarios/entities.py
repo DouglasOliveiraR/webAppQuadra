@@ -10,6 +10,6 @@ class Usuario:
     senha_hash: str
     perfil: PerfilUsuario
     status: StatusUsuario
-    nota_admin: float
+    nota_admin: int
     nota_galera_media: float
     pontos_ranking: int

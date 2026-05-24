@@ -40,6 +40,9 @@ export function HomePage() {
     } catch (e) { }
   }
 
+  const nomeExibicao = meusDados?.nome || nomeBase;
+  const nenhumEventoAtivo = !evento || evento?.status_evento === 'ENCERRADO' || evento?.status_evento === 'CANCELADO';
+
   const minhaPresenca = evento?.presencas?.find(p => p.usuario_id === currentUserId);
   const statusPresenca = minhaPresenca?.status_jogo || 'PENDENTE';
   const vaiChurrasco = minhaPresenca?.vai_churrasco || false;
@@ -92,12 +95,12 @@ export function HomePage() {
     <div className="grid grid-cols-4 md:grid-cols-12 gap-gutter w-full">
       {/* Welcome & Summary Bento Grid */}
       <section className="col-span-4 md:col-span-12 mb-6">
-        <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-4">E aí, {nomeBase.split(' ')[0]}! ⚽</h2>
+        <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-4">E aí, {nomeExibicao.split(' ')[0]}! ⚽</h2>
         <div className="grid grid-cols-3 gap-2 md:gap-4">
           <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-3 shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-200 flex flex-col items-center justify-center gap-1">
             <span className="material-symbols-outlined text-primary icon-fill text-[24px]">emoji_events</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">Pontos</span>
-            <span className="font-headline-md text-headline-md text-on-surface font-bold">{meusDados?.pontos || 0}</span>
+            <span className="font-headline-md text-headline-md text-on-surface font-bold">{meusDados?.pontos_ranking || 0}</span>
           </div>
           <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-3 shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-200 flex flex-col items-center justify-center gap-1">
             <span className="material-symbols-outlined text-secondary-container icon-fill text-[24px]">star</span>
@@ -121,7 +124,7 @@ export function HomePage() {
       {/* Next Match Card */}
       <section className="col-span-4 md:col-span-8 mb-6">
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 md:p-6 shadow-ambient-1 relative overflow-hidden">
-          {evento && (
+          {!nenhumEventoAtivo && (
             <div className="absolute top-0 right-0 bg-primary-container text-on-primary-container px-3 py-1 rounded-bl-xl font-label-bold text-label-bold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
               {evento.status_evento === 'PRESENCA_ABERTA' ? 'Lista Aberta' : 'Votação Aberta'}
@@ -129,16 +132,36 @@ export function HomePage() {
           )}
           <h3 className="font-headline-md text-headline-md mb-2 mt-4 md:mt-0">Próxima Pelada</h3>
           
-          {evento ? (
+          {!nenhumEventoAtivo ? (
             <>
               <div className="flex flex-col gap-2 mb-6">
                 <div className="flex items-center gap-2 text-on-surface-variant">
                   <span className="material-symbols-outlined text-[20px]">calendar_today</span>
                   <span className="font-body-md text-body-md">{formatarData(evento.data_jogo, evento.hora_inicio)}</span>
                 </div>
-                <div className="flex items-center gap-2 text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[20px]">stadium</span>
-                  <span className="font-body-md text-body-md">Arena Oficial</span>
+                <div className="flex items-center justify-between gap-2 text-on-surface-variant">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[20px]">stadium</span>
+                    <div className="flex flex-col">
+                      <span className="font-body-md text-body-md text-on-surface">Arena Oficial</span>
+                      {evento.endereco && (
+                        <span className="font-body-sm text-body-sm truncate max-w-[150px] md:max-w-full text-tertiary" title={evento.endereco}>
+                          {evento.endereco}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {evento.endereco && (
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evento.endereco)}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-primary hover:text-primary/80 font-label-bold text-[12px] bg-primary/10 px-3 py-2 rounded-lg transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">location_on</span>
+                      GPS
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -217,7 +240,7 @@ export function HomePage() {
       <div className="col-span-4 md:col-span-4 flex flex-col gap-6">
         
         {/* Barbecue Card */}
-        {evento?.flag_churrasco && (
+        {!nenhumEventoAtivo && evento?.flag_churrasco && (
           <section>
             <div className="rounded-xl p-4 md:p-6 shadow-ambient-1 relative overflow-hidden bg-gradient-to-br from-secondary-container to-barbecue-fire text-on-primary" style={{boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)"}}>
               <div className="flex items-center gap-2 mb-2">
@@ -252,7 +275,7 @@ export function HomePage() {
         )}
 
         {/* Current List Overview */}
-        {evento && (
+        {!nenhumEventoAtivo && (
           <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 shadow-ambient-1">
             <div className="flex justify-between items-center mb-3 border-b border-outline-variant/20 pb-2">
               <h3 className="font-headline-md text-headline-md">Lista Atual</h3>

@@ -160,6 +160,34 @@ export function useEvento(eventoId = 1) {
     }
   };
 
+  const atualizarChavePix = async (chave_pix) => {
+    try {
+      setActionLoading(true);
+      await api.put(`/eventos/${currentEventoId}/chave-pix`, { chave_pix });
+      await fetchEvento();
+      showToast('Chave Pix atualizada com sucesso!');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao atualizar chave Pix.';
+      showToast(msg, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const atualizarMensalidade = async (valor_mensalidade) => {
+    try {
+      setActionLoading(true);
+      await api.put(`/eventos/${currentEventoId}/mensalidade`, { valor_mensalidade });
+      await fetchEvento();
+      showToast('Mensalidade configurada com sucesso!');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao configurar mensalidade.';
+      showToast(msg, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return { 
     evento, 
     loading, 
@@ -170,6 +198,8 @@ export function useEvento(eventoId = 1) {
     iniciarVotacao,
     encerrarVotacao,
     atualizarChurrasco,
+    atualizarChavePix,
+    atualizarMensalidade,
     cancelarEvento,
     sortearTimes,
     refetch: fetchEvento 

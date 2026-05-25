@@ -12,3 +12,5 @@ __pycache__/
 .pytest_cache/
 backend/pelada.db
 iniciar_servidor_internet.bat
+backend/app/static/fotos/*
+!backend/app/static/fotos/.gitkeep

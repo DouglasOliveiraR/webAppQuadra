@@ -35,14 +35,14 @@ export function BottomNav() {
             to={to}
             aria-label={label}
             className={({ isActive }) => cn(
-              "flex flex-col items-center justify-center rounded-full px-2 py-1 transition-colors active:scale-90 duration-150 ease-in-out",
+              "flex flex-col items-center justify-center rounded-full px-2 py-1 transition-colors active:scale-90 duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               isActive ? "bg-primary-container text-on-primary-container px-4" : "text-on-surface-variant hover:bg-surface-variant/50"
             )}
           >
             {({ isActive }) => (
               <>
-                <span className={cn("material-symbols-outlined", isActive && "icon-fill")}>{icon}</span>
-                <span className="font-label-bold text-label-bold mt-1 text-[10px] min-[360px]:text-[12px]">{label}</span>
+                <span className={cn("material-symbols-outlined", isActive && "icon-fill")} aria-hidden="true">{icon}</span>
+                <span className="font-label-bold text-label-bold mt-1 text-[10px] min-[360px]:text-[12px] sr-only min-[360px]:not-sr-only" aria-hidden="true">{label}</span>
               </>
             )}
           </NavLink>

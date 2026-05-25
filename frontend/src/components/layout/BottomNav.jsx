@@ -40,8 +40,11 @@ export function BottomNav() {
           >
             {({ isActive }) => (
               <>
-                <span className={cn("material-symbols-outlined", isActive && "icon-fill")}>{icon}</span>
-                <span className="font-label-bold text-label-bold mt-1 text-[10px] min-[360px]:text-[12px]">{label}</span>
+                <span className={cn("material-symbols-outlined", isActive && "icon-fill")} aria-hidden="true">{icon}</span>
+                <span className={cn(
+                  "font-label-bold text-label-bold mt-1 text-[10px] min-[360px]:text-[12px]",
+                  !isActive && "sr-only min-[360px]:not-sr-only"
+                )}>{label}</span>
               </>
             )}
           </NavLink>

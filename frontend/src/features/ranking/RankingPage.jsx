@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api, { API_URL } from '../../services/api';
+import api, { API_URL, getFotoUrl } from '../../services/api';
 
 function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
   return (
@@ -24,7 +24,7 @@ function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-[11px] font-bold overflow-hidden shrink-0 border border-outline-variant/30">
                   {v.foto_url ? (
-                    <img src={`${API_URL}${v.foto_url}`} alt={v.nome} className="w-full h-full object-cover" />
+                    <img src={getFotoUrl(v.foto_url)} alt={v.nome} className="w-full h-full object-cover" />
                   ) : (
                     v.nome.charAt(0)
                   )}
@@ -184,7 +184,7 @@ export function RankingPage() {
                   <div className="flex flex-col items-center w-1/3 relative z-10 transform translate-y-4">
                     <div className="w-16 h-16 rounded-full border-4 border-[#C0C0C0] shadow-md overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[1].foto_url ? (
-                        <img src={`${API_URL}${top3[1].foto_url}`} alt={top3[1].nome} className="w-full h-full object-cover" />
+                        <img src={getFotoUrl(top3[1].foto_url)} alt={top3[1].nome} className="w-full h-full object-cover" />
                       ) : (
                         <span className="material-symbols-outlined text-[32px]">person</span>
                       )}
@@ -207,7 +207,7 @@ export function RankingPage() {
                     </div>
                     <div className="w-20 h-20 rounded-full border-4 border-[#FFD700] shadow-lg overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[0].foto_url ? (
-                        <img src={`${API_URL}${top3[0].foto_url}`} alt={top3[0].nome} className="w-full h-full object-cover" />
+                        <img src={getFotoUrl(top3[0].foto_url)} alt={top3[0].nome} className="w-full h-full object-cover" />
                       ) : (
                         <span className="material-symbols-outlined text-[40px]">person</span>
                       )}
@@ -227,7 +227,7 @@ export function RankingPage() {
                   <div className="flex flex-col items-center w-1/3 relative z-10 transform translate-y-6">
                     <div className="w-14 h-14 rounded-full border-4 border-[#CD7F32] shadow-md overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[2].foto_url ? (
-                        <img src={`${API_URL}${top3[2].foto_url}`} alt={top3[2].nome} className="w-full h-full object-cover" />
+                        <img src={getFotoUrl(top3[2].foto_url)} alt={top3[2].nome} className="w-full h-full object-cover" />
                       ) : (
                         <span className="material-symbols-outlined text-[28px]">person</span>
                       )}
@@ -270,7 +270,7 @@ export function RankingPage() {
                   <div className="flex-1 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold overflow-hidden">
                       {jogador.foto_url ? (
-                        <img src={`${API_URL}${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
+                        <img src={getFotoUrl(jogador.foto_url)} alt={jogador.nome} className="w-full h-full object-cover" />
                       ) : (
                         jogador.nome.charAt(0)
                       )}

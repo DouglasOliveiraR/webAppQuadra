@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { API_URL } from '../../services/api';
+import api, { API_URL, getFotoUrl } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from './cropImage';
@@ -148,7 +148,7 @@ export function PerfilPage() {
         }
       });
       showToast('Foto de perfil atualizada com sucesso!');
-      
+      localStorage.setItem('foto_timestamp', Date.now().toString());
       const updatedUser = response.data;
       setMeusDados(prev => prev ? { ...prev, foto_url: updatedUser.foto_url } : null);
       
@@ -196,7 +196,7 @@ export function PerfilPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
             ) : meusDados?.foto_url ? (
               <img 
-                src={`${API_URL}${meusDados.foto_url}`} 
+                src={getFotoUrl(meusDados.foto_url)} 
                 alt={nomeBase} 
                 className="w-full h-full object-cover animate-fade-in" 
               />

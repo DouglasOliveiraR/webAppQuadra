@@ -46,5 +46,15 @@ api.interceptors.response.use(
   }
 );
 
+export const getFotoUrl = (url) => {
+  if (!url) return '';
+  let timestamp = localStorage.getItem('foto_timestamp');
+  if (!timestamp) {
+    timestamp = Date.now().toString();
+    localStorage.setItem('foto_timestamp', timestamp);
+  }
+  return `${API_URL}${url}?t=${timestamp}`;
+};
+
 export default api;
 

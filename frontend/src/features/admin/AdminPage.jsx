@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEvento } from '../../hooks/useEvento';
-import api, { API_URL } from '../../services/api';
+import api, { API_URL, getFotoUrl } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 
 import { ElencoTab } from './ElencoTab';
@@ -533,7 +533,7 @@ export function AdminPage() {
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold shrink-0 overflow-hidden">
                             {jogador.usuario_foto_url ? (
-                              <img src={`${API_URL}${jogador.usuario_foto_url}`} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
+                              <img src={getFotoUrl(jogador.usuario_foto_url)} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
                             ) : (
                               jogador.usuario_nome.charAt(0)
                             )}

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 from domain.usuarios.enums import PerfilUsuario, StatusUsuario
 
 class NotaAdminRequest(BaseModel):
@@ -31,6 +32,9 @@ class UsuarioResponse(BaseModel):
     nota_admin: int
     nota_galera_media: float
     pontos_ranking: int
+    foto_url: Optional[str] = None
+    criado_em: Optional[datetime] = None
+    atualizado_em: Optional[datetime] = None
 
     class Config:
         from_attributes = True

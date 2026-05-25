@@ -210,3 +210,51 @@ def test_registrar_voto_falha_voto_duplicado():
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "Você já votou para a categoria BOLA_CHEIA neste evento"
+
+
+def test_registrar_checkin_multiplos_idempotente():
+    db = TestingSessionLocal()
+    # Pega pontos iniciais do usuário 2
+    usr2 = db.query(UsuarioModel).filter(UsuarioModel.id == 2).first()
+    pontos_iniciais = usr2.pontos_ranking
+    
+    # 1. Primeiro check-in: Chegou = True
+    response = client.post("/api/eventos/1/checkin/2", 
+        json={"chegou": True, "falta_justificada": False},
+        headers={"Authorization": f"Bearer {pytest.admin_token}"}
+    )
+    assert response.status_code == 200
+    db.refresh(usr2)
+    pontos_apos_checkin = usr2.pontos_ranking
+    
+    # Se ele já estava com checkin antes, os pontos mantêm, se não, sobe 1
+    # Vamos verificar que fazer de novo o mesmo check-in não altera os pontos
+    response = client.post("/api/eventos/1/checkin/2", 
+        json={"chegou": True, "falta_justificada": False},
+        headers={"Authorization": f"Bearer {pytest.admin_token}"}
+    )
+    assert response.status_code == 200
+    db.refresh(usr2)
+    assert usr2.pontos_ranking == pontos_apos_checkin  # Não deve somar repetido!
+    
+    # 2. Check-in: Marcar falta sem justificativa
+    response = client.post("/api/eventos/1/checkin/2", 
+        json={"chegou": False, "falta_justificada": False},
+        headers={"Authorization": f"Bearer {pytest.admin_token}"}
+    )
+    assert response.status_code == 200
+    db.refresh(usr2)
+    pontos_apos_falta = usr2.pontos_ranking
+    
+    # De Chegou=True para Chegou=False com falta injustificada: perde presença (-1) e ganha penalidade (-1), totalizando -2
+    assert pontos_apos_falta == pontos_apos_checkin - 2
+    
+    # Refazer a mesma marcação de falta não deve subtrair novamente
+    response = client.post("/api/eventos/1/checkin/2", 
+        json={"chegou": False, "falta_justificada": False},
+        headers={"Authorization": f"Bearer {pytest.admin_token}"}
+    )
+    assert response.status_code == 200
+    db.refresh(usr2)
+    assert usr2.pontos_ranking == pontos_apos_falta  # Mantém
+    db.close()

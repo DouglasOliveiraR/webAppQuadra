@@ -12,6 +12,10 @@ class FinanceiroRepository(ABC):
         pass
 
     @abstractmethod
+    async def listar_todos(self) -> List[Financeiro]:
+        pass
+
+    @abstractmethod
     async def salvar(self, financeiro: Financeiro) -> Financeiro:
         pass
 

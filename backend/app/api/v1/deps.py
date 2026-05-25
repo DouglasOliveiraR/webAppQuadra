@@ -16,18 +16,23 @@ from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUse
 from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
 from application.ranking.use_cases import ListarRankingUseCase
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
+from application.financeiro.listar_todos_financeiro_use_case import ListarTodosFinanceiroUseCase
 from application.eventos.use_cases import ObterEventoUseCase, CriarEventoUseCase, ListarEventosUseCase
 from application.eventos.iniciar_votacao_use_case import IniciarVotacaoUseCase
 from application.eventos.sorteio_use_case import SorteioUseCase
 from application.eventos.atualizar_churrasco_use_case import AtualizarChurrascoUseCase
 from application.eventos.atualizar_chave_pix_use_case import AtualizarChavePixUseCase
 from application.eventos.atualizar_mensalidade_use_case import AtualizarMensalidadeUseCase
+from application.eventos.atualizar_custo_quadra_use_case import AtualizarCustoQuadraUseCase
 from application.eventos.cancelar_evento_use_case import CancelarEventoUseCase
+from application.eventos.obter_ultimo_resultado_use_case import ObterUltimoResultadoUseCase
 from application.usuarios.atualizar_nota_admin_use_case import AtualizarNotaAdminUseCase
 from application.usuarios.listar_usuarios_use_case import ListarUsuariosUseCase
 from application.usuarios.criar_usuario_use_case import CriarUsuarioUseCase
 from application.usuarios.atualizar_usuario_use_case import AtualizarUsuarioUseCase
 from application.usuarios.alterar_senha_use_case import AlterarSenhaUseCase
+from application.usuarios.atualizar_foto_perfil_use_case import AtualizarFotoPerfilUseCase
+from application.usuarios.deletar_usuario_use_case import DeletarUsuarioUseCase
 from domain.usuarios.entities import Usuario
 
 security = HTTPBearer()
@@ -97,7 +102,8 @@ def get_encerrar_votacao_use_case(db: Session = Depends(get_db)):
 def get_registrar_voto_use_case(db: Session = Depends(get_db)):
     voto_repo = SQLAlchemyVotoRepository(db)
     evento_repo = SQLAlchemyEventoRepository(db)
-    return RegistrarVotoUseCase(voto_repo, evento_repo)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return RegistrarVotoUseCase(voto_repo, evento_repo, usuario_repo)
 
 def get_listar_ranking_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyUsuarioRepository(db)
@@ -105,7 +111,15 @@ def get_listar_ranking_use_case(db: Session = Depends(get_db)):
 
 def get_listar_financeiro_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyFinanceiroRepository(db)
-    return ListarFinanceiroUseCase(repo)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return ListarFinanceiroUseCase(repo, usuario_repo, evento_repo)
+
+def get_listar_todos_financeiro_use_case(db: Session = Depends(get_db)) -> ListarTodosFinanceiroUseCase:
+    financeiro_repo = SQLAlchemyFinanceiroRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return ListarTodosFinanceiroUseCase(financeiro_repo, usuario_repo, evento_repo)
 
 def get_baixar_pagamento_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyFinanceiroRepository(db)
@@ -120,7 +134,8 @@ def get_obter_evento_use_case(db: Session = Depends(get_db)) -> ObterEventoUseCa
 
 def get_criar_evento_use_case(db: Session = Depends(get_db)) -> CriarEventoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
-    return CriarEventoUseCase(evento_repo)
+    financeiro_repo = SQLAlchemyFinanceiroRepository(db)
+    return CriarEventoUseCase(evento_repo, financeiro_repo)
 
 def get_listar_eventos_use_case(db: Session = Depends(get_db)) -> ListarEventosUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
@@ -146,7 +161,12 @@ def get_atualizar_chave_pix_use_case(db: Session = Depends(get_db)) -> Atualizar
 
 def get_atualizar_mensalidade_use_case(db: Session = Depends(get_db)) -> AtualizarMensalidadeUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
-    return AtualizarMensalidadeUseCase(evento_repo)
+    financeiro_repo = SQLAlchemyFinanceiroRepository(db)
+    return AtualizarMensalidadeUseCase(evento_repo, financeiro_repo)
+
+def get_atualizar_custo_quadra_use_case(db: Session = Depends(get_db)) -> AtualizarCustoQuadraUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return AtualizarCustoQuadraUseCase(evento_repo)
 
 def get_cancelar_evento_use_case(db: Session = Depends(get_db)) -> CancelarEventoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
@@ -162,7 +182,9 @@ def get_listar_usuarios_use_case(db: Session = Depends(get_db)) -> ListarUsuario
 
 def get_criar_usuario_use_case(db: Session = Depends(get_db)) -> CriarUsuarioUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
-    return CriarUsuarioUseCase(usuario_repo)
+    evento_repo = SQLAlchemyEventoRepository(db)
+    presenca_repo = SQLAlchemyPresencaRepository(db)
+    return CriarUsuarioUseCase(usuario_repo, evento_repo, presenca_repo)
 
 def get_atualizar_usuario_use_case(db: Session = Depends(get_db)) -> AtualizarUsuarioUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
@@ -171,3 +193,17 @@ def get_atualizar_usuario_use_case(db: Session = Depends(get_db)) -> AtualizarUs
 def get_alterar_senha_use_case(db: Session = Depends(get_db)) -> AlterarSenhaUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
     return AlterarSenhaUseCase(usuario_repo)
+
+def get_atualizar_foto_perfil_use_case(db: Session = Depends(get_db)) -> AtualizarFotoPerfilUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return AtualizarFotoPerfilUseCase(usuario_repo)
+
+def get_obter_ultimo_resultado_use_case(db: Session = Depends(get_db)) -> ObterUltimoResultadoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    voto_repo = SQLAlchemyVotoRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return ObterUltimoResultadoUseCase(evento_repo, voto_repo, usuario_repo)
+
+def get_deletar_usuario_use_case(db: Session = Depends(get_db)) -> DeletarUsuarioUseCase:
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return DeletarUsuarioUseCase(usuario_repo)

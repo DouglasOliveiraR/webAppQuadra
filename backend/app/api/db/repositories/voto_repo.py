@@ -16,17 +16,24 @@ class SQLAlchemyVotoRepository(VotoRepository):
             evento_id=model.evento_id,
             eleitor_id=model.eleitor_id,
             candidato_id=model.candidato_id,
-            categoria=model.categoria
+            categoria=model.categoria,
+            criado_em=model.criado_em,
+            atualizado_em=model.atualizado_em
         )
 
     def _to_model(self, entity: Voto) -> VotoModel:
-        return VotoModel(
+        model = VotoModel(
             id=entity.id,
             evento_id=entity.evento_id,
             eleitor_id=entity.eleitor_id,
             candidato_id=entity.candidato_id,
             categoria=entity.categoria
         )
+        if entity.criado_em:
+            model.criado_em = entity.criado_em
+        if entity.atualizado_em:
+            model.atualizado_em = entity.atualizado_em
+        return model
 
     async def buscar_por_id(self, voto_id: int) -> Optional[Voto]:
         model = self.session.query(VotoModel).filter(VotoModel.id == voto_id).first()

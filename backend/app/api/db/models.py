@@ -1,6 +1,6 @@
 from typing import List, Optional
-from datetime import date, time
-from sqlalchemy import String, Integer, Float, Boolean, Date, Time, Enum as SQLEnum, ForeignKey
+from datetime import datetime, date, time
+from sqlalchemy import String, Integer, Float, Boolean, Date, Time, DateTime, Enum as SQLEnum, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from domain.usuarios.enums import PerfilUsuario, StatusUsuario
@@ -24,16 +24,24 @@ class UsuarioModel(Base):
     nota_admin: Mapped[int] = mapped_column(Integer)
     nota_galera_media: Mapped[float] = mapped_column(Float)
     pontos_ranking: Mapped[int] = mapped_column(Integer)
+    foto_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     # Relacionamentos bidirecionais
-    presencas: Mapped[List["PresencaModel"]] = relationship(back_populates="usuario")
+    presencas: Mapped[List["PresencaModel"]] = relationship(
+        back_populates="usuario", cascade="all, delete-orphan", passive_deletes=True
+    )
     votos_feitos: Mapped[List["VotoModel"]] = relationship(
-        back_populates="eleitor", foreign_keys="[VotoModel.eleitor_id]"
+        back_populates="eleitor", foreign_keys="[VotoModel.eleitor_id]", cascade="all, delete-orphan", passive_deletes=True
     )
     votos_recebidos: Mapped[List["VotoModel"]] = relationship(
-        back_populates="candidato", foreign_keys="[VotoModel.candidato_id]"
+        back_populates="candidato", foreign_keys="[VotoModel.candidato_id]", cascade="all, delete-orphan", passive_deletes=True
     )
-    financeiro: Mapped[List["FinanceiroModel"]] = relationship(back_populates="usuario")
+    financeiro: Mapped[List["FinanceiroModel"]] = relationship(
+        back_populates="usuario", passive_deletes=True
+    )
 
 class EventoModel(Base):
     __tablename__ = "eventos"
@@ -48,22 +56,36 @@ class EventoModel(Base):
     endereco: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     chave_pix: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     valor_mensalidade: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=60.0)
+    custo_quadra: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=0.0)
+    
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     # Relacionamentos bidirecionais
-    presencas: Mapped[List["PresencaModel"]] = relationship(back_populates="evento")
-    votos: Mapped[List["VotoModel"]] = relationship(back_populates="evento")
+    presencas: Mapped[List["PresencaModel"]] = relationship(
+        back_populates="evento", cascade="all, delete-orphan", passive_deletes=True
+    )
+    votos: Mapped[List["VotoModel"]] = relationship(
+        back_populates="evento", cascade="all, delete-orphan", passive_deletes=True
+    )
 
 class PresencaModel(Base):
     __tablename__ = "presencas"
+    __table_args__ = (
+        UniqueConstraint("usuario_id", "evento_id", name="uq_presenca_usuario_evento"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
-    evento_id: Mapped[int] = mapped_column(ForeignKey("eventos.id"))
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"))
+    evento_id: Mapped[int] = mapped_column(ForeignKey("eventos.id", ondelete="CASCADE"))
     status_jogo: Mapped[StatusJogo] = mapped_column(SQLEnum(StatusJogo))
     posicao: Mapped[Posicao] = mapped_column(SQLEnum(Posicao))
     vai_churrasco: Mapped[bool] = mapped_column(Boolean)
     checkin_validado: Mapped[bool] = mapped_column(Boolean)
     falta_penalizada: Mapped[bool] = mapped_column(Boolean)
+    
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     # Relacionamentos bidirecionais
     usuario: Mapped["UsuarioModel"] = relationship(back_populates="presencas")
@@ -71,12 +93,18 @@ class PresencaModel(Base):
 
 class VotoModel(Base):
     __tablename__ = "votos"
+    __table_args__ = (
+        UniqueConstraint("evento_id", "eleitor_id", "categoria", name="uq_voto_evento_eleitor_categoria"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    evento_id: Mapped[int] = mapped_column(ForeignKey("eventos.id"))
-    eleitor_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
-    candidato_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    evento_id: Mapped[int] = mapped_column(ForeignKey("eventos.id", ondelete="CASCADE"))
+    eleitor_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"))
+    candidato_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"))
     categoria: Mapped[CategoriaVoto] = mapped_column(SQLEnum(CategoriaVoto))
+    
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     # Relacionamentos bidirecionais
     evento: Mapped["EventoModel"] = relationship(back_populates="votos")
@@ -85,12 +113,19 @@ class VotoModel(Base):
 
 class FinanceiroModel(Base):
     __tablename__ = "financeiro"
+    __table_args__ = (
+        UniqueConstraint("usuario_id", "tipo", "mes_referencia", name="uq_financeiro_usuario_tipo_mes"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    usuario_id: Mapped[Optional[int]] = mapped_column(ForeignKey("usuarios.id"), nullable=True)
+    usuario_id: Mapped[Optional[int]] = mapped_column(ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True)
     tipo: Mapped[str] = mapped_column(String)
     valor: Mapped[float] = mapped_column(Float)
     status_pagamento: Mapped[StatusPagamento] = mapped_column(SQLEnum(StatusPagamento))
+    mes_referencia: Mapped[str] = mapped_column(String, default="2026-05")
+    
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
     # Relacionamentos bidirecionais
     usuario: Mapped[Optional["UsuarioModel"]] = relationship(back_populates="financeiro")

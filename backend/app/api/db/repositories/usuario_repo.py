@@ -20,11 +20,14 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             status=model.status,
             nota_admin=model.nota_admin,
             nota_galera_media=model.nota_galera_media,
-            pontos_ranking=model.pontos_ranking
+            pontos_ranking=model.pontos_ranking,
+            foto_url=model.foto_url,
+            criado_em=model.criado_em,
+            atualizado_em=model.atualizado_em
         )
 
     def _to_model(self, entity: Usuario) -> UsuarioModel:
-        return UsuarioModel(
+        model = UsuarioModel(
             id=entity.id,
             nome=entity.nome,
             telefone=entity.telefone,
@@ -33,8 +36,14 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             status=entity.status,
             nota_admin=entity.nota_admin,
             nota_galera_media=entity.nota_galera_media,
-            pontos_ranking=entity.pontos_ranking
+            pontos_ranking=entity.pontos_ranking,
+            foto_url=entity.foto_url
         )
+        if entity.criado_em:
+            model.criado_em = entity.criado_em
+        if entity.atualizado_em:
+            model.atualizado_em = entity.atualizado_em
+        return model
 
     async def buscar_por_id(self, usuario_id: int) -> Optional[Usuario]:
         model = self.session.query(UsuarioModel).filter(UsuarioModel.id == usuario_id).first()

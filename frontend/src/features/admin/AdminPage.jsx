@@ -18,6 +18,7 @@ export function AdminPage() {
     atualizarChurrasco, 
     atualizarChavePix, 
     atualizarMensalidade, 
+    atualizarCustoQuadra,
     cancelarEvento, 
     sortearTimes, 
     actionLoading 
@@ -49,6 +50,11 @@ export function AdminPage() {
   const [showMensalidadeModal, setShowMensalidadeModal] = useState(false);
   const [modalValorMensalidade, setModalValorMensalidade] = useState('60.00');
 
+  // States para o custo mensal da quadra
+  const [custoQuadraInput, setCustoQuadraInput] = useState('600.00');
+  const [showCustoQuadraModal, setShowCustoQuadraModal] = useState(false);
+  const [modalValorCustoQuadra, setModalValorCustoQuadra] = useState('600.00');
+
   const handleCheckin = async (usuarioId, chegou, falta_justificada = false) => {
     setLoadingCheckin(usuarioId);
     try {
@@ -79,7 +85,8 @@ export function AdminPage() {
       valor_churrasco: hasBBQ ? parseFloat(cota.replace(',', '.')) : 0.0,
       endereco: endereco,
       chave_pix: chavePixInput,
-      valor_mensalidade: parseFloat(mensalidadeInput.replace(',', '.')) || 60.0
+      valor_mensalidade: parseFloat(mensalidadeInput.replace(',', '.')) || 60.0,
+      custo_quadra: parseFloat(custoQuadraInput.replace(',', '.')) || 0.0
     });
     setIsCreatingNew(false);
   };
@@ -109,6 +116,17 @@ export function AdminPage() {
   const handleEditarMensalidade = () => {
     setModalValorMensalidade(evento?.valor_mensalidade?.toFixed(2) || '60.00');
     setShowMensalidadeModal(true);
+  };
+
+  const handleConfirmarCustoQuadraModal = async () => {
+    const valor = parseFloat(modalValorCustoQuadra.replace(',', '.')) || 0.0;
+    setShowCustoQuadraModal(false);
+    await atualizarCustoQuadra(valor);
+  };
+
+  const handleEditarCustoQuadra = () => {
+    setModalValorCustoQuadra(evento?.custo_quadra?.toFixed(2) || '600.00');
+    setShowCustoQuadraModal(true);
   };
 
   const handleToggleChurrascoExistente = async () => {
@@ -239,6 +257,22 @@ export function AdminPage() {
                   value={mensalidadeInput}
                   onChange={(e) => setMensalidadeInput(e.target.value)}
                   placeholder="60.00"
+                  className="block w-full pl-10 pr-3 py-3 bg-[#F1F5F9] border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Custo Mensal da Quadra (R$)</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[20px]">account_balance</span>
+                </div>
+                <input 
+                  type="text" 
+                  value={custoQuadraInput}
+                  onChange={(e) => setCustoQuadraInput(e.target.value)}
+                  placeholder="600.00"
                   className="block w-full pl-10 pr-3 py-3 bg-[#F1F5F9] border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
                 />
               </div>
@@ -392,6 +426,23 @@ export function AdminPage() {
             </button>
           </div>
 
+          <div className="glass-panel rounded-xl p-4 ambient-shadow flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-[24px] text-primary">account_balance</span>
+              <div>
+                <h3 className="font-bold">Mensal da Quadra (Custo)</h3>
+                <p className="text-sm text-tertiary">R$ {evento.custo_quadra?.toFixed(2).replace('.', ',') || '0,00'}</p>
+              </div>
+            </div>
+            <button 
+              onClick={handleEditarCustoQuadra} 
+              disabled={actionLoading}
+              className="px-3 py-1.5 border-2 border-outline-variant text-on-surface rounded-lg font-label-bold text-label-bold hover:bg-surface-variant/50"
+            >
+              Configurar
+            </button>
+          </div>
+
           {presencaAberta && (
             <section className="glass-panel rounded-xl p-4 ambient-shadow border-l-4 border-secondary-container flex flex-col gap-4">
               <div className="flex justify-between items-center">
@@ -480,8 +531,12 @@ export function AdminPage() {
                     <div key={jogador.usuario_id} className="glass-panel rounded-xl p-4 flex flex-col gap-3 shadow-ambient-1">
                       <div className="flex justify-between items-center border-b border-outline-variant/20 pb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold shrink-0">
-                            {jogador.usuario_nome.charAt(0)}
+                          <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold shrink-0 overflow-hidden">
+                            {jogador.usuario_foto_url ? (
+                              <img src={`http://127.0.0.1:8000${jogador.usuario_foto_url}`} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
+                            ) : (
+                              jogador.usuario_nome.charAt(0)
+                            )}
                           </div>
                           <span className="font-bold text-on-background text-[16px]">{jogador.usuario_nome}</span>
                         </div>
@@ -652,7 +707,9 @@ export function AdminPage() {
             <div className="space-y-2">
               <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Chave Pix</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant font-headline-md font-bold">R$</div>
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[20px]">vpn_key</span>
+                </div>
                 <input 
                   type="text" 
                   value={modalChavePix}
@@ -721,6 +778,54 @@ export function AdminPage() {
               </button>
               <button 
                 onClick={handleConfirmarMensalidadeModal}
+                disabled={actionLoading}
+                className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-bold text-label-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Configuração do Custo Mensal da Quadra */}
+      {showCustoQuadraModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-surface dark:bg-surface-dim rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-outline-variant/30 animate-scale-up space-y-4">
+            <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                <span className="material-symbols-outlined">account_balance</span>
+              </div>
+              <div>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface">Configurar Custo Mensal</h3>
+                <p className="font-body-sm text-body-sm text-tertiary">Valor de custo do aluguel mensal da quadra</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Custo da Quadra (R$)</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant font-headline-md font-bold">R$</div>
+                <input 
+                  type="text" 
+                  value={modalValorCustoQuadra}
+                  onChange={(e) => setModalValorCustoQuadra(e.target.value)}
+                  placeholder="600.00"
+                  className="block w-full pl-10 pr-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface font-bold"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={() => setShowCustoQuadraModal(false)}
+                className="flex-1 py-3 border-2 border-outline-variant text-on-surface rounded-xl font-label-bold text-label-bold hover:bg-surface-variant/50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleConfirmarCustoQuadraModal}
                 disabled={actionLoading}
                 className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-bold text-label-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
               >

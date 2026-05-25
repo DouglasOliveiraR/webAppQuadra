@@ -23,7 +23,7 @@ export function AvaliacaoGaleraPage() {
   const candidatos = evento?.presencas?.filter(p => p.checkin_validado && p.usuario_id !== currentUserId) || [];
 
   const handleSliderChange = (id, value) => {
-    setNotas(prev => ({ ...prev, [id]: parseFloat(value) }));
+    setNotas(prev => ({ ...prev, [id]: parseInt(value, 10) }));
   };
 
   const handleSave = () => {
@@ -55,7 +55,7 @@ export function AvaliacaoGaleraPage() {
 
         <div className="space-y-4">
           {candidatos.map(jogador => {
-            const nota = notas[jogador.usuario_id] || 5.0;
+            const nota = notas[jogador.usuario_id] !== undefined ? notas[jogador.usuario_id] : 5;
             return (
               <div key={jogador.usuario_id} className="bg-gray-900/80 border border-gray-800 rounded-xl p-4 shadow-ambient-1">
                 <div className="flex justify-between items-center mb-4">
@@ -66,7 +66,7 @@ export function AvaliacaoGaleraPage() {
                     <span className="font-headline-md text-[16px] text-white">{jogador.usuario_nome}</span>
                   </div>
                   <span className={`font-bold text-[18px] ${nota >= 7 ? 'text-primary-fixed' : nota >= 4 ? 'text-yellow-400' : 'text-red-400'}`}>
-                    {nota.toFixed(1)}
+                    {nota}
                   </span>
                 </div>
                 
@@ -75,7 +75,7 @@ export function AvaliacaoGaleraPage() {
                     type="range" 
                     min="0" 
                     max="10" 
-                    step="0.1" 
+                    step="1" 
                     value={nota}
                     onChange={(e) => handleSliderChange(jogador.usuario_id, e.target.value)}
                     className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
@@ -83,6 +83,7 @@ export function AvaliacaoGaleraPage() {
                       background: `linear-gradient(to right, var(--color-primary-fixed) ${(nota / 10) * 100}%, #1f2937 ${(nota / 10) * 100}%)`
                     }}
                   />
+
                   {/* Custom CSS for webkit thumb is usually global, but inline styling works for track */}
                 </div>
               </div>

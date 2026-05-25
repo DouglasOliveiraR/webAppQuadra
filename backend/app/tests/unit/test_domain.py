@@ -68,7 +68,8 @@ def test_financeiro_entity_creation():
         usuario_id=1,
         tipo="MENSALIDADE",
         valor=100.0,
-        status_pagamento=StatusPagamento.PENDENTE
+        status_pagamento=StatusPagamento.PENDENTE,
+        mes_referencia="2026-05"
     )
     assert financeiro.status_pagamento == StatusPagamento.PENDENTE
     assert financeiro.valor == 100.0

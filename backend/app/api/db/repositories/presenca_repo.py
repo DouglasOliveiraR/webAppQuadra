@@ -19,11 +19,13 @@ class SQLAlchemyPresencaRepository(PresencaRepository):
             posicao=model.posicao,
             vai_churrasco=model.vai_churrasco,
             checkin_validado=model.checkin_validado,
-            falta_penalizada=model.falta_penalizada
+            falta_penalizada=model.falta_penalizada,
+            criado_em=model.criado_em,
+            atualizado_em=model.atualizado_em
         )
 
     def _to_model(self, entity: Presenca) -> PresencaModel:
-        return PresencaModel(
+        model = PresencaModel(
             id=entity.id,
             usuario_id=entity.usuario_id,
             evento_id=entity.evento_id,
@@ -33,6 +35,11 @@ class SQLAlchemyPresencaRepository(PresencaRepository):
             checkin_validado=entity.checkin_validado,
             falta_penalizada=entity.falta_penalizada
         )
+        if entity.criado_em:
+            model.criado_em = entity.criado_em
+        if entity.atualizado_em:
+            model.atualizado_em = entity.atualizado_em
+        return model
 
     async def buscar_por_id(self, presenca_id: int) -> Optional[Presenca]:
         model = self.session.query(PresencaModel).filter(PresencaModel.id == presenca_id).first()

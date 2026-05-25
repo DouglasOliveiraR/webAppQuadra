@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date, time
+from datetime import date, time, datetime
 
 class EventoRequest(BaseModel):
     data_jogo: date
@@ -11,6 +11,7 @@ class EventoRequest(BaseModel):
     endereco: Optional[str] = None
     chave_pix: Optional[str] = None
     valor_mensalidade: Optional[float] = 60.0
+    custo_quadra: Optional[float] = 0.0
 
 class ChurrascoRequest(BaseModel):
     flag_churrasco: bool
@@ -21,6 +22,9 @@ class ChavePixRequest(BaseModel):
 
 class MensalidadeRequest(BaseModel):
     valor_mensalidade: float
+
+class CustoQuadraRequest(BaseModel):
+    custo_quadra: float
 
 class SorteioRequest(BaseModel):
     criterio: str
@@ -36,6 +40,9 @@ class EventoResponse(BaseModel):
     endereco: Optional[str]
     chave_pix: Optional[str] = None
     valor_mensalidade: Optional[float] = 60.0
+    custo_quadra: Optional[float] = 0.0
+    criado_em: Optional[datetime] = None
+    atualizado_em: Optional[datetime] = None
 
     class Config:
         from_attributes = True

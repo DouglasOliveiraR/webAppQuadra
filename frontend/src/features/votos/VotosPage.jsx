@@ -31,17 +31,28 @@ export function VotosPage() {
     }
   }
 
-  const handleVotar = async (categoria, candidato_id) => {
-    setErrorAction('');
-    setLoadingAction(`${categoria}-${candidato_id}`);
+  const handleVotar = (categoria, candidato_id) => {
+    setVotosFeitos(prev => ({ ...prev, [categoria]: candidato_id }));
+    setActiveCategory(null);
+  };
+
+  const confirmarTodos = async () => {
+    if (Object.keys(votosFeitos).length < CATEGORIAS.length) {
+      showToast('Por favor, vote nas 4 categorias antes de continuar.', 'error');
+      return;
+    }
+    
+    setLoadingAction('confirming');
     try {
-      await api.post(`/eventos/${evento.id}/votos`, { categoria, candidato_id });
-      setVotosFeitos(prev => ({ ...prev, [categoria]: candidato_id }));
-      await refetch();
-      showToast('Voto computado com sucesso!');
-      setActiveCategory(null);
+      const promises = Object.entries(votosFeitos).map(([catId, candId]) => 
+        api.post(`/eventos/${evento.id}/votos`, { categoria: catId, candidato_id: candId })
+      );
+      await Promise.all(promises);
+      
+      showToast('Votos confirmados! Agora avalie a galera.');
+      window.location.href = '/avaliacao-galera';
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Erro ao registrar voto.';
+      const msg = err.response?.data?.detail || 'Erro ao registrar votos.';
       setErrorAction(msg);
       showToast(msg, 'error');
     } finally {
@@ -49,15 +60,7 @@ export function VotosPage() {
     }
   };
 
-  const confirmarTodos = async () => {
-      // API call to finalize voting could be added here if backend supports it.
-      // Currently, force vote guard handles redirect based on user_ja_votou.
-      // The individual votes are already saved.
-      showToast('Votos confirmados! Agora avalie a galera.');
-      window.location.href = '/avaliacao-galera';
-  };
-
-  const candidatos = evento?.presencas?.filter(p => p.checkin_validado && p.usuario_id !== currentUserId) || [];
+  const candidatos = evento?.presencas?.filter(p => p.checkin_validado && p.usuario_id !== currentUserId && p.usuario_perfil !== 'AVULSO') || [];
 
   if (loading) {
     return (

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, Navigate, Link } from 'react-router-dom';
 import { BottomNav } from './components/layout/BottomNav';
 import { ToastContainer } from './components/ui/Toast';
 
@@ -37,9 +37,13 @@ function MainLayout() {
             </div>
             <h1 className="font-headline-md text-headline-md text-primary font-bold">Pelada FC</h1>
           </div>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant dark:text-on-surface-variant active:scale-95 duration-100">
+          <Link 
+            to="/ranking"
+            aria-label="Ver Ranking"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant dark:text-on-surface-variant active:scale-95 duration-100"
+          >
             <span className="material-symbols-outlined">military_tech</span>
-          </button>
+          </Link>
         </div>
       </header>
       

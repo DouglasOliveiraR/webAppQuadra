@@ -16,6 +16,7 @@ export function BottomNav() {
 
   const links = [
     { to: '/', icon: 'home', label: 'Home' },
+    { to: '/ranking', icon: 'social_leaderboard', label: 'Ranking' },
     { to: '/financeiro', icon: 'payments', label: 'Finanças' },
     { to: '/votos', icon: 'how_to_vote', label: 'Votos' },
     { to: '/perfil', icon: 'person', label: 'Perfil' },

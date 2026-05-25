@@ -52,17 +52,34 @@ class CheckinUseCase:
         if not usuario:
             raise RegraDeNegocioError("Usuário não encontrado")
             
-        presenca.checkin_validado = chegou
+        # Guarda os estados anteriores para computar a variação exata de pontos
+        antigo_chegou = presenca.checkin_validado
+        antiga_falta_penalizada = presenca.falta_penalizada
         
+        # Define os novos estados da presença
+        presenca.checkin_validado = chegou
         if chegou:
-            usuario.pontos_ranking += 1
             presenca.falta_penalizada = False
         else:
-            if not falta_justificada:
-                usuario.pontos_ranking -= 1
-                presenca.falta_penalizada = True
-            else:
-                presenca.falta_penalizada = False
-                
+            presenca.falta_penalizada = not falta_justificada
+            
+        # Calcula o delta de pontos baseado na transição de estado
+        delta_pontos = 0
+        
+        # Transição de presença (ganhar ou perder o ponto de presença no jogo)
+        if antigo_chegou and not chegou:
+            delta_pontos -= 1
+        elif not antigo_chegou and chegou:
+            delta_pontos += 1
+            
+        # Transição de penalidade por falta injustificada
+        if antiga_falta_penalizada and not presenca.falta_penalizada:
+            delta_pontos += 1
+        elif not antiga_falta_penalizada and presenca.falta_penalizada:
+            delta_pontos -= 1
+            
+        # Aplica a variação no ranking do usuário
+        usuario.pontos_ranking += delta_pontos
+        
         await self.usuario_repo.salvar(usuario)
         return await self.presenca_repo.salvar(presenca)

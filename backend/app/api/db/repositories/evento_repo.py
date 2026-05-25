@@ -21,11 +21,14 @@ class SQLAlchemyEventoRepository(EventoRepository):
             valor_churrasco=model.valor_churrasco,
             endereco=model.endereco,
             chave_pix=model.chave_pix,
-            valor_mensalidade=model.valor_mensalidade
+            valor_mensalidade=model.valor_mensalidade,
+            custo_quadra=model.custo_quadra,
+            criado_em=model.criado_em,
+            atualizado_em=model.atualizado_em
         )
 
     def _to_model(self, entity: Evento) -> EventoModel:
-        return EventoModel(
+        model = EventoModel(
             id=entity.id,
             data_jogo=entity.data_jogo,
             hora_inicio=entity.hora_inicio,
@@ -35,8 +38,14 @@ class SQLAlchemyEventoRepository(EventoRepository):
             valor_churrasco=entity.valor_churrasco,
             endereco=entity.endereco,
             chave_pix=entity.chave_pix,
-            valor_mensalidade=entity.valor_mensalidade
+            valor_mensalidade=entity.valor_mensalidade,
+            custo_quadra=entity.custo_quadra
         )
+        if entity.criado_em:
+            model.criado_em = entity.criado_em
+        if entity.atualizado_em:
+            model.atualizado_em = entity.atualizado_em
+        return model
 
     async def buscar_por_id(self, evento_id: int) -> Optional[Evento]:
         model = self.session.query(EventoModel).filter(EventoModel.id == evento_id).first()

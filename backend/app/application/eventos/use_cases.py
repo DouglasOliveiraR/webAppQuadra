@@ -3,15 +3,29 @@ from domain.eventos.entities import Evento
 from domain.presencas.repositories import PresencaRepository
 from domain.usuarios.repositories import UsuarioRepository
 from domain.votos.repositories import VotoRepository
+from domain.financeiro.repositories import FinanceiroRepository
+from domain.financeiro.enums import StatusPagamento
 from core.exceptions import RecursoNaoEncontradoError
 from typing import List
 
 class CriarEventoUseCase:
-    def __init__(self, evento_repo: EventoRepository):
+    def __init__(self, evento_repo: EventoRepository, financeiro_repo: FinanceiroRepository):
         self.evento_repo = evento_repo
+        self.financeiro_repo = financeiro_repo
         
     async def executar(self, evento: Evento) -> Evento:
-        return await self.evento_repo.salvar(evento)
+        evento_salvo = await self.evento_repo.salvar(evento)
+        
+        # Propaga a alteração de mensalidade do novo evento para registros pendentes do mês de referência
+        if evento_salvo.valor_mensalidade is not None and evento_salvo.valor_mensalidade > 0:
+            mes_ref = evento_salvo.data_jogo.strftime("%Y-%m")
+            registros = await self.financeiro_repo.listar_todos()
+            for r in registros:
+                if r.tipo == "MENSALIDADE" and r.mes_referencia == mes_ref and r.status_pagamento == StatusPagamento.PENDENTE:
+                    r.valor = evento_salvo.valor_mensalidade
+                    await self.financeiro_repo.salvar(r)
+                    
+        return evento_salvo
 
 class ListarEventosUseCase:
     def __init__(self, evento_repo: EventoRepository):
@@ -44,13 +58,16 @@ class ObterEventoUseCase:
         usuarios = {}
         if usuario_ids:
             usuarios_lista = await self.usuario_repo.buscar_por_ids(usuario_ids)
-            usuarios = {u.id: u.nome for u in usuarios_lista}
+            usuarios = {u.id: {"nome": u.nome, "foto_url": u.foto_url, "perfil": u.perfil.value} for u in usuarios_lista}
 
         presencas_detalhadas = []
         for p in presencas:
+            u_info = usuarios.get(p.usuario_id, {"nome": "Usuário Desconhecido", "foto_url": None, "perfil": "AVULSO"})
             presencas_detalhadas.append({
                 "usuario_id": p.usuario_id,
-                "usuario_nome": usuarios.get(p.usuario_id, "Usuário Desconhecido"),
+                "usuario_nome": u_info["nome"],
+                "usuario_foto_url": u_info["foto_url"],
+                "usuario_perfil": u_info["perfil"],
                 "status_jogo": p.status_jogo.value,
                 "posicao": p.posicao.value,
                 "vai_churrasco": p.vai_churrasco,
@@ -71,6 +88,7 @@ class ObterEventoUseCase:
             "endereco": evento.endereco,
             "chave_pix": evento.chave_pix,
             "valor_mensalidade": evento.valor_mensalidade,
+            "custo_quadra": evento.custo_quadra,
             "usuario_ja_votou": usuario_ja_votou,
             "presencas": presencas_detalhadas
         }

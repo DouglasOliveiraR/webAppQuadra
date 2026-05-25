@@ -188,6 +188,20 @@ export function useEvento(eventoId = 1) {
     }
   };
 
+  const atualizarCustoQuadra = async (custo_quadra) => {
+    try {
+      setActionLoading(true);
+      await api.put(`/eventos/${currentEventoId}/custo-quadra`, { custo_quadra });
+      await fetchEvento();
+      showToast('Custo mensal da quadra configurado com sucesso!');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao configurar custo mensal da quadra.';
+      showToast(msg, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return { 
     evento, 
     loading, 
@@ -200,6 +214,7 @@ export function useEvento(eventoId = 1) {
     atualizarChurrasco,
     atualizarChavePix,
     atualizarMensalidade,
+    atualizarCustoQuadra,
     cancelarEvento,
     sortearTimes,
     refetch: fetchEvento 

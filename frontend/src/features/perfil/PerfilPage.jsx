@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from './cropImage';
+
+const API_URL = 'http://127.0.0.1:8000';
 
 export function PerfilPage() {
   const navigate = useNavigate();
@@ -15,6 +19,14 @@ export function PerfilPage() {
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
   const [loadingSenha, setLoadingSenha] = useState(false);
   const [erroSenhaAtual, setErroSenhaAtual] = useState('');
+
+  // Refs e states para upload de foto
+  const fileInputRef = useRef(null);
+  const [uploadingFoto, setUploadingFoto] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const handleAbrirModalSenha = () => {
     setSenhaAtual('');
@@ -105,6 +117,56 @@ export function PerfilPage() {
     }
   };
 
+  const handleFotoSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Apenas arquivos de imagem são permitidos.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      setImageSrc(reader.result);
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleFotoConfirm = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+
+    setUploadingFoto(true);
+    try {
+      const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      const file = new File([croppedImageBlob], 'perfil.png', { type: 'image/png' });
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/usuarios/me/foto', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      showToast('Foto de perfil atualizada com sucesso!');
+      
+      const updatedUser = response.data;
+      setMeusDados(prev => prev ? { ...prev, foto_url: updatedUser.foto_url } : null);
+      
+      // Limpa os estados do Cropper
+      setImageSrc(null);
+      setZoom(1);
+      setCrop({ x: 0, y: 0 });
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.detail || 'Erro ao realizar upload e recorte da imagem.';
+      showToast(msg, 'error');
+    } finally {
+      setUploadingFoto(false);
+    }
+  };
+
   const senhasNaoConferem = confirmarNovaSenha && novaSenha !== confirmarNovaSenha;
   const senhaNovaCurta = novaSenha && novaSenha.length < 6;
 
@@ -132,11 +194,32 @@ export function PerfilPage() {
       <section className="flex flex-col items-center mb-8">
         <div className="relative mb-4">
           <div className="w-24 h-24 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-4xl font-bold border-4 border-surface shadow-sm overflow-hidden">
-            {nomeBase.charAt(0)}
+            {uploadingFoto ? (
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
+            ) : meusDados?.foto_url ? (
+              <img 
+                src={`${API_URL}${meusDados.foto_url}`} 
+                alt={nomeBase} 
+                className="w-full h-full object-cover animate-fade-in" 
+              />
+            ) : (
+              nomeBase.charAt(0)
+            )}
           </div>
-          <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-md border-2 border-surface hover:bg-primary/90 transition-colors">
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingFoto}
+            className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-md border-2 border-surface hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
             <span className="material-symbols-outlined text-[16px]">photo_camera</span>
           </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFotoSelect} 
+            accept="image/*" 
+            className="hidden" 
+          />
         </div>
         
         <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">{nomeBase}</h1>
@@ -298,6 +381,94 @@ export function PerfilPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Recorte (Cropper) */}
+      {imageSrc && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[105] flex flex-col items-center justify-center p-4 animate-fade-in">
+          <div className="bg-surface dark:bg-surface-dim rounded-2xl w-full max-w-md p-6 shadow-2xl border border-outline-variant/30 animate-scale-up space-y-6">
+            <div className="flex justify-between items-center border-b border-outline-variant/20 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[24px] text-primary">crop_free</span>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Ajustar Foto</h3>
+              </div>
+              <button 
+                onClick={() => {
+                  setImageSrc(null);
+                  setZoom(1);
+                  setCrop({ x: 0, y: 0 });
+                }}
+                className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            {/* Container do Cropper */}
+            <div className="relative w-full h-64 md:h-80 bg-black rounded-lg overflow-hidden border border-outline-variant/20">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
+              />
+            </div>
+
+            {/* Slider de Zoom */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-body-sm text-on-surface-variant">
+                <span>Zoom</span>
+                <span>{zoom.toFixed(1)}x</span>
+              </div>
+              <input
+                type="range"
+                value={zoom}
+                min={1}
+                max={3}
+                step={0.1}
+                aria-label="Zoom"
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="w-full h-2 bg-[#E2E8F0] dark:bg-surface-lowest rounded-lg appearance-none cursor-pointer accent-primary"
+              />
+            </div>
+
+            {/* Ações */}
+            <div className="flex gap-3 pt-2">
+              <button 
+                type="button"
+                onClick={() => {
+                  setImageSrc(null);
+                  setZoom(1);
+                  setCrop({ x: 0, y: 0 });
+                }}
+                disabled={uploadingFoto}
+                className="flex-1 py-3 border-2 border-outline-variant text-on-surface rounded-xl font-label-bold text-label-bold hover:bg-surface-variant/50 transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button"
+                onClick={handleFotoConfirm}
+                disabled={uploadingFoto}
+                className="flex-1 py-3 bg-primary text-on-primary rounded-xl font-label-bold text-label-bold hover:bg-primary/90 transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
+              >
+                {uploadingFoto ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-on-primary border-t-transparent"></div>
+                    Enviando...
+                  </>
+                ) : (
+                  'Confirmar e Salvar'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

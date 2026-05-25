@@ -16,17 +16,26 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
             usuario_id=model.usuario_id,
             tipo=model.tipo,
             valor=model.valor,
-            status_pagamento=model.status_pagamento
+            status_pagamento=model.status_pagamento,
+            mes_referencia=model.mes_referencia,
+            criado_em=model.criado_em,
+            atualizado_em=model.atualizado_em
         )
 
     def _to_model(self, entity: Financeiro) -> FinanceiroModel:
-        return FinanceiroModel(
+        model = FinanceiroModel(
             id=entity.id,
             usuario_id=entity.usuario_id,
             tipo=entity.tipo,
             valor=entity.valor,
-            status_pagamento=entity.status_pagamento
+            status_pagamento=entity.status_pagamento,
+            mes_referencia=entity.mes_referencia
         )
+        if entity.criado_em:
+            model.criado_em = entity.criado_em
+        if entity.atualizado_em:
+            model.atualizado_em = entity.atualizado_em
+        return model
 
     async def buscar_por_id(self, financeiro_id: int) -> Optional[Financeiro]:
         model = self.session.query(FinanceiroModel).filter(FinanceiroModel.id == financeiro_id).first()
@@ -34,6 +43,10 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
 
     async def listar_por_usuario(self, usuario_id: int) -> List[Financeiro]:
         models = self.session.query(FinanceiroModel).filter(FinanceiroModel.usuario_id == usuario_id).all()
+        return [self._to_entity(m) for m in models]
+
+    async def listar_todos(self) -> List[Financeiro]:
+        models = self.session.query(FinanceiroModel).all()
         return [self._to_entity(m) for m in models]
 
     async def salvar(self, financeiro: Financeiro) -> Financeiro:

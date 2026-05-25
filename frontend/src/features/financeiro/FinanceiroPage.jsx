@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { useEvento } from '../../hooks/useEvento';
 import { showToast } from '../../components/ui/Toast';
 
 export function FinanceiroPage() {
-  const { evento } = useEvento(1);
   const [transacoes, setTransacoes] = useState(null);
+  const [eventos, setEventos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const getMesAtual = () => {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    return `${ano}-${mes}`;
+  };
+
+  const [selectedMonth, setSelectedMonth] = useState(getMesAtual());
 
   useEffect(() => {
     const fetchFinanceiro = async () => {
       try {
-        const response = await api.get('/financeiro/me');
+        setIsLoading(true);
+        const response = await api.get('/financeiro/me', { params: { mes: selectedMonth } });
         setTransacoes(response.data);
       } catch (err) {
         setError(err);
@@ -21,16 +30,53 @@ export function FinanceiroPage() {
       }
     };
     fetchFinanceiro();
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    const fetchEventos = async () => {
+      try {
+        const response = await api.get('/eventos');
+        setEventos(response.data || []);
+      } catch (err) {
+        console.error("Erro ao buscar eventos:", err);
+      }
+    };
+    fetchEventos();
   }, []);
 
-  const saldo = transacoes?.reduce((acc, curr) => 
-    curr.tipo === 'ENTRADA' ? acc + curr.valor : acc - curr.valor, 0
-  ) || 0;
+  // Filtra eventos do mês selecionado
+  const eventosDoMes = eventos?.filter(e => e.data_jogo && e.data_jogo.startsWith(selectedMonth)) || [];
+  const eventoDoMes = eventosDoMes.length > 0 
+    ? eventosDoMes.sort((a, b) => b.id - a.id)[0]
+    : (eventos.length > 0 ? eventos.sort((a, b) => b.id - a.id)[0] : null);
 
-  const formatarMesAno = (dataStr) => {
-    if (!dataStr) return 'Mensalidade';
+  // Procurar se existe registro de MENSALIDADE nas transações do usuário logado para o mês selecionado
+  const mensalidade = transacoes?.find(t => t.tipo === 'MENSALIDADE' && t.mes_referencia === selectedMonth);
+  const temMensalidade = !!mensalidade;
+  const isPago = temMensalidade ? mensalidade.status_pagamento === 'PAGO' : false;
+
+  const valorMensalidade = temMensalidade 
+    ? mensalidade.valor 
+    : (eventoDoMes?.valor_mensalidade !== undefined && eventoDoMes?.valor_mensalidade !== null ? eventoDoMes.valor_mensalidade : 60.00);
+
+  // O saldo do caixa da pelada é a soma de todos os pagamentos PAGO do usuário para o mês selecionado menos o custo da quadra
+  const custoQuadra = eventoDoMes?.custo_quadra || 0.0;
+  
+  const saldo = (transacoes
+    ?.filter(t => t.status_pagamento === 'PAGO' && t.mes_referencia === selectedMonth)
+    ?.reduce((acc, curr) => acc + curr.valor, 0) || 0) - custoQuadra;
+
+  const formatarSaldo = (valor) => {
+    const absoluto = Math.abs(valor).toFixed(2).replace('.', ',');
+    return valor < 0 ? `- R$ ${absoluto}` : `R$ ${absoluto}`;
+  };
+
+  const formatarMesAno = (mesStr) => {
+    if (!mesStr) return 'Mensalidade';
     try {
-      const data = new Date(dataStr + 'T00:00:00');
+      // Ex: "2026-05" -> Ano e Mês
+      const parts = mesStr.split('-');
+      const data = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
       return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
         .replace(/^\w/, (c) => c.toUpperCase());
     } catch (e) {
@@ -38,18 +84,29 @@ export function FinanceiroPage() {
     }
   };
 
-  const valorMensalidade = evento?.valor_mensalidade !== undefined && evento?.valor_mensalidade !== null
-    ? evento.valor_mensalidade
-    : 60.00;
-
   const handleCopiarPix = () => {
-    if (evento?.chave_pix) {
-      navigator.clipboard.writeText(evento.chave_pix);
+    if (eventoDoMes?.chave_pix) {
+      navigator.clipboard.writeText(eventoDoMes.chave_pix);
       showToast('Chave Pix copiada com sucesso!');
     } else {
       showToast('Nenhuma chave Pix cadastrada pelo Admin.', 'error');
     }
   };
+
+  const mesesOpcoes = [
+    { value: "2026-01", label: "Janeiro / 2026" },
+    { value: "2026-02", label: "Fevereiro / 2026" },
+    { value: "2026-03", label: "Março / 2026" },
+    { value: "2026-04", label: "Abril / 2026" },
+    { value: "2026-05", label: "Maio / 2026" },
+    { value: "2026-06", label: "Junho / 2026" },
+    { value: "2026-07", label: "Julho / 2026" },
+    { value: "2026-08", label: "Agosto / 2026" },
+    { value: "2026-09", label: "Setembro / 2026" },
+    { value: "2026-10", label: "Outubro / 2026" },
+    { value: "2026-11", label: "Novembro / 2026" },
+    { value: "2026-12", label: "Dezembro / 2026" }
+  ];
 
   if (isLoading) {
     return (
@@ -59,14 +116,29 @@ export function FinanceiroPage() {
     );
   }
 
+  // Filtra as transações correspondentes ao mês de referência selecionado para as movimentações
+  const transacoesFiltradas = transacoes?.filter(t => t.mes_referencia === selectedMonth) || [];
+
   return (
     <div className="flex flex-col gap-unit-3 p-4">
-      {/* Page Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
-          <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>account_balance_wallet</span>
+      {/* Page Header com Seletor de Mês */}
+      <div className="flex justify-between items-center flex-wrap gap-3 mb-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+            <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>account_balance_wallet</span>
+          </div>
+          <h2 className="font-headline-md text-headline-md text-on-surface">Meu Financeiro</h2>
         </div>
-        <h2 className="font-headline-md text-headline-md text-on-surface">Meu Financeiro</h2>
+        
+        <select 
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="bg-surface-container-high border-2 border-outline-variant/30 text-on-surface text-sm rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md"
+        >
+          {mesesOpcoes.map(m => (
+            <option key={m.value} value={m.value} className="bg-surface text-on-surface">{m.label}</option>
+          ))}
+        </select>
       </div>
 
       {error && (
@@ -76,31 +148,35 @@ export function FinanceiroPage() {
       )}
 
       {/* Status da Mensalidade Card */}
-      <section className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant/50 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,110,47,0.08)] hover:-translate-y-[2px]">
-        {/* Subtle indicator line */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-error"></div>
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-1">Mensalidade</h3>
-            <p className="font-body-md text-body-md text-on-surface font-semibold">{formatarMesAno(evento?.data_jogo)}</p>
+      {(temMensalidade || (eventoDoMes && !isLoading)) && (
+        <section className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-surface-variant/50 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-[0_4px_12px_rgba(0,110,47,0.08)] hover:-translate-y-[2px]">
+          {/* Subtle indicator line */}
+          <div className={`absolute top-0 left-0 w-full h-1 ${isPago ? 'bg-primary' : 'bg-error'}`}></div>
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-1">Mensalidade</h3>
+              <p className="font-body-md text-body-md text-on-surface font-semibold">{formatarMesAno(selectedMonth)}</p>
+            </div>
+            <div className={`${isPago ? 'bg-primary/20 text-primary' : 'bg-error-container text-on-error-container'} px-3 py-1.5 rounded-full flex items-center gap-1`}>
+              <span className="material-symbols-outlined text-[16px]">{isPago ? 'check_circle' : 'warning'}</span>
+              <span className="font-label-bold text-label-bold">{isPago ? 'Pago' : 'Pendente'}</span>
+            </div>
           </div>
-          <div className="bg-error-container text-on-error-container px-3 py-1.5 rounded-full flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px]">warning</span>
-            <span className="font-label-bold text-label-bold">Pendente</span>
+          <div className="flex items-end gap-2 mt-2">
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Valor:</span>
+            <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {valorMensalidade.toFixed(2).replace('.', ',')}</span>
           </div>
-        </div>
-        <div className="flex items-end gap-2 mt-2">
-          <span className="font-body-sm text-body-sm text-on-surface-variant">Valor:</span>
-          <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {valorMensalidade.toFixed(2).replace('.', ',')}</span>
-        </div>
-        <button 
-          onClick={handleCopiarPix}
-          className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all"
-        >
-          <span className="material-symbols-outlined text-[20px]">content_copy</span>
-          Copiar Chave Pix do Admin
-        </button>
-      </section>
+          {!isPago && (
+            <button 
+              onClick={handleCopiarPix}
+              className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all"
+            >
+              <span className="material-symbols-outlined text-[20px]">content_copy</span>
+              Copiar Chave Pix do Admin
+            </button>
+          )}
+        </section>
+      )}
 
       {/* Caixa Extra (Transparência) */}
       <section className="bg-on-tertiary-fixed text-on-primary rounded-xl p-5 shadow-lg flex flex-col gap-5 relative overflow-hidden mt-2">
@@ -114,34 +190,37 @@ export function FinanceiroPage() {
         
         <div className="relative z-10">
           <p className="font-body-sm text-body-sm text-tertiary-fixed-dim mb-1">Em caixa atual</p>
-          <p className="font-display-lg text-display-lg font-extrabold text-on-primary">
-            R$ {saldo.toFixed(2).replace('.', ',')}
+          <p className={`font-display-lg text-display-lg font-extrabold ${saldo < 0 ? 'text-error-container' : 'text-on-primary'}`}>
+            {formatarSaldo(saldo)}
           </p>
         </div>
         
         <div className="relative z-10 mt-2">
-          <h4 className="font-label-bold text-label-bold text-tertiary-fixed-dim border-b border-white/10 pb-2 mb-3">Últimas Movimentações</h4>
+          <h4 className="font-label-bold text-label-bold text-tertiary-fixed-dim border-b border-white/10 pb-2 mb-3">Movimentações de {formatarMesAno(selectedMonth)}</h4>
           <ul className="flex flex-col gap-3">
-            {transacoes?.length === 0 ? (
-              <li className="text-sm text-tertiary-fixed-dim">Nenhuma movimentação registrada.</li>
+            {transacoesFiltradas.length === 0 ? (
+              <li className="text-sm text-tertiary-fixed-dim font-medium">Nenhuma movimentação registrada para este mês.</li>
             ) : (
-              transacoes?.map(t => (
-                <li key={t.id} className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                    t.tipo === 'ENTRADA' ? 'bg-primary-container/20 text-primary-fixed-dim' : 'bg-surface-variant/20 text-surface-dim'
-                  }`}>
-                    <span className="material-symbols-outlined text-[18px]">
-                      {t.tipo === 'ENTRADA' ? 'arrow_downward' : 'arrow_upward'}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-body-sm text-body-sm font-semibold text-on-primary">
-                      {t.tipo === 'ENTRADA' ? '+' : '-'} R$ {t.valor.toFixed(2).replace('.', ',')}
-                    </p>
-                    <p className="font-label-bold text-label-bold text-tertiary-fixed-dim font-normal">{t.descricao}</p>
-                  </div>
-                </li>
-              ))
+              transacoesFiltradas.map(t => {
+                const pago = t.status_pagamento === 'PAGO';
+                return (
+                  <li key={t.id} className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      pago ? 'bg-primary/20 text-primary-fixed-dim' : 'bg-surface-variant/20 text-surface-dim'
+                    }`}>
+                      <span className="material-symbols-outlined text-[18px]">
+                        {pago ? 'check' : 'pending'}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-body-sm text-body-sm font-semibold text-on-primary">
+                        R$ {t.valor.toFixed(2).replace('.', ',')}
+                      </p>
+                      <p className="font-label-bold text-label-bold text-tertiary-fixed-dim font-normal capitalize">{t.tipo.toLowerCase()}</p>
+                    </div>
+                  </li>
+                );
+              })
             )}
           </ul>
         </div>

@@ -57,9 +57,27 @@ export function ElencoTab() {
     setModalOpen(true);
   };
 
+  const handleDeletarJogador = async (jogador) => {
+    const confirmacao = window.confirm(`Tem certeza que deseja deletar o jogador "${jogador.nome}"? Essa ação é permanente.`);
+    if (!confirmacao) return;
+
+    try {
+      await api.delete(`/usuarios/${jogador.id}`);
+      showToast('Jogador deletado com sucesso!');
+      fetchElenco();
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao deletar jogador.';
+      showToast(msg, 'error');
+    }
+  };
+
   const handleSalvarJogador = async () => {
-    if (!nome.trim() || !telefone.trim()) {
-      showToast('Nome e Telefone são obrigatórios.', 'error');
+    if (!nome.trim()) {
+      showToast('O nome é obrigatório.', 'error');
+      return;
+    }
+    if (perfil !== 'AVULSO' && !telefone.trim()) {
+      showToast('O telefone é obrigatório para mensalistas e admins.', 'error');
       return;
     }
 
@@ -130,8 +148,12 @@ export function ElencoTab() {
           {ativos.map(jogador => (
             <div key={jogador.id} className="glass-panel rounded-xl p-4 flex justify-between items-center shadow-ambient-1 border border-outline-variant/30 hover:border-primary/50 transition-colors">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-lg shrink-0">
-                  {jogador.nome.charAt(0)}
+                <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-lg shrink-0 overflow-hidden">
+                  {jogador.foto_url ? (
+                    <img src={`http://127.0.0.1:8000${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
+                  ) : (
+                    jogador.nome.charAt(0)
+                  )}
                 </div>
                 <div>
                   <h4 className="font-headline-md text-[16px] text-on-surface">{jogador.nome}</h4>
@@ -144,12 +166,22 @@ export function ElencoTab() {
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => handleEditarJogador(jogador)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
-              >
-                <span className="material-symbols-outlined">edit_note</span>
-              </button>
+              <div className="flex gap-1 shrink-0">
+                <button 
+                  onClick={() => handleEditarJogador(jogador)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
+                  title="Editar jogador"
+                >
+                  <span className="material-symbols-outlined text-[20px]">edit_note</span>
+                </button>
+                <button 
+                  onClick={() => handleDeletarJogador(jogador)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors"
+                  title="Excluir jogador"
+                >
+                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+              </div>
             </div>
           ))}
           {ativos.length === 0 && <p className="text-body-sm text-tertiary">Nenhum jogador ativo encontrado.</p>}
@@ -162,8 +194,12 @@ export function ElencoTab() {
           {inativos.map(jogador => (
             <div key={jogador.id} className="glass-panel rounded-xl p-4 flex justify-between items-center shadow-ambient-1 border border-outline-variant/30 hover:border-error/50 transition-colors bg-surface-container-low/50">
               <div className="flex items-center gap-3 opacity-70">
-                <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-lg shrink-0 grayscale filter">
-                  {jogador.nome.charAt(0)}
+                <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-lg shrink-0 grayscale filter overflow-hidden">
+                  {jogador.foto_url ? (
+                    <img src={`http://127.0.0.1:8000${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
+                  ) : (
+                    jogador.nome.charAt(0)
+                  )}
                 </div>
                 <div>
                   <h4 className="font-headline-md text-[16px] text-on-surface">{jogador.nome}</h4>
@@ -173,12 +209,22 @@ export function ElencoTab() {
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => handleEditarJogador(jogador)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
-              >
-                <span className="material-symbols-outlined">edit_note</span>
-              </button>
+              <div className="flex gap-1 shrink-0">
+                <button 
+                  onClick={() => handleEditarJogador(jogador)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
+                  title="Editar jogador"
+                >
+                  <span className="material-symbols-outlined text-[20px]">edit_note</span>
+                </button>
+                <button 
+                  onClick={() => handleDeletarJogador(jogador)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors"
+                  title="Excluir jogador"
+                >
+                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+              </div>
             </div>
           ))}
           {inativos.length === 0 && <p className="text-body-sm text-tertiary">Nenhum jogador inativo encontrado.</p>}
@@ -220,16 +266,18 @@ export function ElencoTab() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Telefone</label>
-                <input 
-                  type="text" 
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  placeholder="Ex: 11999999999"
-                  className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
-                />
-              </div>
+              {perfil !== 'AVULSO' && (
+                <div className="space-y-1">
+                  <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Telefone</label>
+                  <input 
+                    type="text" 
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="Ex: 11999999999"
+                    className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  />
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">

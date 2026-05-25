@@ -1,4 +1,6 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
+from datetime import datetime
 from domain.votos.enums import CategoriaVoto
 
 class VotoRequest(BaseModel):
@@ -11,5 +13,7 @@ class VotoResponse(BaseModel):
     eleitor_id: int
     candidato_id: int
     categoria: CategoriaVoto
+    criado_em: Optional[datetime] = None
+    atualizado_em: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)

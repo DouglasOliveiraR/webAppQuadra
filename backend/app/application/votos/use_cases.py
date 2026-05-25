@@ -1,16 +1,20 @@
+from datetime import timedelta
 from domain.votos.repositories import VotoRepository
 from domain.eventos.repositories import EventoRepository
 from domain.votos.entities import Voto
 from domain.votos.enums import CategoriaVoto
 from domain.eventos.enums import StatusEvento
+from domain.eventos.entities import Evento
 from domain.usuarios.repositories import UsuarioRepository
+from domain.usuarios.enums import PerfilUsuario
 from core.exceptions import RegraDeNegocioError
 from collections import defaultdict
 
 class RegistrarVotoUseCase:
-    def __init__(self, voto_repo: VotoRepository, evento_repo: EventoRepository):
+    def __init__(self, voto_repo: VotoRepository, evento_repo: EventoRepository, usuario_repo: UsuarioRepository):
         self.voto_repo = voto_repo
         self.evento_repo = evento_repo
+        self.usuario_repo = usuario_repo
 
     async def executar(self, evento_id: int, eleitor_id: int, candidato_id: int, categoria: CategoriaVoto):
         evento = await self.evento_repo.buscar_por_id(evento_id)
@@ -22,6 +26,19 @@ class RegistrarVotoUseCase:
             
         if eleitor_id == candidato_id:
             raise RegraDeNegocioError("Você não pode votar em si mesmo")
+            
+        # Validar se eleitor ou candidato são avulsos
+        eleitor = await self.usuario_repo.buscar_por_id(eleitor_id)
+        if not eleitor:
+            raise RegraDeNegocioError("Eleitor não encontrado")
+        if eleitor.perfil == PerfilUsuario.AVULSO:
+            raise RegraDeNegocioError("Jogadores avulsos não podem votar")
+            
+        candidato = await self.usuario_repo.buscar_por_id(candidato_id)
+        if not candidato:
+            raise RegraDeNegocioError("Candidato não encontrado")
+        if candidato.perfil == PerfilUsuario.AVULSO:
+            raise RegraDeNegocioError("Jogadores avulsos não podem ser votados")
             
         voto_existente = await self.voto_repo.buscar_voto_eleitor(evento_id, eleitor_id, categoria)
         if voto_existente:
@@ -91,6 +108,33 @@ class EncerrarVotacaoUseCase:
             
         evento.status_evento = StatusEvento.ENCERRADO
         await self.evento_repo.salvar(evento)
+        
+        # Deletar jogadores avulsos temporários do banco após o encerramento
+        try:
+            todos_usuarios = await self.usuario_repo.listar_todos()
+            from domain.usuarios.enums import PerfilUsuario
+            usuarios_avulsos = [u for u in todos_usuarios if u.perfil == PerfilUsuario.AVULSO]
+            for u in usuarios_avulsos:
+                await self.usuario_repo.deletar(u.id)
+        except Exception as e:
+            print(f"Erro ao deletar usuários avulsos no encerramento: {e}")
+        
+        # Agendar automaticamente o próximo evento (+7 dias)
+        nova_data = evento.data_jogo + timedelta(days=7)
+        proximo_evento = Evento(
+            id=None,
+            data_jogo=nova_data,
+            hora_inicio=evento.hora_inicio,
+            hora_fim=evento.hora_fim,
+            status_evento=StatusEvento.AGENDADO,
+            flag_churrasco=evento.flag_churrasco,
+            valor_churrasco=evento.valor_churrasco,
+            endereco=evento.endereco,
+            chave_pix=evento.chave_pix,
+            valor_mensalidade=evento.valor_mensalidade,
+            custo_quadra=evento.custo_quadra
+        )
+        await self.evento_repo.salvar(proximo_evento)
         
         # Converte para dict simples para retornar
         return {k: dict(v) for k, v in apuracao.items()}

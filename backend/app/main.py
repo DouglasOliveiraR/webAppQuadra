@@ -18,6 +18,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from fastapi.staticfiles import StaticFiles
+import os
+
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+os.makedirs(os.path.join(static_dir, "fotos"), exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 # Configuração CORS
 app.add_middleware(
     CORSMiddleware,

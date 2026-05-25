@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+from datetime import datetime
 from domain.presencas.enums import StatusJogo, Posicao
 
 @dataclass
@@ -12,3 +13,5 @@ class Presenca:
     vai_churrasco: bool
     checkin_validado: bool
     falta_penalizada: bool
+    criado_em: Optional[datetime] = None
+    atualizado_em: Optional[datetime] = None

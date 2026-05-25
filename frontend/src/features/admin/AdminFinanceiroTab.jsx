@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import api, { API_URL } from '../../services/api';
 import { useFinanceiro } from '../../hooks/useFinanceiro';
 
 export function AdminFinanceiroTab() {
@@ -133,7 +133,7 @@ export function AdminFinanceiroTab() {
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-sm shrink-0 overflow-hidden">
                         {jogador.usuario_foto_url ? (
-                          <img src={`http://127.0.0.1:8000${jogador.usuario_foto_url}`} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
+                          <img src={`${API_URL}${jogador.usuario_foto_url}`} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
                         ) : (
                           jogador.usuario_nome.charAt(0)
                         )}

@@ -1,9 +1,23 @@
 import axios from 'axios';
 
+const getApiUrl = () => {
+  const { protocol, hostname, port } = window.location;
+  // Se rodando no servidor de desenvolvimento do Vite (porta 5173), direciona para a porta 8000
+  if (port === '5173') {
+    return `${protocol}//${hostname}:8000`;
+  }
+  // Em produção, Ngrok ou servido direto pelo FastAPI, usa o mesmo host/porta da página
+  return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+};
+
+export const API_URL = getApiUrl();
+export const API_PROTOCOL = window.location.protocol;
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api', // FastAPI server default local port
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
   },
 });
 

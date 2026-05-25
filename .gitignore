@@ -11,3 +11,4 @@ __pycache__/
 *.pyd
 .pytest_cache/
 backend/pelada.db
+iniciar_servidor_internet.bat

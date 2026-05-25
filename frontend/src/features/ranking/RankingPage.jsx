@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
-
-const API_URL = 'http://127.0.0.1:8000';
+import api, { API_URL } from '../../services/api';
 
 function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
   return (

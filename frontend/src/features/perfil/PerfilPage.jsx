@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
+import api, { API_URL } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from './cropImage';
-
-const API_URL = 'http://127.0.0.1:8000';
 
 export function PerfilPage() {
   const navigate = useNavigate();

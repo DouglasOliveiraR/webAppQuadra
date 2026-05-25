@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import api, { API_URL } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 
 export function ElencoTab() {
@@ -150,7 +150,7 @@ export function ElencoTab() {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-lg shrink-0 overflow-hidden">
                   {jogador.foto_url ? (
-                    <img src={`http://127.0.0.1:8000${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
+                    <img src={`${API_URL}${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
                   ) : (
                     jogador.nome.charAt(0)
                   )}
@@ -196,7 +196,7 @@ export function ElencoTab() {
               <div className="flex items-center gap-3 opacity-70">
                 <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold text-lg shrink-0 grayscale filter overflow-hidden">
                   {jogador.foto_url ? (
-                    <img src={`http://127.0.0.1:8000${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
+                    <img src={`${API_URL}${jogador.foto_url}`} alt={jogador.nome} className="w-full h-full object-cover" />
                   ) : (
                     jogador.nome.charAt(0)
                   )}

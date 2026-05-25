@@ -29,13 +29,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).catch(err => {
-          console.log('Fetch failed (offline or network error):', err);
-          // Opcionalmente, pode retornar uma resposta de fallback aqui
-        });
+        return response || fetch(event.request);
       })
   );
 });

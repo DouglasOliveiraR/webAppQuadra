@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEvento } from '../../hooks/useEvento';
 import { showToast } from '../../components/ui/Toast';
+import api from '../../services/api';
 
 export function AvaliacaoGaleraPage() {
   const { evento, loading } = useEvento(1);
@@ -26,16 +27,41 @@ export function AvaliacaoGaleraPage() {
     setNotas(prev => ({ ...prev, [id]: parseInt(value, 10) }));
   };
 
-  const handleSave = () => {
-    // API call to save notas
-    showToast('Avaliações salvas com sucesso!');
-    navigate('/ranking');
+  const handleSave = async () => {
+    try {
+      await api.post('/notas/galera', {
+        evento_id: evento.id,
+        notas: notas
+      });
+
+      showToast('Avaliações salvas com sucesso!');
+      navigate('/ranking');
+    } catch (error) {
+      console.error(error);
+      showToast('Erro ao salvar as avaliações', 'error');
+    }
   };
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-900">
         <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary-fixed border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (evento?.usuario_ja_avaliou) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 p-6 h-screen text-center bg-gray-950 text-white -mt-20">
+        <div className="w-20 h-20 bg-primary-fixed/20 rounded-full flex items-center justify-center shadow-lg border border-primary-fixed">
+          <span className="material-symbols-outlined text-[40px] text-primary-fixed" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+        </div>
+        <div className="space-y-2">
+          <h2 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-white">Avaliação Concluída!</h2>
+          <p className="font-body-md text-body-md text-gray-400 max-w-xs mx-auto">
+            Suas notas para esta partida foram salvas com sucesso.
+          </p>
+        </div>
       </div>
     );
   }

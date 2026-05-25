@@ -1,5 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+
+class PremioCount(BaseModel):
+    categoria: str
+    quantidade: int
 
 class RankingResponse(BaseModel):
     id: int
@@ -8,6 +12,7 @@ class RankingResponse(BaseModel):
     nota_admin: int
     nota_galera_media: float
     foto_url: Optional[str] = None
+    premios: List[PremioCount] = []
 
     class Config:
         from_attributes = True

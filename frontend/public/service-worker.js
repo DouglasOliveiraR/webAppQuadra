@@ -32,7 +32,10 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        return fetch(event.request).catch(err => {
+          console.log('Fetch failed (offline or network error):', err);
+          // Opcionalmente, pode retornar uma resposta de fallback aqui
+        });
       })
   );
 });

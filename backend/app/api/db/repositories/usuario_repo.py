@@ -11,6 +11,17 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
     def _to_entity(self, model: UsuarioModel) -> Usuario:
         if not model:
             return None
+            
+        from api.db.models import NotaModel, TipoNota
+        from sqlalchemy import func
+        
+        # Nota Galera Media (calculada dinamicamente pois removemos a coluna)
+        nota_galera_query = self.session.query(func.avg(NotaModel.nota)).filter(
+            NotaModel.avaliado_id == model.id,
+            NotaModel.tipo == TipoNota.GALERA
+        ).first()
+        nota_galera_media_val = float(nota_galera_query[0]) if nota_galera_query and nota_galera_query[0] is not None else 0.0
+
         return Usuario(
             id=model.id,
             nome=model.nome,
@@ -19,7 +30,7 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             perfil=model.perfil,
             status=model.status,
             nota_admin=model.nota_admin,
-            nota_galera_media=model.nota_galera_media,
+            nota_galera_media=nota_galera_media_val,
             pontos_ranking=model.pontos_ranking,
             foto_url=model.foto_url,
             criado_em=model.criado_em,
@@ -35,7 +46,6 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             perfil=entity.perfil,
             status=entity.status,
             nota_admin=entity.nota_admin,
-            nota_galera_media=entity.nota_galera_media,
             pontos_ranking=entity.pontos_ranking,
             foto_url=entity.foto_url
         )

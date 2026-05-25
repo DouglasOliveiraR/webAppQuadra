@@ -25,6 +25,11 @@ export function useEvento(eventoId = 1) {
             // Pega o último evento criado (maior ID)
             const sorted = eventos.sort((a, b) => b.id - a.id);
             targetId = sorted[0].id;
+          } else {
+            // Se a lista está vazia, não há eventos no banco. Evitar 404.
+            setEvento(null);
+            setLoading(false);
+            return;
           }
         } catch (e) {
           console.error("Erro ao listar eventos, caindo para id 1", e);

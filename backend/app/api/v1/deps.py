@@ -94,10 +94,12 @@ def get_checkin_use_case(
     return CheckinUseCase(repo, usuario_repo)
 
 def get_encerrar_votacao_use_case(db: Session = Depends(get_db)):
+    from api.db.repositories.premio_repo import SQLAlchemyPremioRepository
     evento_repo = SQLAlchemyEventoRepository(db)
     voto_repo = SQLAlchemyVotoRepository(db)
     usuario_repo = SQLAlchemyUsuarioRepository(db)
-    return EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo)
+    premio_repo = SQLAlchemyPremioRepository(db)
+    return EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo, premio_repo)
 
 def get_registrar_voto_use_case(db: Session = Depends(get_db)):
     voto_repo = SQLAlchemyVotoRepository(db)
@@ -106,8 +108,10 @@ def get_registrar_voto_use_case(db: Session = Depends(get_db)):
     return RegistrarVotoUseCase(voto_repo, evento_repo, usuario_repo)
 
 def get_listar_ranking_use_case(db: Session = Depends(get_db)):
+    from api.db.repositories.premio_repo import SQLAlchemyPremioRepository
     repo = SQLAlchemyUsuarioRepository(db)
-    return ListarRankingUseCase(repo)
+    premio_repo = SQLAlchemyPremioRepository(db)
+    return ListarRankingUseCase(repo, premio_repo)
 
 def get_listar_financeiro_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyFinanceiroRepository(db)
@@ -126,11 +130,13 @@ def get_baixar_pagamento_use_case(db: Session = Depends(get_db)):
     return BaixarPagamentoUseCase(repo)
 
 def get_obter_evento_use_case(db: Session = Depends(get_db)) -> ObterEventoUseCase:
+    from api.db.repositories.nota_repo import SQLAlchemyNotaRepository
     evento_repo = SQLAlchemyEventoRepository(db)
     presenca_repo = SQLAlchemyPresencaRepository(db)
     usuario_repo = SQLAlchemyUsuarioRepository(db)
     voto_repo = SQLAlchemyVotoRepository(db)
-    return ObterEventoUseCase(evento_repo, presenca_repo, usuario_repo, voto_repo)
+    nota_repo = SQLAlchemyNotaRepository(db)
+    return ObterEventoUseCase(evento_repo, presenca_repo, usuario_repo, voto_repo, nota_repo)
 
 def get_criar_evento_use_case(db: Session = Depends(get_db)) -> CriarEventoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
@@ -207,3 +213,9 @@ def get_obter_ultimo_resultado_use_case(db: Session = Depends(get_db)) -> ObterU
 def get_deletar_usuario_use_case(db: Session = Depends(get_db)) -> DeletarUsuarioUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
     return DeletarUsuarioUseCase(usuario_repo)
+
+def get_obter_transparencia_use_case(db: Session = Depends(get_db)):
+    from application.financeiro.obter_transparencia_use_case import ObterTransparenciaUseCase
+    financeiro_repo = SQLAlchemyFinanceiroRepository(db)
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return ObterTransparenciaUseCase(financeiro_repo, evento_repo)

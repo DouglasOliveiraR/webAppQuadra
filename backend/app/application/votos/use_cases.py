@@ -54,10 +54,11 @@ class RegistrarVotoUseCase:
         return await self.voto_repo.salvar(voto)
 
 class EncerrarVotacaoUseCase:
-    def __init__(self, evento_repo: EventoRepository, voto_repo: VotoRepository, usuario_repo: UsuarioRepository):
+    def __init__(self, evento_repo: EventoRepository, voto_repo: VotoRepository, usuario_repo: UsuarioRepository, premio_repo):
         self.evento_repo = evento_repo
         self.voto_repo = voto_repo
         self.usuario_repo = usuario_repo
+        self.premio_repo = premio_repo
 
     async def executar(self, evento_id: int):
         evento = await self.evento_repo.buscar_por_id(evento_id)
@@ -97,11 +98,25 @@ class EncerrarVotacaoUseCase:
             for u in usuarios_models:
                 usuarios_atualizados[u.id] = u
 
+        mes_ref = evento.data_jogo.strftime("%Y-%m")
+        from domain.premios.entities import Premio
+        from domain.votos.enums import CategoriaVoto
+
         for cat_nome, vencedores in vencedores_por_categoria.items():
             pontos = pontos_map.get(cat_nome, 0)
             for v_id in vencedores:
                 if v_id in usuarios_atualizados:
                     usuarios_atualizados[v_id].pontos_ranking += pontos
+                    
+                # Registrar o prêmio na tabela de histórico
+                novo_premio = Premio(
+                    id=None,
+                    usuario_id=v_id,
+                    evento_id=evento_id,
+                    categoria=CategoriaVoto(cat_nome),
+                    mes_referencia=mes_ref
+                )
+                await self.premio_repo.salvar(novo_premio)
                     
         for u in usuarios_atualizados.values():
             await self.usuario_repo.salvar(u)

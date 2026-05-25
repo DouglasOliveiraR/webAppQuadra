@@ -8,6 +8,11 @@ from domain.eventos.enums import StatusEvento
 from domain.presencas.enums import StatusJogo, Posicao
 from domain.votos.enums import CategoriaVoto
 from domain.financeiro.enums import StatusPagamento
+import enum
+
+class TipoNota(str, enum.Enum):
+    ADMIN = "ADMIN"
+    GALERA = "GALERA"
 
 class Base(DeclarativeBase):
     pass
@@ -21,8 +26,7 @@ class UsuarioModel(Base):
     senha_hash: Mapped[str] = mapped_column(String)
     perfil: Mapped[PerfilUsuario] = mapped_column(SQLEnum(PerfilUsuario))
     status: Mapped[StatusUsuario] = mapped_column(SQLEnum(StatusUsuario))
-    nota_admin: Mapped[int] = mapped_column(Integer)
-    nota_galera_media: Mapped[float] = mapped_column(Float)
+    nota_admin: Mapped[int] = mapped_column(Integer, default=5)
     pontos_ranking: Mapped[int] = mapped_column(Integer)
     foto_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
@@ -42,6 +46,43 @@ class UsuarioModel(Base):
     financeiro: Mapped[List["FinanceiroModel"]] = relationship(
         back_populates="usuario", passive_deletes=True
     )
+    premios: Mapped[List["PremioModel"]] = relationship(
+        back_populates="usuario", cascade="all, delete-orphan", passive_deletes=True
+    )
+    notas_recebidas: Mapped[List["NotaModel"]] = relationship(
+        back_populates="avaliado", foreign_keys="[NotaModel.avaliado_id]", cascade="all, delete-orphan", passive_deletes=True
+    )
+    notas_dadas: Mapped[List["NotaModel"]] = relationship(
+        back_populates="avaliador", foreign_keys="[NotaModel.avaliador_id]", passive_deletes=True
+    )
+
+class PremioModel(Base):
+    __tablename__ = "premios"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"))
+    evento_id: Mapped[int] = mapped_column(ForeignKey("eventos.id", ondelete="CASCADE"))
+    categoria: Mapped[CategoriaVoto] = mapped_column(SQLEnum(CategoriaVoto))
+    mes_referencia: Mapped[str] = mapped_column(String)
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    usuario: Mapped["UsuarioModel"] = relationship(back_populates="premios")
+    evento: Mapped["EventoModel"] = relationship(back_populates="premios")
+
+class NotaModel(Base):
+    __tablename__ = "notas"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    avaliado_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"))
+    avaliador_id: Mapped[Optional[int]] = mapped_column(ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True)
+    evento_id: Mapped[Optional[int]] = mapped_column(ForeignKey("eventos.id", ondelete="CASCADE"), nullable=True)
+    nota: Mapped[int] = mapped_column(Integer)
+    tipo: Mapped[TipoNota] = mapped_column(SQLEnum(TipoNota))
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    avaliado: Mapped["UsuarioModel"] = relationship(back_populates="notas_recebidas", foreign_keys=[avaliado_id])
+    avaliador: Mapped[Optional["UsuarioModel"]] = relationship(back_populates="notas_dadas", foreign_keys=[avaliador_id])
+    evento: Mapped[Optional["EventoModel"]] = relationship(back_populates="notas")
 
 class EventoModel(Base):
     __tablename__ = "eventos"
@@ -66,6 +107,12 @@ class EventoModel(Base):
         back_populates="evento", cascade="all, delete-orphan", passive_deletes=True
     )
     votos: Mapped[List["VotoModel"]] = relationship(
+        back_populates="evento", cascade="all, delete-orphan", passive_deletes=True
+    )
+    premios: Mapped[List["PremioModel"]] = relationship(
+        back_populates="evento", cascade="all, delete-orphan", passive_deletes=True
+    )
+    notas: Mapped[List["NotaModel"]] = relationship(
         back_populates="evento", cascade="all, delete-orphan", passive_deletes=True
     )
 

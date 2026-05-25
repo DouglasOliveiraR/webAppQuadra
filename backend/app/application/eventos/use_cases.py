@@ -5,6 +5,7 @@ from domain.usuarios.repositories import UsuarioRepository
 from domain.votos.repositories import VotoRepository
 from domain.financeiro.repositories import FinanceiroRepository
 from domain.financeiro.enums import StatusPagamento
+from domain.notas.repositories import NotaRepository
 from core.exceptions import RecursoNaoEncontradoError
 from typing import List
 
@@ -40,12 +41,14 @@ class ObterEventoUseCase:
         evento_repo: EventoRepository,
         presenca_repo: PresencaRepository,
         usuario_repo: UsuarioRepository,
-        voto_repo: VotoRepository
+        voto_repo: VotoRepository,
+        nota_repo: NotaRepository
     ):
         self.evento_repo = evento_repo
         self.presenca_repo = presenca_repo
         self.usuario_repo = usuario_repo
         self.voto_repo = voto_repo
+        self.nota_repo = nota_repo
 
     async def executar(self, evento_id: int, usuario_logado_id: int) -> dict:
         evento = await self.evento_repo.buscar_por_id(evento_id)
@@ -76,6 +79,9 @@ class ObterEventoUseCase:
 
         votos = await self.voto_repo.listar_por_evento(evento_id)
         usuario_ja_votou = any(v.eleitor_id == usuario_logado_id for v in votos)
+        
+        notas_enviadas = await self.nota_repo.listar_por_avaliador_e_evento(usuario_logado_id, evento_id)
+        usuario_ja_avaliou = len(notas_enviadas) > 0
 
         return {
             "id": evento.id,
@@ -90,6 +96,7 @@ class ObterEventoUseCase:
             "valor_mensalidade": evento.valor_mensalidade,
             "custo_quadra": evento.custo_quadra,
             "usuario_ja_votou": usuario_ja_votou,
+            "usuario_ja_avaliou": usuario_ja_avaliou,
             "presencas": presencas_detalhadas
         }
 

@@ -127,7 +127,12 @@ export function HomePage() {
           {!nenhumEventoAtivo && (
             <div className="absolute top-0 right-0 bg-primary-container text-on-primary-container px-3 py-1 rounded-bl-xl font-label-bold text-label-bold flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              {evento.status_evento === 'PRESENCA_ABERTA' ? 'Lista Aberta' : 'Votação Aberta'}
+              {evento.status_evento === 'AGENDADO' ? 'Agendado' :
+               evento.status_evento === 'PRESENCA_ABERTA' ? 'Lista Aberta' :
+               evento.status_evento === 'VOTACAO_ABERTA' ? 'Votação Aberta' :
+               evento.status_evento === 'ENCERRADO' ? 'Encerrado' :
+               evento.status_evento === 'CANCELADO' ? 'Cancelado' : 
+               evento.status_evento}
             </div>
           )}
           <h3 className="font-headline-md text-headline-md mb-2 mt-4 md:mt-0">Próxima Pelada</h3>

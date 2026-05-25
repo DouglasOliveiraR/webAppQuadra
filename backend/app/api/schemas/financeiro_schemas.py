@@ -29,3 +29,9 @@ class FinanceiroAdminResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TransparenciaResponse(BaseModel):
+    arrecadado: float
+    custo_quadra: float
+    saldo: float
+    mes_referencia: str

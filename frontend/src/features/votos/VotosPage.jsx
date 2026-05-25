@@ -86,6 +86,18 @@ export function VotosPage() {
     );
   }
   
+  if (evento?.status_evento !== 'VOTACAO_ABERTA') {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-950 text-white p-6 text-center">
+        <span className="material-symbols-outlined text-[64px] text-gray-700 mb-4">lock</span>
+        <h3 className="font-headline-md text-headline-md font-bold text-gray-200">Votação Fechada</h3>
+        <p className="font-body-sm text-body-sm text-gray-400 mt-2">
+          A votação ainda não foi liberada pelo administrador ou já foi encerrada.
+        </p>
+      </div>
+    );
+  }
+
   if (candidatos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-950 text-white p-6 text-center">

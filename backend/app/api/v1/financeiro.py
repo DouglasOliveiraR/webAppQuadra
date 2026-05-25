@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 from datetime import datetime
-from api.schemas.financeiro_schemas import FinanceiroResponse, FinanceiroAdminResponse
+from api.schemas.financeiro_schemas import FinanceiroResponse, FinanceiroAdminResponse, TransparenciaResponse
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
 from application.financeiro.listar_todos_financeiro_use_case import ListarTodosFinanceiroUseCase
+from application.financeiro.obter_transparencia_use_case import ObterTransparenciaUseCase
 from application.usuarios.listar_usuarios_use_case import ListarUsuariosUseCase
 from api.v1.deps import (
     get_listar_financeiro_use_case, 
     get_listar_todos_financeiro_use_case,
     get_listar_usuarios_use_case,
     get_baixar_pagamento_use_case, 
+    get_obter_transparencia_use_case,
     get_current_user, 
     get_admin_user
 )
@@ -57,6 +59,15 @@ async def get_financeiro_admin(
             )
         )
     return resposta
+
+@router.get("/transparencia", response_model=TransparenciaResponse)
+async def get_transparencia(
+    mes: Optional[str] = None,
+    use_case: ObterTransparenciaUseCase = Depends(get_obter_transparencia_use_case),
+    current_user: Usuario = Depends(get_current_user)
+):
+    filtro_mes = mes or datetime.now().strftime("%Y-%m")
+    return await use_case.executar(filtro_mes)
 
 @router.put("/{pagamento_id}/baixar", response_model=FinanceiroResponse)
 async def baixar_pagamento(

@@ -277,7 +277,28 @@ export function RankingPage() {
                         jogador.nome.charAt(0)
                       )}
                     </div>
-                    <span className="font-headline-md text-body-md text-on-surface">{jogador.nome}</span>
+                    <div className="flex flex-col">
+                      <span className="font-headline-md text-body-md text-on-surface">{jogador.nome}</span>
+                      {jogador.premios && jogador.premios.length > 0 && (
+                        <div className="flex gap-1 mt-0.5 flex-wrap">
+                          {jogador.premios.map(p => {
+                            let bg = 'bg-surface-variant text-on-surface-variant border-outline-variant/30';
+                            let icon = 'star';
+                            if(p.categoria === 'BOLA_CHEIA') { bg = 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700'; icon = 'emoji_events'; }
+                            if(p.categoria === 'GOL_BONITO') { bg = 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700'; icon = 'sports_soccer'; }
+                            if(p.categoria === 'BOLA_MURCHA') { bg = 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700'; icon = 'thumb_down'; }
+                            if(p.categoria === 'LAFON') { bg = 'bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-700'; icon = 'sentiment_very_dissatisfied'; }
+                            
+                            return (
+                              <div key={p.categoria} className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-bold border ${bg}`}>
+                                <span className="material-symbols-outlined text-[10px]">{icon}</span>
+                                <span>{p.quantidade}x</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className={`w-16 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'pontos' ? 'text-primary font-bold' : 'text-on-surface-variant/80'}`}>{jogador.pontos_ranking}</div>
                   <div className={`w-16 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'nota' ? 'text-primary font-bold' : 'text-on-surface-variant/80'}`}>{jogador.nota_galera_media ? jogador.nota_galera_media.toFixed(1) : '-'}</div>
@@ -361,7 +382,7 @@ export function RankingPage() {
                 <PremioCard 
                   titulo="O Lafon"
                   icone="sentiment_very_dissatisfied"
-                  subtitulo="O lance mais bizarro"
+                  subtitulo="O chorão da rodada"
                   pontos="-1"
                   estilo="from-[#FDF2F8] to-[#FCE7F3] dark:from-pink-950/20 dark:to-pink-900/10 border-pink-200/50 text-[#DB2777] dark:text-pink-400"
                   vencedores={ultimoResultado.vencedores?.LAFON}

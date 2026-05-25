@@ -29,12 +29,19 @@ export function ForceVoteGuard({ children }) {
     console.error('Erro ao ler token no ForceVoteGuard', e);
   }
 
-  // Verifica se o evento está em votação aberta e o usuário logado não votou ainda
-  const forceVoteAtivo = !isAdmin && evento?.status_evento === 'VOTACAO_ABERTA' && evento?.usuario_ja_votou === false;
+  // Verifica se o evento está em votação aberta e o usuário logado não concluiu ambas as etapas
+  const forceVoteAtivo = !isAdmin && evento?.status_evento === 'VOTACAO_ABERTA' && !(evento?.usuario_ja_votou && evento?.usuario_ja_avaliou);
 
-  if (forceVoteAtivo && location.pathname !== '/votos') {
-    // Redireciona o usuário para a página de votos
-    return <Navigate to="/votos" replace />;
+  if (forceVoteAtivo) {
+    if (!evento?.usuario_ja_votou) {
+      if (location.pathname !== '/votos') {
+        return <Navigate to="/votos" replace />;
+      }
+    } else if (!evento?.usuario_ja_avaliou) {
+      if (location.pathname !== '/avaliacao-galera') {
+        return <Navigate to="/avaliacao-galera" replace />;
+      }
+    }
   }
 
   return children;

@@ -4,10 +4,7 @@ from api.db.database import engine
 from api.db.models import Base
 from core.config import settings
 
-from api.v1.auth import router as auth_router
-from api.v1.eventos import router as eventos_router
-from api.v1.usuarios import router as usuarios_router
-from api.v1 import auth, eventos, ranking, financeiro, usuarios
+from api.v1 import auth, eventos, ranking, financeiro, usuarios, notas
 
 # Cria as tabelas do banco (Apenas para MVP SQLite, em prod usar Alembic)
 Base.metadata.create_all(bind=engine)
@@ -35,11 +32,12 @@ app.add_middleware(
 )
 
 # Registra os Routers
-app.include_router(auth_router)
-app.include_router(eventos_router)
-app.include_router(usuarios_router)
+app.include_router(auth.router)
+app.include_router(usuarios.router)
+app.include_router(eventos.router)
 app.include_router(ranking.router)
 app.include_router(financeiro.router)
+app.include_router(notas.router)
 
 @app.get("/")
 def read_root():

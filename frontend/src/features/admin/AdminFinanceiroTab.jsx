@@ -58,20 +58,22 @@ export function AdminFinanceiroTab() {
   // Filtrar apenas mensalidades
   const mensalidades = pendenciasAdmin.filter(item => item.tipo === 'MENSALIDADE') || [];
 
-  const mesesOpcoes = [
-    { value: "2026-01", label: "Janeiro / 2026" },
-    { value: "2026-02", label: "Fevereiro / 2026" },
-    { value: "2026-03", label: "Março / 2026" },
-    { value: "2026-04", label: "Abril / 2026" },
-    { value: "2026-05", label: "Maio / 2026" },
-    { value: "2026-06", label: "Junho / 2026" },
-    { value: "2026-07", label: "Julho / 2026" },
-    { value: "2026-08", label: "Agosto / 2026" },
-    { value: "2026-09", label: "Setembro / 2026" },
-    { value: "2026-10", label: "Outubro / 2026" },
-    { value: "2026-11", label: "Novembro / 2026" },
-    { value: "2026-12", label: "Dezembro / 2026" }
-  ];
+  const gerarMesesOpcoes = () => {
+    const anoAtual = new Date().getFullYear();
+    const meses = [
+      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ];
+    return meses.map((nome, index) => {
+      const mesNum = String(index + 1).padStart(2, '0');
+      return {
+        value: `${anoAtual}-${mesNum}`,
+        label: `${nome} / ${anoAtual}`
+      };
+    });
+  };
+
+  const mesesOpcoes = gerarMesesOpcoes();
 
   return (
     <div className="space-y-6 fade-in pb-8">

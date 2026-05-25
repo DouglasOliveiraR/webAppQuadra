@@ -4,6 +4,7 @@ import { showToast } from '../../components/ui/Toast';
 
 export function FinanceiroPage() {
   const [transacoes, setTransacoes] = useState(null);
+  const [transparencia, setTransparencia] = useState(null);
   const [eventos, setEventos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,8 +22,12 @@ export function FinanceiroPage() {
     const fetchFinanceiro = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/financeiro/me', { params: { mes: selectedMonth } });
-        setTransacoes(response.data);
+        const [respMe, respTransp] = await Promise.all([
+          api.get('/financeiro/me', { params: { mes: selectedMonth } }),
+          api.get('/financeiro/transparencia', { params: { mes: selectedMonth } })
+        ]);
+        setTransacoes(respMe.data);
+        setTransparencia(respTransp.data);
       } catch (err) {
         setError(err);
       } finally {
@@ -59,12 +64,7 @@ export function FinanceiroPage() {
     ? mensalidade.valor 
     : (eventoDoMes?.valor_mensalidade !== undefined && eventoDoMes?.valor_mensalidade !== null ? eventoDoMes.valor_mensalidade : 60.00);
 
-  // O saldo do caixa da pelada é a soma de todos os pagamentos PAGO do usuário para o mês selecionado menos o custo da quadra
-  const custoQuadra = eventoDoMes?.custo_quadra || 0.0;
-  
-  const saldo = (transacoes
-    ?.filter(t => t.status_pagamento === 'PAGO' && t.mes_referencia === selectedMonth)
-    ?.reduce((acc, curr) => acc + curr.valor, 0) || 0) - custoQuadra;
+  const saldo = transparencia ? transparencia.saldo : 0;
 
   const formatarSaldo = (valor) => {
     const absoluto = Math.abs(valor).toFixed(2).replace('.', ',');

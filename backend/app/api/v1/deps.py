@@ -212,7 +212,10 @@ def get_obter_ultimo_resultado_use_case(db: Session = Depends(get_db)) -> ObterU
 
 def get_deletar_usuario_use_case(db: Session = Depends(get_db)) -> DeletarUsuarioUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
-    return DeletarUsuarioUseCase(usuario_repo)
+    financeiro_repo = SQLAlchemyFinanceiroRepository(db)
+    presenca_repo = SQLAlchemyPresencaRepository(db)
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return DeletarUsuarioUseCase(usuario_repo, presenca_repo, financeiro_repo, evento_repo)
 
 def get_obter_transparencia_use_case(db: Session = Depends(get_db)):
     from application.financeiro.obter_transparencia_use_case import ObterTransparenciaUseCase

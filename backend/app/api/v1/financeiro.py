@@ -45,7 +45,7 @@ async def get_financeiro_admin(
     
     resposta = []
     for reg in registros:
-        nome, tel = usuarios_map.get(reg.usuario_id, (None, None))
+        nome, tel = usuarios_map.get(reg.usuario_id, ("Usuário Excluído", "-"))
         resposta.append(
             FinanceiroAdminResponse(
                 id=reg.id,

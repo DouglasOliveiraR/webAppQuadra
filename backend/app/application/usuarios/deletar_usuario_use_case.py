@@ -1,12 +1,48 @@
 from domain.usuarios.repositories import UsuarioRepository
+from domain.presencas.repositories import PresencaRepository
+from domain.financeiro.repositories import FinanceiroRepository
+from domain.eventos.repositories import EventoRepository
+from domain.usuarios.enums import StatusUsuario
+from domain.eventos.enums import StatusEvento
+from domain.financeiro.enums import StatusPagamento
+import time
 
 class DeletarUsuarioUseCase:
-    def __init__(self, usuario_repo: UsuarioRepository):
+    def __init__(
+        self, 
+        usuario_repo: UsuarioRepository,
+        presenca_repo: PresencaRepository,
+        financeiro_repo: FinanceiroRepository,
+        evento_repo: EventoRepository
+    ):
         self.usuario_repo = usuario_repo
+        self.presenca_repo = presenca_repo
+        self.financeiro_repo = financeiro_repo
+        self.evento_repo = evento_repo
 
     async def executar(self, usuario_id: int) -> bool:
         usuario = await self.usuario_repo.buscar_por_id(usuario_id)
         if not usuario:
             return False
             
-        return await self.usuario_repo.deletar(usuario_id)
+        usuario.status = StatusUsuario.INATIVO
+        usuario.telefone = f"{usuario.telefone}_del_{int(time.time())}"
+        
+        await self.usuario_repo.salvar(usuario)
+        
+        # Limpar presenças em eventos não concluídos (ABERTO ou VOTACAO)
+        eventos = await self.evento_repo.listar_todos()
+        for evento in eventos:
+            if evento.status_evento in [StatusEvento.ABERTO, StatusEvento.VOTACAO]:
+                presencas = await self.presenca_repo.listar_por_evento(evento.id)
+                for p in presencas:
+                    if p.usuario_id == usuario_id:
+                        await self.presenca_repo.deletar(p.id)
+        
+        # Limpar financeiro pendente do usuário
+        registros_fin = await self.financeiro_repo.listar_todos()
+        for r in registros_fin:
+            if r.usuario_id == usuario_id and r.status_pagamento == StatusPagamento.PENDENTE:
+                await self.financeiro_repo.deletar(r.id)
+                
+        return True

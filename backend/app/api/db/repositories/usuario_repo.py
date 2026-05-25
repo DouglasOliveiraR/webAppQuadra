@@ -70,7 +70,8 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         return [self._to_entity(m) for m in models]
 
     async def listar_todos(self) -> List[Usuario]:
-        models = self.session.query(UsuarioModel).all()
+        from domain.usuarios.enums import StatusUsuario
+        models = self.session.query(UsuarioModel).filter(UsuarioModel.status != StatusUsuario.INATIVO).all()
         return [self._to_entity(m) for m in models]
 
     async def salvar(self, usuario: Usuario) -> Usuario:

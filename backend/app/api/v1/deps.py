@@ -123,7 +123,8 @@ def get_listar_todos_financeiro_use_case(db: Session = Depends(get_db)) -> Lista
     financeiro_repo = SQLAlchemyFinanceiroRepository(db)
     usuario_repo = SQLAlchemyUsuarioRepository(db)
     evento_repo = SQLAlchemyEventoRepository(db)
-    return ListarTodosFinanceiroUseCase(financeiro_repo, usuario_repo, evento_repo)
+    presenca_repo = SQLAlchemyPresencaRepository(db)
+    return ListarTodosFinanceiroUseCase(financeiro_repo, usuario_repo, evento_repo, presenca_repo)
 
 def get_baixar_pagamento_use_case(db: Session = Depends(get_db)):
     repo = SQLAlchemyFinanceiroRepository(db)

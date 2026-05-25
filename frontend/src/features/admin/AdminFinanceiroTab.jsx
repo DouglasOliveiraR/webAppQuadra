@@ -51,7 +51,9 @@ export function AdminFinanceiroTab() {
   const jogadoresConfirmados = eventoDoMes?.presencas?.filter(p => p.vai_churrasco) || [];
   const cota = eventoDoMes?.valor_churrasco || 40;
   const meta = 600; // Mock goal para o churrasco
-  const arrecadado = jogadoresConfirmados.length * cota;
+  const arrecadado = pendenciasAdmin
+    .filter(p => p.tipo === `CHURRASCO_${eventoDoMes?.id}` && p.status_pagamento === 'PAGO')
+    .reduce((sum, p) => sum + p.valor, 0);
   const faltam = Math.max(0, meta - arrecadado);
   const progresso = Math.min(100, (arrecadado / meta) * 100);
 
@@ -126,8 +128,13 @@ export function AdminFinanceiroTab() {
           <div className="space-y-4">
             <h3 className="font-headline-md text-headline-md text-on-surface">Pagamentos</h3>
             <div className="glass-panel rounded-xl overflow-hidden shadow-ambient-1 divide-y divide-outline-variant/30">
-              {jogadoresConfirmados.map((jogador, idx) => {
-                const pago = idx % 2 === 0; // Mocking payment status
+              {jogadoresConfirmados.map((jogador) => {
+                const tipoChurrasco = `CHURRASCO_${eventoDoMes?.id}`;
+                const registroChurras = pendenciasAdmin.find(
+                  p => p.usuario_id === jogador.usuario_id && p.tipo === tipoChurrasco
+                );
+                const pago = registroChurras?.status_pagamento === 'PAGO';
+
                 return (
                   <div key={jogador.usuario_id} className="p-4 flex items-center justify-between bg-surface-container-lowest">
                     <div className="flex items-center gap-3">
@@ -140,11 +147,19 @@ export function AdminFinanceiroTab() {
                       </div>
                       <span className="font-headline-md text-[16px] text-on-surface">{jogador.usuario_nome}</span>
                     </div>
-                    <button className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors ${pago ? 'bg-primary border-primary text-on-primary' : 'bg-transparent border-error text-error hover:bg-error/10'}`}>
+                    <button 
+                      onClick={() => !pago && registroChurras && baixarPagamentoAdmin(registroChurras.id, selectedMonth)}
+                      disabled={actionLoading || pago || !registroChurras}
+                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors ${
+                        pago 
+                          ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default' 
+                          : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
+                      }`}
+                    >
                       {pago ? (
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">check</span> Pago</span>
                       ) : (
-                        'Cobrar'
+                        'Dar Baixa'
                       )}
                     </button>
                   </div>

@@ -5,17 +5,20 @@ from domain.financeiro.entities import Financeiro
 from domain.usuarios.repositories import UsuarioRepository
 from domain.usuarios.enums import PerfilUsuario, StatusUsuario
 from domain.eventos.repositories import EventoRepository
+from domain.presencas.repositories import PresencaRepository
 
 class ListarTodosFinanceiroUseCase:
     def __init__(
         self,
         financeiro_repo: FinanceiroRepository,
         usuario_repo: UsuarioRepository,
-        evento_repo: EventoRepository
+        evento_repo: EventoRepository,
+        presenca_repo: PresencaRepository
     ):
         self.financeiro_repo = financeiro_repo
         self.usuario_repo = usuario_repo
         self.evento_repo = evento_repo
+        self.presenca_repo = presenca_repo
 
     async def executar(self, mes: str) -> List[Financeiro]:
         # 1. Buscar todos os registros financeiros
@@ -36,12 +39,12 @@ class ListarTodosFinanceiroUseCase:
             if reg.tipo == "MENSALIDADE" and reg.usuario_id is not None
         }
 
-        # Determinar valor padrão da mensalidade
+        # Determinar valor padrão da mensalidade e listar eventos do mês
         valor_padrao = 60.0
+        eventos_do_mes = []
         try:
             eventos = await self.evento_repo.listar_todos()
             if eventos:
-                # Filtrar eventos do mês específico primeiro para obter a mensalidade correta
                 eventos_do_mes = [e for e in eventos if e.data_jogo.strftime("%Y-%m") == mes]
                 if eventos_do_mes:
                     eventos_ordenados = sorted(eventos_do_mes, key=lambda e: e.id, reverse=True)
@@ -66,6 +69,32 @@ class ListarTodosFinanceiroUseCase:
                 )
                 await self.financeiro_repo.salvar(nova_mensalidade)
                 precisa_recarregar = True
+
+        # 3. Garantir que confirmados para churrasco tenham registro financeiro
+        if eventos_do_mes:
+            for evento in eventos_do_mes:
+                if evento.flag_churrasco:
+                    presencas = await self.presenca_repo.listar_por_evento(evento.id)
+                    confirmados = [p.usuario_id for p in presencas if p.vai_churrasco]
+                    tipo_churrasco = f"CHURRASCO_{evento.id}"
+                    
+                    usuarios_com_churrasco = {
+                        reg.usuario_id for reg in registros_financeiros 
+                        if reg.tipo == tipo_churrasco and reg.usuario_id is not None
+                    }
+                    
+                    for uid in confirmados:
+                        if uid not in usuarios_com_churrasco:
+                            novo_churrasco = Financeiro(
+                                id=None,
+                                usuario_id=uid,
+                                tipo=tipo_churrasco,
+                                valor=evento.valor_churrasco or 40.0,
+                                status_pagamento=StatusPagamento.PENDENTE,
+                                mes_referencia=mes
+                            )
+                            await self.financeiro_repo.salvar(novo_churrasco)
+                            precisa_recarregar = True
 
         if precisa_recarregar:
             registros_financeiros = await self.financeiro_repo.listar_todos()

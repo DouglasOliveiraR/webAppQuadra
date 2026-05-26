@@ -47,7 +47,6 @@ def setup_db():
         perfil=PerfilUsuario.ADMIN,
         status=StatusUsuario.ATIVO,
         nota_admin=10.0,
-        nota_galera_media=10.0,
         pontos_ranking=50
     )
     # Inserir Usuário (Comum)
@@ -58,7 +57,6 @@ def setup_db():
         perfil=PerfilUsuario.MENSALISTA,
         status=StatusUsuario.ATIVO,
         nota_admin=8.0,
-        nota_galera_media=8.5,
         pontos_ranking=20
     )
     # Inserir Evento com Presença e Votação Abertas (para facilitar o teste unificado)
@@ -197,9 +195,26 @@ def test_registrar_voto_sucesso():
 
 
 def test_registrar_voto_falha_voto_duplicado():
+    # Primeiro assegura que o evento está como VOTACAO_ABERTA (se executado isolado)
+    db = TestingSessionLocal()
+    evento = db.query(EventoModel).first()
+    if evento.status_evento != StatusEvento.VOTACAO_ABERTA:
+        evento.status_evento = StatusEvento.VOTACAO_ABERTA
+        db.commit()
+    db.close()
+
     res_login = client.post("/api/auth/login", json={"telefone": "11988888888", "senha": "senha123"})
     jogador_token = res_login.json()["access_token"]
     
+    # Fazemos um voto garantido antes, caso esse teste rode primeiro
+    client.post("/api/eventos/1/votos",
+        json={
+            "categoria": "BOLA_CHEIA",
+            "candidato_id": 1
+        },
+        headers={"Authorization": f"Bearer {jogador_token}"}
+    )
+
     # O jogador 2 já votou no 1 na categoria BOLA_CHEIA no teste anterior
     response = client.post("/api/eventos/1/votos", 
         json={

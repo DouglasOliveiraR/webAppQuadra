@@ -85,6 +85,22 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         self.session.refresh(model)
         return self._to_entity(model)
 
+    async def salvar_lote(self, usuarios: List[Usuario]) -> List[Usuario]:
+        if not usuarios:
+            return []
+        model_list = []
+        for usuario in usuarios:
+            model = self._to_model(usuario)
+            if model.id:
+                model = self.session.merge(model)
+            else:
+                self.session.add(model)
+            model_list.append(model)
+        self.session.commit()
+        for m in model_list:
+            self.session.refresh(m)
+        return [self._to_entity(m) for m in model_list]
+
     async def deletar(self, usuario_id: int) -> bool:
         model = self.session.query(UsuarioModel).filter(UsuarioModel.id == usuario_id).first()
         if model:
@@ -92,3 +108,10 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             self.session.commit()
             return True
         return False
+
+    async def deletar_lote(self, usuario_ids: List[int]) -> bool:
+        if not usuario_ids:
+            return False
+        result = self.session.query(UsuarioModel).filter(UsuarioModel.id.in_(usuario_ids)).delete(synchronize_session=False)
+        self.session.commit()
+        return result > 0

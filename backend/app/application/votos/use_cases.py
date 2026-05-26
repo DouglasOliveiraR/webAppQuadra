@@ -102,6 +102,8 @@ class EncerrarVotacaoUseCase:
         from domain.premios.entities import Premio
         from domain.votos.enums import CategoriaVoto
 
+        novos_premios = []
+
         for cat_nome, vencedores in vencedores_por_categoria.items():
             pontos = pontos_map.get(cat_nome, 0)
             for v_id in vencedores:
@@ -116,10 +118,13 @@ class EncerrarVotacaoUseCase:
                     categoria=CategoriaVoto(cat_nome),
                     mes_referencia=mes_ref
                 )
-                await self.premio_repo.salvar(novo_premio)
+                novos_premios.append(novo_premio)
+
+        if novos_premios:
+            await self.premio_repo.salvar_lote(novos_premios)
                     
-        for u in usuarios_atualizados.values():
-            await self.usuario_repo.salvar(u)
+        if usuarios_atualizados:
+            await self.usuario_repo.salvar_lote(list(usuarios_atualizados.values()))
             
         evento.status_evento = StatusEvento.ENCERRADO
         await self.evento_repo.salvar(evento)
@@ -128,9 +133,9 @@ class EncerrarVotacaoUseCase:
         try:
             todos_usuarios = await self.usuario_repo.listar_todos()
             from domain.usuarios.enums import PerfilUsuario
-            usuarios_avulsos = [u for u in todos_usuarios if u.perfil == PerfilUsuario.AVULSO]
-            for u in usuarios_avulsos:
-                await self.usuario_repo.deletar(u.id)
+            ids_avulsos = [u.id for u in todos_usuarios if u.perfil == PerfilUsuario.AVULSO]
+            if ids_avulsos:
+                await self.usuario_repo.deletar_lote(ids_avulsos)
         except Exception as e:
             print(f"Erro ao deletar usuários avulsos no encerramento: {e}")
         

@@ -24,5 +24,13 @@ class UsuarioRepository(ABC):
         pass
 
     @abstractmethod
+    async def salvar_lote(self, usuarios: List[Usuario]) -> List[Usuario]:
+        pass
+
+    @abstractmethod
     async def deletar(self, usuario_id: int) -> bool:
+        pass
+
+    @abstractmethod
+    async def deletar_lote(self, usuario_ids: List[int]) -> bool:
         pass

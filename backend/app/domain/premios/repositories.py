@@ -8,6 +8,10 @@ class PremioRepository(ABC):
         pass
 
     @abstractmethod
+    async def salvar_lote(self, premios: List[Premio]) -> List[Premio]:
+        pass
+
+    @abstractmethod
     async def listar_todos(self) -> List[Premio]:
         pass
 

@@ -3,7 +3,7 @@ import api, { API_URL, getFotoUrl } from '../../services/api';
 
 function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
   return (
-    <div className={`bg-gradient-to-br ${estilo} border rounded-xl p-5 shadow-ambient-1 flex flex-col justify-between min-h-[160px]`}>
+    <div className={`bg-gradient-to-br ${estilo} border rounded-xl p-5 shadow-ambient-1 flex flex-col justify-between min-h-[160px] transition-all duration-300 hover:shadow-md hover:-translate-y-[2px]`}>
       <div>
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2">
@@ -120,16 +120,18 @@ export function RankingPage() {
       {/* Título da tela */}
       <div className="flex items-center gap-3 mb-6 mt-4">
         <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm bg-primary-container text-on-primary-container">
-          <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>trophy</span>
+          <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}} aria-hidden="true">trophy</span>
         </div>
         <h2 className="font-headline-md text-headline-md text-on-surface">Resenha & Ranking</h2>
       </div>
 
       {/* Tabs */}
-      <div className="flex p-1 bg-surface-container-low rounded-lg mb-8 shadow-inner">
+      <div className="flex p-1 bg-surface-container-low rounded-lg mb-8 shadow-inner" role="tablist">
         <button 
           onClick={() => setActiveTab('tabela')}
-          className={`flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all ${
+          role="tab"
+          aria-selected={activeTab === 'tabela'}
+          className={`flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             activeTab === 'tabela' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'
           }`}
         >
@@ -137,7 +139,9 @@ export function RankingPage() {
         </button>
         <button 
           onClick={() => setActiveTab('ultimo')}
-          className={`flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all ${
+          role="tab"
+          aria-selected={activeTab === 'ultimo'}
+          className={`flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             activeTab === 'ultimo' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'
           }`}
         >
@@ -151,10 +155,11 @@ export function RankingPage() {
           {/* Seletor de Critério de Ordenação */}
           <div className="flex items-center justify-between bg-surface-container-low px-4 py-2.5 rounded-xl border border-outline-variant/20 mb-2">
             <span className="font-label-bold text-label-bold text-on-surface-variant uppercase text-[11px] tracking-wider">Classificar por</span>
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group">
               <button 
                 onClick={() => setCriterioOrdenacao('pontos')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                aria-pressed={criterioOrdenacao === 'pontos'}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   criterioOrdenacao === 'pontos' 
                     ? 'bg-primary text-on-primary shadow-sm' 
                     : 'bg-surface-variant text-on-surface-variant hover:bg-surface-container-high'
@@ -164,7 +169,8 @@ export function RankingPage() {
               </button>
               <button 
                 onClick={() => setCriterioOrdenacao('nota')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                aria-pressed={criterioOrdenacao === 'nota'}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   criterioOrdenacao === 'nota' 
                     ? 'bg-primary text-on-primary shadow-sm' 
                     : 'bg-surface-variant text-on-surface-variant hover:bg-surface-container-high'
@@ -186,9 +192,12 @@ export function RankingPage() {
                       {top3[1].foto_url ? (
                         <img src={getFotoUrl(top3[1].foto_url)} alt={top3[1].nome} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="material-symbols-outlined text-[32px]">person</span>
+                        <span className="material-symbols-outlined text-[32px]" aria-hidden="true">person</span>
                       )}
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#C0C0C0] rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-surface">2</div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#C0C0C0] rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-surface">
+                        <span aria-hidden="true">2</span>
+                        <span className="sr-only">2º Lugar</span>
+                      </div>
                     </div>
                     <span className="font-headline-md text-body-md text-on-surface truncate w-full text-center">{top3[1].nome.split(' ')[0]}</span>
                     <span className="font-label-bold text-label-bold text-primary">
@@ -203,15 +212,18 @@ export function RankingPage() {
                 {top3[0] && (
                   <div className="flex flex-col items-center w-1/3 relative z-20 transform -translate-y-4">
                     <div className="absolute -top-6 text-[#FFD700]">
-                      <span className="material-symbols-outlined text-3xl" style={{fontVariationSettings: "'FILL' 1"}}>workspace_premium</span>
+                      <span className="material-symbols-outlined text-3xl" style={{fontVariationSettings: "'FILL' 1"}} aria-hidden="true">workspace_premium</span>
                     </div>
                     <div className="w-20 h-20 rounded-full border-4 border-[#FFD700] shadow-lg overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[0].foto_url ? (
                         <img src={getFotoUrl(top3[0].foto_url)} alt={top3[0].nome} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="material-symbols-outlined text-[40px]">person</span>
+                        <span className="material-symbols-outlined text-[40px]" aria-hidden="true">person</span>
                       )}
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#FFD700] rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-surface">1</div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#FFD700] rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-surface">
+                        <span aria-hidden="true">1</span>
+                        <span className="sr-only">1º Lugar</span>
+                      </div>
                     </div>
                     <span className="font-headline-md text-headline-md text-on-surface truncate w-full text-center">{top3[0].nome.split(' ')[0]}</span>
                     <span className="font-label-bold text-label-bold text-primary px-2 py-1 bg-primary/10 rounded-full mt-1">
@@ -229,9 +241,12 @@ export function RankingPage() {
                       {top3[2].foto_url ? (
                         <img src={getFotoUrl(top3[2].foto_url)} alt={top3[2].nome} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="material-symbols-outlined text-[28px]">person</span>
+                        <span className="material-symbols-outlined text-[28px]" aria-hidden="true">person</span>
                       )}
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#CD7F32] rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-surface">3</div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#CD7F32] rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-surface">
+                        <span aria-hidden="true">3</span>
+                        <span className="sr-only">3º Lugar</span>
+                      </div>
                     </div>
                     <span className="font-headline-md text-body-sm text-on-surface truncate w-full text-center">{top3[2].nome.split(' ')[0]}</span>
                     <span className="font-label-bold text-label-bold text-primary">

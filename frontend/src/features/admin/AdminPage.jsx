@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEvento } from '../../hooks/useEvento';
 import api, { API_URL, getFotoUrl } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
@@ -27,6 +27,12 @@ export function AdminPage() {
   const [loadingCheckin, setLoadingCheckin] = useState(null);
   const [timesSorteados, setTimesSorteados] = useState(null);
   const [activeTab, setActiveTab] = useState('geral');
+  const [usuarios, setUsuarios] = useState([]);
+  useEffect(() => {
+    if (activeTab === 'check-in' && usuarios.length === 0) {
+      api.get('/usuarios').then(res => setUsuarios(res.data)).catch(console.error);
+    }
+  }, [activeTab]);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   // Form states for creating event
@@ -163,6 +169,47 @@ export function AdminPage() {
   const presencaAberta = evento && evento.status_evento === 'PRESENCA_ABERTA';
   const votacaoAberta = evento && evento.status_evento === 'VOTACAO_ABERTA';
   const jogadoresConfirmados = evento?.presencas?.filter(p => p.status_jogo === 'VOU') || [];
+  let jogadoresCheckin = [];
+  
+  if (usuarios.length > 0) {
+    const ativos = usuarios.filter(u => u.status === 'ATIVO');
+    // We want ALL active MENSALISTA and ADMIN
+    const fixos = ativos.filter(u => u.perfil === 'MENSALISTA' || u.perfil === 'ADMIN');
+    // We also want ANY AVULSO who has a presenca record indicating they are going
+    const presencasAvulsos = evento?.presencas?.filter(p => p.usuario_perfil === 'AVULSO' && p.status_jogo === 'VOU') || [];
+    
+    // We map fixos to have the 'checkin_validado', 'vai_churrasco' and 'posicao' from their presenca (if exists)
+    const fixosMapped = fixos.map(u => {
+      const p = evento?.presencas?.find(pres => pres.usuario_id === u.id);
+      return {
+        usuario_id: u.id,
+        usuario_nome: u.nome,
+        usuario_perfil: u.perfil,
+        usuario_foto_url: u.foto_url,
+        posicao: p?.posicao || 'Linha', // Fallback if no presenca
+        vai_churrasco: p?.vai_churrasco || false,
+        checkin_validado: p?.checkin_validado || false
+      };
+    });
+    
+    const avulsosMapped = presencasAvulsos.map(p => ({
+      usuario_id: p.usuario_id,
+      usuario_nome: p.usuario_nome,
+      usuario_perfil: p.usuario_perfil,
+      usuario_foto_url: p.usuario_foto_url,
+      posicao: p.posicao,
+      vai_churrasco: p.vai_churrasco,
+      checkin_validado: p.checkin_validado
+    }));
+    
+    // Sort alphabetically by name
+    jogadoresCheckin = [...fixosMapped, ...avulsosMapped].sort((a, b) => a.usuario_nome.localeCompare(b.usuario_nome));
+  } else {
+    // Fallback to old behavior while loading
+    jogadoresCheckin = evento?.presencas?.filter(
+      p => p.status_jogo === 'VOU' || p.usuario_perfil === 'MENSALISTA' || p.usuario_perfil === 'ADMIN'
+    ) || [];
+  }
   
   const confirmadosChurrasco = evento?.presencas?.filter(p => p.vai_churrasco) || [];
 
@@ -505,12 +552,12 @@ export function AdminPage() {
           <div className="glass-panel rounded-xl p-4 shadow-ambient-1 bg-primary/10 border border-primary/20">
             <div className="flex justify-between text-body-sm font-bold text-primary mb-2 uppercase">
               <span>Jogadores Presentes</span>
-              <span>{jogadoresConfirmados.filter(j => j.checkin_validado).length} de {jogadoresConfirmados.length}</span>
+              <span>{jogadoresCheckin.filter(j => j.checkin_validado).length} de {jogadoresCheckin.length}</span>
             </div>
             <div className="w-full bg-surface-variant rounded-full h-2.5">
               <div 
                 className="bg-primary h-2.5 rounded-full transition-all duration-500" 
-                style={{ width: `${jogadoresConfirmados.length ? (jogadoresConfirmados.filter(j => j.checkin_validado).length / jogadoresConfirmados.length) * 100 : 0}%` }}
+                style={{ width: `${jogadoresCheckin.length ? (jogadoresCheckin.filter(j => j.checkin_validado).length / jogadoresCheckin.length) * 100 : 0}%` }}
               ></div>
             </div>
           </div>
@@ -519,13 +566,13 @@ export function AdminPage() {
             <h3 className="font-headline-md text-headline-md text-on-surface flex gap-2 items-center">
               <span className="material-symbols-outlined">how_to_reg</span> Check-in na Quadra
             </h3>
-            {jogadoresConfirmados.length === 0 ? (
+            {jogadoresCheckin.length === 0 ? (
               <div className="text-center py-8 text-body-sm text-tertiary bg-surface-container-lowest rounded-xl shadow-ambient-1 border border-outline-variant/30">
-                Nenhum jogador confirmou presença ainda.
+                Nenhum jogador para check-in.
               </div>
             ) : (
               <div className="space-y-3">
-                {jogadoresConfirmados.map(jogador => {
+                {jogadoresCheckin.map(jogador => {
                   const chegou = jogador.checkin_validado;
                   return (
                     <div key={jogador.usuario_id} className="glass-panel rounded-xl p-4 flex flex-col gap-3 shadow-ambient-1">

@@ -117,7 +117,10 @@ export function FinanceiroPage() {
   }
 
   // Filtra as transações correspondentes ao mês de referência selecionado para as movimentações
-  const transacoesFiltradas = transacoes?.filter(t => t.mes_referencia === selectedMonth) || [];
+  // Remove itens de CHURRASCO da visão pública de finanças conforme solicitado
+  const transacoesFiltradas = transacoes?.filter(
+    t => t.mes_referencia === selectedMonth && !t.tipo.startsWith('CHURRASCO')
+  ) || [];
 
   return (
     <div className="flex flex-col gap-unit-3 p-4">

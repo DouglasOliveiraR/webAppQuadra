@@ -100,4 +100,8 @@ class ListarTodosFinanceiroUseCase:
             registros_financeiros = await self.financeiro_repo.listar_todos()
             registros_do_mes = [r for r in registros_financeiros if r.mes_referencia == mes]
 
-        return registros_do_mes
+        # Filtra os registros para retornar apenas os de usuários ATIVOS
+        ids_usuarios_ativos = {u.id for u in todos_usuarios if u.status == StatusUsuario.ATIVO}
+        registros_ativos = [r for r in registros_do_mes if r.usuario_id in ids_usuarios_ativos]
+
+        return registros_ativos

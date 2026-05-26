@@ -35,7 +35,7 @@ export function ToastContainer() {
   const isError = toast.type === 'error';
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-bounce-in max-w-sm w-[90%] md:w-auto">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] animate-bounce-in max-w-sm w-[90%] md:w-auto">
       <div className={`px-4 py-3 rounded-card shadow-lvl3 text-sm font-bold flex items-center gap-2 border backdrop-blur-md transition-all duration-300 ${
         isError 
           ? 'bg-error-container/95 text-on-error-container border-error/30' 

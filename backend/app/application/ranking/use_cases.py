@@ -21,9 +21,12 @@ class ListarRankingUseCase:
                 premios_por_usuario[p.usuario_id] = []
             premios_por_usuario[p.usuario_id].append(p.categoria.value)
 
+        from domain.usuarios.enums import StatusUsuario
+        usuarios_ativos = [u for u in usuarios if u.status == StatusUsuario.ATIVO]
+
         # Ordenar os usuários
         usuarios_ordenados = sorted(
-            usuarios, 
+            usuarios_ativos, 
             key=lambda u: (u.pontos_ranking, u.nota_galera_media), 
             reverse=True
         )

@@ -122,6 +122,12 @@ export function useEvento(eventoId = 1) {
     fetchEvento();
   }, [currentEventoId]);
 
+  useEffect(() => {
+    if (eventoId !== currentEventoId) {
+      setCurrentEventoId(eventoId);
+    }
+  }, [eventoId]);
+
   const atualizarChurrasco = async (flag_churrasco, valor_churrasco) => {
     try {
       setActionLoading(true);

@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import api, { API_URL, getFotoUrl } from '../../services/api';
 import { useFinanceiro } from '../../hooks/useFinanceiro';
+import { useEvento } from '../../hooks/useEvento';
 
 export function AdminFinanceiroTab() {
   const [eventos, setEventos] = useState([]);
-  const { 
-    pendenciasAdmin, 
-    loadingAdmin, 
-    actionLoading, 
-    errorAdmin, 
-    baixarPagamentoAdmin, 
-    refetchAdmin 
+  const {
+    pendenciasAdmin,
+    loadingAdmin,
+    actionLoading,
+    errorAdmin,
+    baixarPagamentoAdmin,
+    refetchAdmin
   } = useFinanceiro();
 
   const [subTab, setSubTab] = useState('mensalidades'); // 'mensalidades' | 'churrasco'
-  
+
   const getMesAtual = () => {
     const hoje = new Date();
     const ano = hoje.getFullYear();
@@ -25,9 +26,7 @@ export function AdminFinanceiroTab() {
   const [selectedMonth, setSelectedMonth] = useState(getMesAtual());
 
   useEffect(() => {
-    if (subTab === 'mensalidades') {
-      refetchAdmin(selectedMonth);
-    }
+    refetchAdmin(selectedMonth);
   }, [subTab, selectedMonth]);
 
   useEffect(() => {
@@ -44,26 +43,29 @@ export function AdminFinanceiroTab() {
 
   // Filtra eventos do mês selecionado
   const eventosDoMes = eventos?.filter(e => e.data_jogo && e.data_jogo.startsWith(selectedMonth)) || [];
-  const eventoDoMes = eventosDoMes.length > 0 
+  const eventoDoMesLista = eventosDoMes.length > 0
     ? eventosDoMes.sort((a, b) => b.id - a.id)[0]
     : (eventos.length > 0 ? eventos.sort((a, b) => b.id - a.id)[0] : null);
 
+  const { evento: eventoDetalhado } = useEvento(eventoDoMesLista?.id || 1);
+  const eventoDoMes = eventoDetalhado?.id === eventoDoMesLista?.id ? eventoDetalhado : eventoDoMesLista;
+
   const jogadoresConfirmados = eventoDoMes?.presencas?.filter(p => p.vai_churrasco) || [];
+  // Filtrar apenas mensalidades (usado para base de cálculo da meta, pois todos os usuários ativos recebem 1)
+  const mensalidades = pendenciasAdmin.filter(item => item.tipo === 'MENSALIDADE') || [];
+
   const cota = eventoDoMes?.valor_churrasco || 40;
-  const meta = 600; // Mock goal para o churrasco
+  const meta = mensalidades.length > 0 ? (mensalidades.length * cota) : 0;
   const arrecadado = pendenciasAdmin
     .filter(p => p.tipo === `CHURRASCO_${eventoDoMes?.id}` && p.status_pagamento === 'PAGO')
     .reduce((sum, p) => sum + p.valor, 0);
   const faltam = Math.max(0, meta - arrecadado);
-  const progresso = Math.min(100, (arrecadado / meta) * 100);
-
-  // Filtrar apenas mensalidades
-  const mensalidades = pendenciasAdmin.filter(item => item.tipo === 'MENSALIDADE') || [];
+  const progresso = meta > 0 ? Math.min(100, (arrecadado / meta) * 100) : 0;
 
   const gerarMesesOpcoes = () => {
     const anoAtual = new Date().getFullYear();
     const meses = [
-      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
     return meses.map((nome, index) => {
@@ -81,13 +83,13 @@ export function AdminFinanceiroTab() {
     <div className="space-y-6 fade-in pb-8">
       {/* Sub-tabs */}
       <div className="flex p-1 bg-surface-container-low rounded-lg mb-4 shadow-inner">
-        <button 
+        <button
           onClick={() => setSubTab('mensalidades')}
           className={`flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all ${subTab === 'mensalidades' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'}`}
         >
           Mensalidades
         </button>
-        <button 
+        <button
           onClick={() => setSubTab('churrasco')}
           className={`flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all ${subTab === 'churrasco' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'}`}
         >
@@ -147,14 +149,13 @@ export function AdminFinanceiroTab() {
                       </div>
                       <span className="font-headline-md text-[16px] text-on-surface">{jogador.usuario_nome}</span>
                     </div>
-                    <button 
+                    <button
                       onClick={() => !pago && registroChurras && baixarPagamentoAdmin(registroChurras.id, selectedMonth)}
                       disabled={actionLoading || pago || !registroChurras}
-                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors ${
-                        pago 
-                          ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default' 
+                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors ${pago
+                          ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default'
                           : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
-                      }`}
+                        }`}
                     >
                       {pago ? (
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">check</span> Pago</span>
@@ -176,7 +177,7 @@ export function AdminFinanceiroTab() {
           <h3 className="font-headline-md text-headline-md text-on-surface flex justify-between items-center flex-wrap gap-3">
             <span>Mensalidades dos Jogadores</span>
             <div className="flex items-center gap-2">
-              <select 
+              <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="bg-surface-container-high border-2 border-outline-variant/30 text-on-surface text-sm rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md"
@@ -185,7 +186,7 @@ export function AdminFinanceiroTab() {
                   <option key={m.value} value={m.value} className="bg-surface text-on-surface">{m.label}</option>
                 ))}
               </select>
-              <button 
+              <button
                 onClick={() => refetchAdmin(selectedMonth)}
                 className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center shrink-0"
                 title="Atualizar lista"
@@ -228,25 +229,23 @@ export function AdminFinanceiroTab() {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <span className="block font-extrabold text-[15px] text-on-surface">R$ {item.valor.toFixed(2).replace('.', ',')}</span>
-                        <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 ${
-                          isPago ? 'bg-primary/20 text-primary' : 'bg-warning/20 text-warning-active'
-                        }`}>
+                        <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 ${isPago ? 'bg-primary/20 text-primary' : 'bg-warning/20 text-warning-active'
+                          }`}>
                           {isPago ? 'Pago' : 'Pendente'}
                         </span>
                       </div>
 
-                      <button 
+                      <button
                         onClick={() => !isPago && baixarPagamentoAdmin(item.id, selectedMonth)}
                         disabled={actionLoading || isPago}
-                        className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all ${
-                          isPago 
-                            ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default' 
+                        className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all ${isPago
+                            ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default'
                             : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
-                        }`}
+                          }`}
                       >
                         {isPago ? (
                           <span className="flex items-center gap-1">

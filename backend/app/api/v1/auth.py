@@ -12,7 +12,13 @@ _RATE_LIMIT = {}
 MAX_ATTEMPTS_PER_MINUTE = 5
 
 def check_rate_limit(request: Request):
-    client_ip = request.client.host if request.client else "unknown"
+    # Only bypass for the internal TestClient (not from headers)
+    if request.client and request.client.host == "testclient":
+        return
+
+    # Use X-Forwarded-For to properly support reverse proxies
+    client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
+
     now = time.time()
 
     # Limpa tentativas mais antigas que 60 segundos

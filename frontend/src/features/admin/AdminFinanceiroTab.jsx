@@ -152,13 +152,16 @@ export function AdminFinanceiroTab() {
                     <button
                       onClick={() => !pago && registroChurras && baixarPagamentoAdmin(registroChurras.id, selectedMonth)}
                       disabled={actionLoading || pago || !registroChurras}
-                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors ${pago
+                      aria-label={`Dar baixa no pagamento do churrasco para ${jogador.usuario_nome}`}
+                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors flex justify-center items-center min-w-[108px] ${pago
                           ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default'
                           : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
                         }`}
                     >
                       {pago ? (
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">check</span> Pago</span>
+                      ) : actionLoading ? (
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                       ) : (
                         'Dar Baixa'
                       )}
@@ -242,7 +245,8 @@ export function AdminFinanceiroTab() {
                       <button
                         onClick={() => !isPago && baixarPagamentoAdmin(item.id, selectedMonth)}
                         disabled={actionLoading || isPago}
-                        className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all ${isPago
+                        aria-label={`Dar baixa na mensalidade de ${item.usuario_nome || 'Jogador'}`}
+                        className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all flex justify-center items-center min-w-[108px] ${isPago
                             ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default'
                             : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
                           }`}
@@ -252,6 +256,8 @@ export function AdminFinanceiroTab() {
                             <span className="material-symbols-outlined text-[16px]">check</span>
                             Baixado
                           </span>
+                        ) : actionLoading ? (
+                           <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                         ) : (
                           'Dar Baixa'
                         )}

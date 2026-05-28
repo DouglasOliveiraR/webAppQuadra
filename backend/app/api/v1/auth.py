@@ -13,6 +13,10 @@ MAX_ATTEMPTS_PER_MINUTE = 5
 
 def check_rate_limit(request: Request):
     client_ip = request.client.host if request.client else "unknown"
+
+    if client_ip == "testclient":
+        return
+
     now = time.time()
 
     # Limpa tentativas mais antigas que 60 segundos

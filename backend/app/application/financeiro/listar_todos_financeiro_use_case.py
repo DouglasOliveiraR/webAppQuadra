@@ -56,7 +56,7 @@ class ListarTodosFinanceiroUseCase:
         except Exception:
             pass
 
-        precisa_recarregar = False
+        novos_registros = []
         for usuario in usuarios_ativos:
             if usuario.id not in usuarios_com_mensalidade:
                 nova_mensalidade = Financeiro(
@@ -67,8 +67,7 @@ class ListarTodosFinanceiroUseCase:
                     status_pagamento=StatusPagamento.PENDENTE,
                     mes_referencia=mes
                 )
-                await self.financeiro_repo.salvar(nova_mensalidade)
-                precisa_recarregar = True
+                novos_registros.append(nova_mensalidade)
 
         # 3. Garantir que confirmados para churrasco tenham registro financeiro
         if eventos_do_mes:
@@ -93,10 +92,10 @@ class ListarTodosFinanceiroUseCase:
                                 status_pagamento=StatusPagamento.PENDENTE,
                                 mes_referencia=mes
                             )
-                            await self.financeiro_repo.salvar(novo_churrasco)
-                            precisa_recarregar = True
+                            novos_registros.append(novo_churrasco)
 
-        if precisa_recarregar:
+        if novos_registros:
+            await self.financeiro_repo.salvar_lote(novos_registros)
             registros_financeiros = await self.financeiro_repo.listar_todos()
             registros_do_mes = [r for r in registros_financeiros if r.mes_referencia == mes]
 

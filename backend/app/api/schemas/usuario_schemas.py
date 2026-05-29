@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 from domain.usuarios.enums import PerfilUsuario, StatusUsuario
@@ -7,21 +7,21 @@ class NotaAdminRequest(BaseModel):
     nota: int
 
 class UsuarioCreateRequest(BaseModel):
-    nome: str
-    telefone: str
+    nome: str = Field(..., max_length=100)
+    telefone: str = Field(..., max_length=100)  # Allowed up to 100 for AVULSO fallback logic
     perfil: PerfilUsuario = PerfilUsuario.AVULSO
-    nota_admin: int = 5
+    nota_admin: int = Field(5, ge=0, le=10)
 
 class UsuarioUpdateRequest(BaseModel):
-    nome: str
-    telefone: str
+    nome: str = Field(..., max_length=100)
+    telefone: str = Field(..., max_length=100)
     perfil: PerfilUsuario
     status: StatusUsuario
-    nota_admin: int
+    nota_admin: int = Field(..., ge=0, le=10)
 
 class AlterarSenhaRequest(BaseModel):
-    senha_atual: str
-    nova_senha: str
+    senha_atual: str = Field(..., max_length=128)
+    nova_senha: str = Field(..., max_length=128)
 
 class UsuarioResponse(BaseModel):
     id: int

@@ -191,10 +191,11 @@ export function AdminFinanceiroTab() {
               </select>
               <button
                 onClick={() => refetchAdmin(selectedMonth)}
-                className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center shrink-0"
+                className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 title="Atualizar lista"
+                aria-label="Atualizar lista"
               >
-                <span className="material-symbols-outlined text-[20px]">refresh</span>
+                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">refresh</span>
               </button>
             </div>
           </h3>

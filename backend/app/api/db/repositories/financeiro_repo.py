@@ -60,6 +60,25 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
         self.session.refresh(model)
         return self._to_entity(model)
 
+    # Impacto: A utilização de salvar_lote melhora drasticamente a performance ao persistir
+    # registros no banco em lote. Ao invés de executar um commit por iteração num loop,
+    # realizamos apenas um commit no final, reduzindo a latência, overhead do ORM e acessos em disco.
+    async def salvar_lote(self, lista_financeiro: List[Financeiro]) -> List[Financeiro]:
+        if not lista_financeiro:
+            return []
+        model_list = []
+        for item in lista_financeiro:
+            model = self._to_model(item)
+            if model.id:
+                model = self.session.merge(model)
+            else:
+                self.session.add(model)
+            model_list.append(model)
+        self.session.commit()
+        for m in model_list:
+            self.session.refresh(m)
+        return [self._to_entity(m) for m in model_list]
+
     async def deletar(self, financeiro_id: int) -> bool:
         model = self.session.query(FinanceiroModel).filter(FinanceiroModel.id == financeiro_id).first()
         if model:

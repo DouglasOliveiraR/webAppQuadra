@@ -21,10 +21,13 @@ class CriarEventoUseCase:
         if evento_salvo.valor_mensalidade is not None and evento_salvo.valor_mensalidade > 0:
             mes_ref = evento_salvo.data_jogo.strftime("%Y-%m")
             registros = await self.financeiro_repo.listar_todos()
+            registros_atualizados = []
             for r in registros:
                 if r.tipo == "MENSALIDADE" and r.mes_referencia == mes_ref and r.status_pagamento == StatusPagamento.PENDENTE:
                     r.valor = evento_salvo.valor_mensalidade
-                    await self.financeiro_repo.salvar(r)
+                    registros_atualizados.append(r)
+            if registros_atualizados:
+                await self.financeiro_repo.salvar_lote(registros_atualizados)
                     
         return evento_salvo
 

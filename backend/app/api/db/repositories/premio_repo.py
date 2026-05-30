@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from sqlalchemy.orm import Session
 from domain.premios.entities import Premio
 from domain.premios.repositories import PremioRepository

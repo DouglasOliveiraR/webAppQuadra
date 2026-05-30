@@ -1,12 +1,79 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from domain.usuarios.entities import Usuario
+from domain.usuarios.entities import Usuario, UsuarioRanking
 from domain.usuarios.repositories import UsuarioRepository
 from api.db.models import UsuarioModel
 
 class SQLAlchemyUsuarioRepository(UsuarioRepository):
     def __init__(self, session: Session):
         self.session = session
+
+    async def obter_ranking_agrupado(self) -> List[UsuarioRanking]:
+        from api.db.models import PremioModel, NotaModel, TipoNota
+        from domain.usuarios.enums import StatusUsuario
+        from sqlalchemy import func
+        from collections import defaultdict, Counter
+
+        # 1. Fetch the aggregated data directly using SQLAlchemy
+        # Subquery for notes
+        subq_notas = self.session.query(
+            NotaModel.avaliado_id.label('uid'),
+            func.avg(NotaModel.nota).label('media')
+        ).filter(NotaModel.tipo == TipoNota.GALERA).group_by(NotaModel.avaliado_id).subquery()
+
+        # Join UsuarioModel with subq_notas
+        usuarios_com_notas = self.session.query(
+            UsuarioModel,
+            subq_notas.c.media
+        ).outerjoin(
+            subq_notas, UsuarioModel.id == subq_notas.c.uid
+        ).filter(
+            UsuarioModel.status == StatusUsuario.ATIVO
+        ).all()
+
+        if not usuarios_com_notas:
+            return []
+
+        # Get the IDs of the active users
+        usuarios_ids = [u.UsuarioModel.id for u in usuarios_com_notas]
+
+        # 2. Fetch the aggregated prizes using SQLAlchemy grouping
+        premios_agrupados = self.session.query(
+            PremioModel.usuario_id,
+            PremioModel.categoria,
+            func.count(PremioModel.id).label('quantidade')
+        ).filter(
+            PremioModel.usuario_id.in_(usuarios_ids)
+        ).group_by(
+            PremioModel.usuario_id, PremioModel.categoria
+        ).all()
+
+        # Build prize map
+        premios_map = defaultdict(list)
+        for premio in premios_agrupados:
+            premios_map[premio.usuario_id].append({
+                "categoria": premio.categoria.value,
+                "quantidade": premio.quantidade
+            })
+
+        # 3. Assemble and sort
+        resultado = []
+        for u, media in usuarios_com_notas:
+            nota_galera = float(media) if media is not None else 0.0
+
+            ranking_obj = UsuarioRanking(
+                id=u.id,
+                nome=u.nome,
+                pontos_ranking=u.pontos_ranking,
+                nota_admin=u.nota_admin,
+                nota_galera_media=nota_galera,
+                foto_url=u.foto_url,
+                premios=premios_map.get(u.id, [])
+            )
+            resultado.append(ranking_obj)
+
+        resultado.sort(key=lambda u: (u.pontos_ranking, u.nota_galera_media), reverse=True)
+        return resultado
 
     def _to_entity(self, model: UsuarioModel) -> Usuario:
         if not model:

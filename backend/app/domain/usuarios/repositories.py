@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from domain.usuarios.entities import Usuario
+from domain.usuarios.entities import Usuario, UsuarioRanking
 
 class UsuarioRepository(ABC):
+    @abstractmethod
+    async def obter_ranking_agrupado(self) -> List[UsuarioRanking]:
+        pass
+
     @abstractmethod
     async def buscar_por_id(self, usuario_id: int) -> Optional[Usuario]:
         pass

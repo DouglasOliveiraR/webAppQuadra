@@ -65,8 +65,15 @@ if os.path.exists(frontend_dist):
             
         # Remove a barra inicial para bater com o caminho do arquivo no dist
         relative_path = path.lstrip("/")
-        file_path = os.path.join(frontend_dist, relative_path)
+        file_path = os.path.abspath(os.path.join(frontend_dist, relative_path))
         
+        # Verifica se o arquivo resolvido está dentro de frontend_dist para evitar Path Traversal
+        if os.path.commonpath([frontend_dist, file_path]) != frontend_dist:
+            return JSONResponse(
+                status_code=404,
+                content={"detail": "Not Found"}
+            )
+
         # Se for um arquivo estático existente no dist (ex: manifest.json, favicon.svg), serve ele
         if relative_path and os.path.exists(file_path) and os.path.isfile(file_path):
             return FileResponse(file_path)

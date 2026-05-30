@@ -2,7 +2,6 @@ import asyncio
 from api.db.database import SessionLocal
 from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from application.auth.use_cases import LoginUseCase
-from core.exceptions import CredenciaisInvalidasError
 
 async def test_login():
     db = SessionLocal()

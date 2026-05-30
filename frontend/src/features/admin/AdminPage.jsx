@@ -179,8 +179,14 @@ export function AdminPage() {
     const presencasAvulsos = evento?.presencas?.filter(p => p.usuario_perfil === 'AVULSO' && p.status_jogo === 'VOU') || [];
     
     // We map fixos to have the 'checkin_validado', 'vai_churrasco' and 'posicao' from their presenca (if exists)
+    // PERFORMANCE: Use O(1) Map lookup instead of O(N) Array.find to improve render performance for large groups
+    const presencasMap = evento?.presencas?.reduce((acc, pres) => {
+      acc[pres.usuario_id] = pres;
+      return acc;
+    }, {}) || {};
+
     const fixosMapped = fixos.map(u => {
-      const p = evento?.presencas?.find(pres => pres.usuario_id === u.id);
+      const p = presencasMap[u.id];
       return {
         usuario_id: u.id,
         usuario_nome: u.nome,

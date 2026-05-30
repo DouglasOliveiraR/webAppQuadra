@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from typing import List
 from api.schemas.ranking_schemas import RankingResponse
 from application.ranking.use_cases import ListarRankingUseCase

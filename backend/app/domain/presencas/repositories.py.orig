@@ -22,7 +22,3 @@ class PresencaRepository(ABC):
     @abstractmethod
     async def deletar(self, presenca_id: int) -> bool:
         pass
-
-    @abstractmethod
-    async def deletar_por_usuario_em_eventos(self, usuario_id: int, eventos_ids: List[int]) -> bool:
-        pass

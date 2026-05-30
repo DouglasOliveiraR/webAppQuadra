@@ -1,0 +1,10 @@
+--- app/domain/presencas/repositories.py
++++ app/domain/presencas/repositories.py
+@@ -19,3 +19,7 @@
+     @abstractmethod
+     async def deletar(self, presenca_id: int) -> bool:
+         pass
++
++    @abstractmethod
++    async def deletar_por_usuario_em_eventos(self, usuario_id: int, eventos_ids: List[int]) -> bool:
++        pass

@@ -8,6 +8,10 @@ class PresencaRepository(ABC):
         pass
 
     @abstractmethod
+    async def listar_por_eventos(self, eventos_ids: List[int]) -> List[Presenca]:
+        pass
+
+    @abstractmethod
     async def buscar_por_usuario_evento(self, usuario_id: int, evento_id: int) -> Optional[Presenca]:
         pass
 

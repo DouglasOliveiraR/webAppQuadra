@@ -9,6 +9,7 @@ from domain.eventos.enums import StatusEvento
 from core.exceptions import RegraDeNegocioError
 from core.security import get_password_hash
 from datetime import datetime
+import secrets
 
 class CriarUsuarioUseCase:
     def __init__(
@@ -21,7 +22,7 @@ class CriarUsuarioUseCase:
         self.evento_repo = evento_repo
         self.presenca_repo = presenca_repo
 
-    async def executar(self, nome: str, telefone: str, perfil: PerfilUsuario, nota_admin: int) -> Usuario:
+    async def executar(self, nome: str, telefone: str, perfil: PerfilUsuario, nota_admin: int, senha: str = None) -> Usuario:
         if perfil == PerfilUsuario.AVULSO:
             # Jogadores avulsos não têm celular real cadastrado; geramos um ID único fictício para respeitar a UNIQUE constraint do SQLite
             timestamp_str = str(datetime.now().timestamp()).replace('.', '')
@@ -33,8 +34,10 @@ class CriarUsuarioUseCase:
             if existente:
                 raise RegraDeNegocioError("Um jogador com este telefone já está cadastrado.")
 
-        senha_padrao = "123456"
-        senha_hash = get_password_hash(senha_padrao)
+        if not senha:
+            senha = secrets.token_urlsafe(16)
+
+        senha_hash = get_password_hash(senha)
 
         novo_usuario = Usuario(
             id=None,

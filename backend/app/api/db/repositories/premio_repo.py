@@ -48,10 +48,10 @@ class SQLAlchemyPremioRepository(PremioRepository):
             return []
         models = [self._to_model(p) for p in premios]
         self.session.add_all(models)
+        self.session.flush()
+        entities = [self._to_entity(m) for m in models]
         self.session.commit()
-        for m in models:
-            self.session.refresh(m)
-        return [self._to_entity(m) for m in models]
+        return entities
 
     async def listar_todos(self) -> List[Premio]:
         models = self.session.query(PremioModel).all()

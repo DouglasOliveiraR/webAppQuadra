@@ -44,6 +44,15 @@ class SQLAlchemyNotaRepository(NotaRepository):
         self.session.refresh(model)
         return self._to_entity(model)
 
+    async def salvar_lote(self, notas: List[Nota]) -> None:
+        for nota in notas:
+            model = self._to_model(nota)
+            if model.id:
+                self.session.merge(model)
+            else:
+                self.session.add(model)
+        self.session.commit()
+
     async def listar_por_avaliado(self, avaliado_id: int) -> List[Nota]:
         models = self.session.query(NotaModel).filter(NotaModel.avaliado_id == avaliado_id).all()
         return [self._to_entity(m) for m in models]

@@ -16,6 +16,7 @@ class SalvarNotasGaleraUseCase:
         if not evento:
             raise RegraDeNegocioError("Evento não encontrado")
 
+        novas_notas = []
         for avaliado_id, valor_nota in notas.items():
             if avaliado_id == avaliador_id:
                 raise RegraDeNegocioError("Você não pode avaliar a si mesmo")
@@ -33,6 +34,9 @@ class SalvarNotasGaleraUseCase:
                 nota=valor_nota,
                 tipo="GALERA"
             )
-            await self.nota_repo.salvar(nova_nota)
+            novas_notas.append(nova_nota)
+
+        if novas_notas:
+            await self.nota_repo.salvar_lote(novas_notas)
         
         return True

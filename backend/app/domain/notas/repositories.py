@@ -8,6 +8,10 @@ class NotaRepository(ABC):
         pass
 
     @abstractmethod
+    async def salvar_lote(self, notas: List[Nota]) -> None:
+        pass
+
+    @abstractmethod
     async def listar_por_avaliado(self, avaliado_id: int) -> List[Nota]:
         pass
 

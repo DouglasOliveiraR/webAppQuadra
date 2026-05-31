@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useEvento } from '../../hooks/useEvento';
 import api from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
@@ -19,17 +19,19 @@ export function VotosPage() {
   // Select modal state
   const [activeCategory, setActiveCategory] = useState(null);
 
-  const token = localStorage.getItem('token');
-  let currentUserId = null;
-  if (token) {
+  const currentUserId = useMemo(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
     try {
       const payloadBase64 = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payloadBase64));
-      currentUserId = parseInt(decodedPayload.sub);
+      return parseInt(decodedPayload.sub);
     } catch (e) {
       console.error(e);
+      return null;
     }
-  }
+  }, []);
 
   const handleVotar = (categoria, candidato_id) => {
     setVotosFeitos(prev => ({ ...prev, [categoria]: candidato_id }));

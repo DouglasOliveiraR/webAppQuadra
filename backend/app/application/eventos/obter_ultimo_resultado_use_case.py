@@ -17,16 +17,12 @@ class ObterUltimoResultadoUseCase:
         self.usuario_repo = usuario_repo
 
     async def executar(self) -> Optional[Dict[str, Any]]:
-        # 1. Busca todos os eventos e filtra pelos encerrados
-        eventos = await self.evento_repo.listar_todos()
-        eventos_encerrados = [e for e in eventos if e.status_evento == StatusEvento.ENCERRADO]
+        # 1 e 2. Busca diretamente o último evento encerrado
+        ultimo_evento = await self.evento_repo.obter_ultimo_evento_encerrado()
         
-        if not eventos_encerrados:
+        if not ultimo_evento:
             return None
             
-        # 2. Ordena para obter o último evento encerrado
-        ultimo_evento = sorted(eventos_encerrados, key=lambda e: (e.data_jogo, e.id), reverse=True)[0]
-        
         # 3. Busca todos os votos do evento
         votos = await self.voto_repo.listar_por_evento(ultimo_evento.id)
         

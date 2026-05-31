@@ -9,7 +9,7 @@ import time
 
 class DeletarUsuarioUseCase:
     def __init__(
-        self, 
+        self,
         usuario_repo: UsuarioRepository,
         presenca_repo: PresencaRepository,
         financeiro_repo: FinanceiroRepository,
@@ -24,20 +24,20 @@ class DeletarUsuarioUseCase:
         usuario = await self.usuario_repo.buscar_por_id(usuario_id)
         if not usuario:
             return False
-            
+
         usuario.status = StatusUsuario.INATIVO
         usuario.telefone = f"{usuario.telefone}_del_{int(time.time())}"
-        
+
         await self.usuario_repo.salvar(usuario)
-        
+
         # Limpar presenças em eventos não concluídos (ABERTO ou VOTACAO)
         eventos = await self.evento_repo.listar_todos()
         eventos_nao_concluidos_ids = [e.id for e in eventos if e.status_evento in [StatusEvento.PRESENCA_ABERTA, StatusEvento.VOTACAO_ABERTA]]
 
         if eventos_nao_concluidos_ids:
             await self.presenca_repo.deletar_por_usuario_em_eventos(usuario_id, eventos_nao_concluidos_ids)
-        
+
         # Limpar financeiro pendente do usuário
         await self.financeiro_repo.deletar_pendentes_por_usuario(usuario_id)
-                
+
         return True

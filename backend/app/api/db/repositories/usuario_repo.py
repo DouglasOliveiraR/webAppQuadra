@@ -163,9 +163,23 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             else:
                 self.session.add(model)
             model_list.append(model)
+
+        # Flush to DB to populate IDs without committing and expiring the models
+        self.session.flush()
+
+        # Now we can safely grab the IDs because they are assigned and models are not expired
+        model_ids = [m.id for m in model_list if m.id is not None]
+
         self.session.commit()
-        for m in model_list:
-            self.session.refresh(m)
+
+        # Avoid N+1 queries by bulk fetching the refreshed models
+        if model_ids:
+            fetched_models = self.session.query(UsuarioModel).filter(UsuarioModel.id.in_(model_ids)).all()
+            model_dict = {m.id: m for m in fetched_models}
+
+            # Maintain the original order, including any potential duplicates from the input
+            model_list = [model_dict[model_id] for model_id in model_ids if model_id in model_dict]
+
         return [self._to_entity(m) for m in model_list]
 
     async def deletar(self, usuario_id: int) -> bool:

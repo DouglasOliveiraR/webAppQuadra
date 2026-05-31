@@ -7,7 +7,7 @@ function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
       <div>
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[24px] icon-fill">{icone}</span>
+            <span className="material-symbols-outlined text-[24px] icon-fill" aria-hidden="true">{icone}</span>
             <h4 className="font-headline-md text-headline-md font-bold">{titulo}</h4>
           </div>
           <span className="font-label-bold text-label-bold px-2 py-0.5 rounded-full bg-white/40 dark:bg-black/20 text-xs">
@@ -280,7 +280,7 @@ export function RankingPage() {
 
             <div className="divide-y divide-outline-variant/50">
               {restOfRanking.map((jogador, index) => (
-                <div key={jogador.id} className="flex items-center px-4 py-3 hover:bg-surface-bright transition-colors">
+                <div key={jogador.id} className="flex items-center px-4 py-3 hover:bg-surface-container hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200">
                   <div className="w-8 font-headline-md text-body-md text-on-surface-variant">{index + 4}º</div>
                   <div className="flex-1 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold overflow-hidden">

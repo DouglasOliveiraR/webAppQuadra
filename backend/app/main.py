@@ -68,11 +68,12 @@ if os.path.exists(frontend_dist):
     async def custom_404_handler(request: Request, exc: Exception):
         path = request.url.path
         
-        # Se for uma rota de API real que não existe, retorna 404 JSON padrão
+        # Se for uma rota de API real que não existe, retorna 404 JSON padrão ou detalhe
         if path.startswith(("/api", "/static", "/docs", "/redoc", "/openapi.json")):
+            detail = getattr(exc, "detail", "Not Found")
             return JSONResponse(
                 status_code=404,
-                content={"detail": "Not Found"}
+                content={"detail": detail}
             )
             
         # Remove a barra inicial para bater com o caminho do arquivo no dist

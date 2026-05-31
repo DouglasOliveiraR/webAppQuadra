@@ -273,3 +273,13 @@ def test_registrar_checkin_multiplos_idempotente():
     db.refresh(usr2)
     assert usr2.pontos_ranking == pontos_apos_falta  # Mantém
     db.close()
+
+def test_obter_evento_nao_encontrado():
+    res_login = client.post("/api/auth/login", json={"telefone": "11988888888", "senha": "senha123"})
+    jogador_token = res_login.json()["access_token"]
+
+    response = client.get("/api/eventos/999",
+        headers={"Authorization": f"Bearer {jogador_token}"}
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Evento não encontrado"

@@ -21,14 +21,8 @@ import { ForceVoteGuard } from './hooks/useForceVote';
 function ProtectedRoute() {
   const token = localStorage.getItem('token');
   
-  React.useEffect(() => {
-    if (!token) {
-      window.location.href = '/login';
-    }
-  }, [token]);
-
   if (!token) {
-    return <div className="flex min-h-screen items-center justify-center text-on-surface-variant">Redirecionando...</div>;
+    return <Navigate to="/login" replace />;
   }
   
   return <Outlet />;

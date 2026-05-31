@@ -6,8 +6,8 @@ WORKDIR /app
 # Copiar os arquivos de dependência
 COPY package.json package-lock.json ./
 
-# Instalar dependências
-RUN npm ci
+# Instalar dependências (usamos install --legacy-peer-deps para evitar conflitos de versão do Vite com o PWA)
+RUN npm install --legacy-peer-deps
 
 # Copiar o restante do código
 COPY . .

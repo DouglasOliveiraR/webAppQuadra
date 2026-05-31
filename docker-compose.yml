@@ -13,8 +13,8 @@ services:
       - DATABASE_URL=sqlite:////app/data/pelada.db
       - BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:5173", "http://127.0.0.1:5173"]
     volumes:
-      - sqlite_data:/app/data
-      - sqlite_data:/app/static/fotos  # Persistir também as fotos
+      - ./backend/pelada.db:/app/data/pelada.db
+      - ./backend/app/static/fotos:/app/static/fotos  # Persiste as fotos originais
 
   frontend:
     build:
@@ -26,7 +26,3 @@ services:
       - "80:80"
     depends_on:
       - backend
-
-volumes:
-  sqlite_data:
-    name: pelada_sqlite_data

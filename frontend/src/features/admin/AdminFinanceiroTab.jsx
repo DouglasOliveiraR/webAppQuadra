@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api, { API_URL, getFotoUrl } from '../../services/api';
 import { useFinanceiro } from '../../hooks/useFinanceiro';
 import { useEvento } from '../../hooks/useEvento';
@@ -79,6 +79,18 @@ export function AdminFinanceiroTab() {
 
   const mesesOpcoes = gerarMesesOpcoes();
 
+  const tipoChurrasco = `CHURRASCO_${eventoDoMes?.id}`;
+  const pendenciasChurrascoMap = useMemo(() => {
+    const map = new Map();
+    for (let i = 0; i < pendenciasAdmin.length; i++) {
+      const p = pendenciasAdmin[i];
+      if (p.tipo === tipoChurrasco) {
+        map.set(p.usuario_id, p);
+      }
+    }
+    return map;
+  }, [pendenciasAdmin, tipoChurrasco]);
+
   return (
     <div className="space-y-6 fade-in pb-8">
       {/* Sub-tabs */}
@@ -131,10 +143,7 @@ export function AdminFinanceiroTab() {
             <h3 className="font-headline-md text-headline-md text-on-surface">Pagamentos</h3>
             <div className="glass-panel rounded-xl overflow-hidden shadow-ambient-1 divide-y divide-outline-variant/30">
               {jogadoresConfirmados.map((jogador) => {
-                const tipoChurrasco = `CHURRASCO_${eventoDoMes?.id}`;
-                const registroChurras = pendenciasAdmin.find(
-                  p => p.usuario_id === jogador.usuario_id && p.tipo === tipoChurrasco
-                );
+                const registroChurras = pendenciasChurrascoMap.get(jogador.usuario_id);
                 const pago = registroChurras?.status_pagamento === 'PAGO';
 
                 return (

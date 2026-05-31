@@ -1,57 +1,52 @@
-const perfHooks = require('perf_hooks');
-const performance = perfHooks.performance;
+const jogadoresConfirmados = Array.from({ length: 50 }, (_, i) => ({ usuario_id: i, usuario_nome: `Jogador ${i}` }));
+const pendenciasAdmin = Array.from({ length: 1000 }, (_, i) => ({
+  id: i,
+  usuario_id: i % 100,
+  tipo: i % 2 === 0 ? 'CHURRASCO_1' : 'MENSALIDADE',
+  status_pagamento: i % 3 === 0 ? 'PAGO' : 'PENDENTE',
+  valor: 40
+}));
+const eventoDoMes = { id: 1 };
 
-const numUsers = 10000;
-const numPresencas = 10000;
-
-const fixos = [];
-for (let i = 0; i < numUsers; i++) {
-  fixos.push({ id: i, nome: `User ${i}`, perfil: 'MENSALISTA' });
-}
-
-const presencas = [];
-for (let i = 0; i < numPresencas; i++) {
-  presencas.push({ usuario_id: i, posicao: 'Linha', vai_churrasco: true, checkin_validado: true });
-}
-
-function runOriginal() {
-  const start = performance.now();
-  const fixosMapped = fixos.map(u => {
-    const p = presencas.find(pres => pres.usuario_id === u.id);
-    return {
-      usuario_id: u.id,
-      posicao: p?.posicao || 'Linha',
-      vai_churrasco: p?.vai_churrasco || false,
-      checkin_validado: p?.checkin_validado || false
-    };
+function baseline() {
+  let count = 0;
+  jogadoresConfirmados.map((jogador) => {
+    const tipoChurrasco = `CHURRASCO_${eventoDoMes?.id}`;
+    const registroChurras = pendenciasAdmin.find(
+      p => p.usuario_id === jogador.usuario_id && p.tipo === tipoChurrasco
+    );
+    if (registroChurras) count++;
   });
-  const end = performance.now();
-  return end - start;
+  return count;
 }
 
-function runOptimized() {
-  const start = performance.now();
-  const presencasMap = {};
-  for (const pres of presencas) {
-    presencasMap[pres.usuario_id] = pres;
+function optimized() {
+  let count = 0;
+  const tipoChurrasco = `CHURRASCO_${eventoDoMes?.id}`;
+  const map = new Map();
+  for (let i = 0; i < pendenciasAdmin.length; i++) {
+    const p = pendenciasAdmin[i];
+    if (p.tipo === tipoChurrasco) {
+      map.set(p.usuario_id, p);
+    }
   }
 
-  const fixosMapped = fixos.map(u => {
-    const p = presencasMap[u.id];
-    return {
-      usuario_id: u.id,
-      posicao: p?.posicao || 'Linha',
-      vai_churrasco: p?.vai_churrasco || false,
-      checkin_validado: p?.checkin_validado || false
-    };
+  jogadoresConfirmados.map((jogador) => {
+    const registroChurras = map.get(jogador.usuario_id);
+    if (registroChurras) count++;
   });
-  const end = performance.now();
-  return end - start;
+  return count;
 }
 
-const t1 = runOriginal();
-const t2 = runOptimized();
+const ITERATIONS = 10000;
 
-console.log(`Original: ${t1.toFixed(2)} ms`);
-console.log(`Optimized: ${t2.toFixed(2)} ms`);
-console.log(`Improvement: ${(t1 / t2).toFixed(2)}x faster`);
+console.log("Benchmarking...");
+let start = performance.now();
+for (let i = 0; i < ITERATIONS; i++) baseline();
+let end = performance.now();
+console.log(`Baseline: ${(end - start).toFixed(2)} ms`);
+
+start = performance.now();
+for (let i = 0; i < ITERATIONS; i++) optimized();
+end = performance.now();
+console.log(`Optimized: ${(end - start).toFixed(2)} ms`);

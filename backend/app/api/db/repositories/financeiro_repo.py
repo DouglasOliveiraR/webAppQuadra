@@ -75,10 +75,10 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
             else:
                 self.session.add(model)
             model_list.append(model)
+        self.session.flush()
+        result = [self._to_entity(m) for m in model_list]
         self.session.commit()
-        for m in model_list:
-            self.session.refresh(m)
-        return [self._to_entity(m) for m in model_list]
+        return result
 
     async def deletar(self, financeiro_id: int) -> bool:
         model = self.session.query(FinanceiroModel).filter(FinanceiroModel.id == financeiro_id).first()

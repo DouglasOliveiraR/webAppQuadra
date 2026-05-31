@@ -163,10 +163,10 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             else:
                 self.session.add(model)
             model_list.append(model)
+        self.session.flush()
+        result = [self._to_entity(m) for m in model_list]
         self.session.commit()
-        for m in model_list:
-            self.session.refresh(m)
-        return [self._to_entity(m) for m in model_list]
+        return result
 
     async def deletar(self, usuario_id: int) -> bool:
         model = self.session.query(UsuarioModel).filter(UsuarioModel.id == usuario_id).first()

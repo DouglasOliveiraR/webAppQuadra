@@ -11,6 +11,7 @@ class UsuarioCreateRequest(BaseModel):
     telefone: str = Field(..., max_length=100)  # Allowed up to 100 for AVULSO fallback logic
     perfil: PerfilUsuario = PerfilUsuario.AVULSO
     nota_admin: int = Field(5, ge=0, le=10)
+    senha: Optional[str] = Field(None, max_length=128)
 
 class UsuarioUpdateRequest(BaseModel):
     nome: str = Field(..., max_length=100)

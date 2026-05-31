@@ -15,6 +15,7 @@ export function ElencoTab() {
   const [idEdicao, setIdEdicao] = useState(null);
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
+  const [senha, setSenha] = useState('');
   const [perfil, setPerfil] = useState('AVULSO');
   const [statusJogador, setStatusJogador] = useState('ATIVO');
   const [notaAdmin, setNotaAdmin] = useState(5);
@@ -40,6 +41,7 @@ export function ElencoTab() {
     setIdEdicao(null);
     setNome('');
     setTelefone('');
+    setSenha('');
     setPerfil('AVULSO');
     setStatusJogador('ATIVO');
     setNotaAdmin(5);
@@ -51,6 +53,7 @@ export function ElencoTab() {
     setIdEdicao(jogador.id);
     setNome(jogador.nome);
     setTelefone(jogador.telefone || '');
+    setSenha('');
     setPerfil(jogador.perfil || 'AVULSO');
     setStatusJogador(jogador.status || 'ATIVO');
     setNotaAdmin(jogador.nota_admin ?? 5);
@@ -96,6 +99,9 @@ export function ElencoTab() {
         });
         showToast('Jogador atualizado com sucesso!');
       } else {
+        if (senha.trim()) {
+          payload.senha = senha;
+        }
         await api.post('/usuarios', payload);
         showToast('Jogador cadastrado com sucesso!');
       }
@@ -274,6 +280,19 @@ export function ElencoTab() {
                     value={telefone}
                     onChange={(e) => setTelefone(e.target.value)}
                     placeholder="Ex: 11999999999"
+                    className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  />
+                </div>
+              )}
+
+              {perfil !== 'AVULSO' && !isEditing && (
+                <div className="space-y-1">
+                  <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Senha</label>
+                  <input
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    placeholder="Senha (opcional)"
                     className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
                   />
                 </div>

@@ -45,7 +45,8 @@ async def criar_usuario(
             nome=payload.nome,
             telefone=payload.telefone,
             perfil=payload.perfil,
-            nota_admin=payload.nota_admin
+            nota_admin=payload.nota_admin,
+            senha=payload.senha
         )
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)

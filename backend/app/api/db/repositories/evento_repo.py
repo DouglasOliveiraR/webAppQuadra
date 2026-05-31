@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from domain.eventos.entities import Evento
 from domain.eventos.repositories import EventoRepository
+from domain.eventos.enums import StatusEvento
 from api.db.models import EventoModel
 
 class SQLAlchemyEventoRepository(EventoRepository):
@@ -54,6 +55,15 @@ class SQLAlchemyEventoRepository(EventoRepository):
     async def listar_todos(self) -> List[Evento]:
         models = self.session.query(EventoModel).all()
         return [self._to_entity(m) for m in models]
+
+    async def obter_ultimo_evento_encerrado(self) -> Optional[Evento]:
+        model = self.session.query(EventoModel).filter(
+            EventoModel.status_evento == StatusEvento.ENCERRADO
+        ).order_by(
+            EventoModel.data_jogo.desc(),
+            EventoModel.id.desc()
+        ).first()
+        return self._to_entity(model) if model else None
 
     async def salvar(self, evento: Evento) -> Evento:
         model = self._to_model(evento)

@@ -12,6 +12,10 @@ class EventoRepository(ABC):
         pass
 
     @abstractmethod
+    async def obter_ultimo_evento_encerrado(self) -> Optional[Evento]:
+        pass
+
+    @abstractmethod
     async def salvar(self, evento: Evento) -> Evento:
         pass
 

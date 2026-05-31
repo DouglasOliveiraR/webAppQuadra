@@ -20,6 +20,10 @@ class FinanceiroRepository(ABC):
         pass
 
     @abstractmethod
+    async def salvar_lote(self, lista_financeiro: List[Financeiro]) -> List[Financeiro]:
+        pass
+
+    @abstractmethod
     async def deletar(self, financeiro_id: int) -> bool:
         pass
 

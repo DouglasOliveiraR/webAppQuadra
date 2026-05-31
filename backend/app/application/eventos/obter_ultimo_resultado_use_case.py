@@ -38,26 +38,44 @@ class ObterUltimoResultadoUseCase:
         categorias = ["BOLA_CHEIA", "GOL_BONITO", "BOLA_MURCHA", "LAFON"]
         vencedores = {}
         
-        # 5. Para cada categoria, define os vencedores com maior número de votos
+        # 5. Descobre os vencedores de cada categoria
+        todos_candidatos = set()
+        candidatos_por_cat = {}
+        max_votos_por_cat = {}
+
         for cat in categorias:
             contagem_cat = contagem_votos[cat]
             if not contagem_cat:
-                vencedores[cat] = []
+                candidatos_por_cat[cat] = []
+                max_votos_por_cat[cat] = 0
                 continue
                 
             max_votos = max(contagem_cat.values())
             candidatos_vencedores = [cand_id for cand_id, qtd in contagem_cat.items() if qtd == max_votos]
+            candidatos_por_cat[cat] = candidatos_vencedores
+            max_votos_por_cat[cat] = max_votos
+            todos_candidatos.update(candidatos_vencedores)
+
+        # 6. Realiza a busca em lote de todos os usuários
+        usuarios_dit = {}
+        if todos_candidatos:
+            usuarios = await self.usuario_repo.buscar_por_ids(list(todos_candidatos))
+            usuarios_dit = {u.id: u for u in usuarios}
             
-            # Carrega dados detalhados (nome, foto) dos vencedores
-            usuarios = await self.usuario_repo.buscar_por_ids(candidatos_vencedores)
+        # 7. Monta os dados detalhados
+        for cat in categorias:
+            candidatos = candidatos_por_cat[cat]
+            max_votos = max_votos_por_cat[cat]
             usuarios_detalhes = []
-            for u in usuarios:
-                usuarios_detalhes.append({
-                    "id": u.id,
-                    "nome": u.nome,
-                    "foto_url": u.foto_url,
-                    "votos": max_votos
-                })
+            for cand_id in candidatos:
+                u = usuarios_dit.get(cand_id)
+                if u:
+                    usuarios_detalhes.append({
+                        "id": u.id,
+                        "nome": u.nome,
+                        "foto_url": u.foto_url,
+                        "votos": max_votos
+                    })
             vencedores[cat] = usuarios_detalhes
             
         return {

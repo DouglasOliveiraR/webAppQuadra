@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.db.database import engine
@@ -41,6 +42,17 @@ app.include_router(notas.router)
 
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi import Request
+
+logger = logging.getLogger(__name__)
+
+# Handler global para Exceptions não tratadas (Prevenção de vazamento de stack traces HTTP 500)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Erro interno não tratado na rota {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Erro interno no servidor"}
+    )
 
 # Servir o Frontend React compilado em produção/túnel
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))

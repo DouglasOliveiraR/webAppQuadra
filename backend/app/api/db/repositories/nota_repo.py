@@ -55,3 +55,23 @@ class SQLAlchemyNotaRepository(NotaRepository):
             NotaModel.tipo == TipoNota.GALERA
         ).all()
         return [self._to_entity(m) for m in models]
+
+    async def salvar_em_lote(self, notas: List[Nota]) -> List[Nota]:
+        if not notas:
+            return []
+
+        models = []
+        for nota in notas:
+            model = self._to_model(nota)
+            if model.id:
+                model = self.session.merge(model)
+            else:
+                self.session.add(model)
+            models.append(model)
+
+        self.session.commit()
+
+        for model in models:
+            self.session.refresh(model)
+
+        return [self._to_entity(model) for model in models]

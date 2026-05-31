@@ -22,3 +22,7 @@ class FinanceiroRepository(ABC):
     @abstractmethod
     async def deletar(self, financeiro_id: int) -> bool:
         pass
+
+    @abstractmethod
+    async def deletar_pendentes_por_usuario(self, usuario_id: int) -> bool:
+        pass

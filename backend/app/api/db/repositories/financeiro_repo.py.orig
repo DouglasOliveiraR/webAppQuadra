@@ -1,3 +1,4 @@
+from domain.financeiro.enums import StatusPagamento
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from domain.financeiro.entities import Financeiro
@@ -86,3 +87,8 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
             self.session.commit()
             return True
         return False
+
+    async def deletar_pendentes_por_usuario(self, usuario_id: int) -> bool:
+        self.session.query(FinanceiroModel).filter(FinanceiroModel.usuario_id == usuario_id, FinanceiroModel.status_pagamento == StatusPagamento.PENDENTE).delete(synchronize_session=False)
+        self.session.commit()
+        return True

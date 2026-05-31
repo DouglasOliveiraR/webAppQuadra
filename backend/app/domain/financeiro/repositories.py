@@ -16,6 +16,10 @@ class FinanceiroRepository(ABC):
         pass
 
     @abstractmethod
+    async def listar_por_mes(self, mes: str) -> List[Financeiro]:
+        pass
+
+    @abstractmethod
     async def salvar(self, financeiro: Financeiro) -> Financeiro:
         pass
 

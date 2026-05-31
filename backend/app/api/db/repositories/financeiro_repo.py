@@ -50,6 +50,10 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
         models = self.session.query(FinanceiroModel).all()
         return [self._to_entity(m) for m in models]
 
+    async def listar_por_mes(self, mes: str) -> List[Financeiro]:
+        models = self.session.query(FinanceiroModel).filter(FinanceiroModel.mes_referencia == mes).all()
+        return [self._to_entity(m) for m in models]
+
     async def salvar(self, financeiro: Financeiro) -> Financeiro:
         model = self._to_model(financeiro)
         if model.id:

@@ -273,3 +273,40 @@ def test_registrar_checkin_multiplos_idempotente():
     db.refresh(usr2)
     assert usr2.pontos_ranking == pontos_apos_falta  # Mantém
     db.close()
+
+def test_iniciar_votacao_falha_evento_nao_encontrado():
+    response = client.put("/api/eventos/999/iniciar-votacao",
+        headers={"Authorization": f"Bearer {pytest.admin_token}"}
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Evento não encontrado"
+
+def test_iniciar_votacao_falha_status_invalido():
+    db = TestingSessionLocal()
+    evento_temp = EventoModel(
+        data_jogo=date(2026, 6, 2),
+        hora_inicio=time(19, 0),
+        hora_fim=time(21, 0),
+        status_evento=StatusEvento.VOTACAO_ABERTA,
+        flag_churrasco=False,
+        valor_churrasco=0.0
+    )
+    db.add(evento_temp)
+    db.commit()
+    db.refresh(evento_temp)
+    evento_id = evento_temp.id
+    db.close()
+
+    try:
+        response = client.put(f"/api/eventos/{evento_id}/iniciar-votacao",
+            headers={"Authorization": f"Bearer {pytest.admin_token}"}
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == "O evento não está em fase de presença para iniciar a votação"
+    finally:
+        db = TestingSessionLocal()
+        evento_to_delete = db.query(EventoModel).filter(EventoModel.id == evento_id).first()
+        if evento_to_delete:
+            db.delete(evento_to_delete)
+            db.commit()
+        db.close()

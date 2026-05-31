@@ -1,4 +1,6 @@
 from datetime import timedelta
+from collections import defaultdict
+
 from domain.votos.repositories import VotoRepository
 from domain.eventos.repositories import EventoRepository
 from domain.votos.entities import Voto
@@ -7,8 +9,9 @@ from domain.eventos.enums import StatusEvento
 from domain.eventos.entities import Evento
 from domain.usuarios.repositories import UsuarioRepository
 from domain.usuarios.enums import PerfilUsuario
+from domain.premios.entities import Premio
 from core.exceptions import RegraDeNegocioError
-from collections import defaultdict
+
 
 class RegistrarVotoUseCase:
     def __init__(self, voto_repo: VotoRepository, evento_repo: EventoRepository, usuario_repo: UsuarioRepository):
@@ -53,6 +56,7 @@ class RegistrarVotoUseCase:
         )
         return await self.voto_repo.salvar(voto)
 
+
 class EncerrarVotacaoUseCase:
     def __init__(self, evento_repo: EventoRepository, voto_repo: VotoRepository, usuario_repo: UsuarioRepository, premio_repo):
         self.evento_repo = evento_repo
@@ -70,20 +74,31 @@ class EncerrarVotacaoUseCase:
             
         votos = await self.voto_repo.listar_por_evento(evento_id)
         
+        apuracao = self._apurar_votos(votos)
+        vencedores_por_categoria, todos_vencedores = self._determinar_vencedores(apuracao)
+
+        mes_ref = evento.data_jogo.strftime("%Y-%m")
+        await self._processar_premiacoes_e_ranking(
+            evento_id, mes_ref, vencedores_por_categoria, todos_vencedores
+        )
+
+        evento.status_evento = StatusEvento.ENCERRADO
+        await self.evento_repo.salvar(evento)
+
+        await self._deletar_usuarios_avulsos()
+        await self._agendar_proximo_evento(evento)
+
+        return {k: dict(v) for k, v in apuracao.items()}
+
+    def _apurar_votos(self, votos):
         apuracao = defaultdict(lambda: defaultdict(int))
         for v in votos:
             apuracao[v.categoria.value][v.candidato_id] += 1
-            
-        pontos_map = {
-            "BOLA_CHEIA": 3,
-            "GOL_BONITO": 2,
-            "BOLA_MURCHA": -1,
-            "LAFON": -1
-        }
-        
+        return apuracao
+
+    def _determinar_vencedores(self, apuracao):
         todos_vencedores = set()
         vencedores_por_categoria = {}
-        
         for cat_nome, contagem in apuracao.items():
             if not contagem:
                 continue
@@ -91,16 +106,21 @@ class EncerrarVotacaoUseCase:
             vencedores = [cand_id for cand_id, qtd in contagem.items() if qtd == max_votos]
             vencedores_por_categoria[cat_nome] = vencedores
             todos_vencedores.update(vencedores)
-            
+        return vencedores_por_categoria, todos_vencedores
+
+    async def _processar_premiacoes_e_ranking(self, evento_id, mes_ref, vencedores_por_categoria, todos_vencedores):
         usuarios_atualizados = {}
         if todos_vencedores:
             usuarios_models = await self.usuario_repo.buscar_por_ids(list(todos_vencedores))
             for u in usuarios_models:
                 usuarios_atualizados[u.id] = u
 
-        mes_ref = evento.data_jogo.strftime("%Y-%m")
-        from domain.premios.entities import Premio
-        from domain.votos.enums import CategoriaVoto
+        pontos_map = {
+            "BOLA_CHEIA": 3,
+            "GOL_BONITO": 2,
+            "BOLA_MURCHA": -1,
+            "LAFON": -1
+        }
 
         novos_premios = []
 
@@ -110,7 +130,6 @@ class EncerrarVotacaoUseCase:
                 if v_id in usuarios_atualizados:
                     usuarios_atualizados[v_id].pontos_ranking += pontos
                     
-                # Registrar o prêmio na tabela de histórico
                 novo_premio = Premio(
                     id=None,
                     usuario_id=v_id,
@@ -125,21 +144,17 @@ class EncerrarVotacaoUseCase:
                     
         if usuarios_atualizados:
             await self.usuario_repo.salvar_lote(list(usuarios_atualizados.values()))
-            
-        evento.status_evento = StatusEvento.ENCERRADO
-        await self.evento_repo.salvar(evento)
-        
-        # Deletar jogadores avulsos temporários do banco após o encerramento
+
+    async def _deletar_usuarios_avulsos(self):
         try:
             todos_usuarios = await self.usuario_repo.listar_todos()
-            from domain.usuarios.enums import PerfilUsuario
             ids_avulsos = [u.id for u in todos_usuarios if u.perfil == PerfilUsuario.AVULSO]
             if ids_avulsos:
                 await self.usuario_repo.deletar_lote(ids_avulsos)
         except Exception as e:
             print(f"Erro ao deletar usuários avulsos no encerramento: {e}")
-        
-        # Agendar automaticamente o próximo evento (+7 dias)
+
+    async def _agendar_proximo_evento(self, evento):
         nova_data = evento.data_jogo + timedelta(days=7)
         proximo_evento = Evento(
             id=None,
@@ -155,6 +170,3 @@ class EncerrarVotacaoUseCase:
             custo_quadra=evento.custo_quadra
         )
         await self.evento_repo.salvar(proximo_evento)
-        
-        # Converte para dict simples para retornar
-        return {k: dict(v) for k, v in apuracao.items()}

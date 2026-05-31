@@ -3,17 +3,20 @@ import { createRoot } from 'react-dom/client'
 import './styles/index.css'
 import App from './App.jsx'
 
-// Registro do Service Worker para suporte a PWA
+import { registerSW } from 'virtual:pwa-register'
+
+// Registro automático do Service Worker gerado pelo Vite PWA
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => {
-        if (import.meta.env.DEV) {
-          console.info('Service Worker registrado com sucesso:', reg.scope);
-        }
-      })
-      .catch(err => console.error('Falha ao registrar Service Worker:', err));
-  });
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      if (confirm('Nova versão disponível. Deseja atualizar agora?')) {
+        updateSW(true)
+      }
+    },
+    onOfflineReady() {
+      console.info('Aplicativo pronto para uso offline.')
+    },
+  })
 }
 
 createRoot(document.getElementById('root')).render(

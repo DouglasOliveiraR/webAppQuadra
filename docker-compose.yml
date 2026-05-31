@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pelada-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=Pelada FC Manager
+      - SECRET_KEY=b1eb32886b72a0f6229509df65cd98cd3a2f3e8f8c7b8e9a  # Idealmente, substitua via ambiente ou .env
+      - DATABASE_URL=sqlite:////app/data/pelada.db
+      - BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:5173", "http://127.0.0.1:5173"]
+    volumes:
+      - sqlite_data:/app/data
+      - sqlite_data:/app/static/fotos  # Persistir também as fotos
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pelada-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  sqlite_data:
+    name: pelada_sqlite_data

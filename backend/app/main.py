@@ -10,10 +10,22 @@ from api.v1 import auth, eventos, ranking, financeiro, usuarios, notas
 # Cria as tabelas do banco (Apenas para MVP SQLite, em prod usar Alembic)
 Base.metadata.create_all(bind=engine)
 
+from contextlib import asynccontextmanager
+from core.scheduler import start_scheduler, stop_scheduler
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    start_scheduler()
+    yield
+    # Shutdown
+    stop_scheduler()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API para o Pelada FC Manager",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 from fastapi.staticfiles import StaticFiles

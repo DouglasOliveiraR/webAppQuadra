@@ -21,9 +21,13 @@ class AtualizarMensalidadeUseCase:
         if valor_mensalidade > 0:
             mes_ref = evento.data_jogo.strftime("%Y-%m")
             registros = await self.financeiro_repo.listar_todos()
+            registros_para_atualizar = []
             for r in registros:
                 if r.tipo == "MENSALIDADE" and r.mes_referencia == mes_ref and r.status_pagamento == StatusPagamento.PENDENTE:
                     r.valor = valor_mensalidade
-                    await self.financeiro_repo.salvar(r)
+                    registros_para_atualizar.append(r)
+
+            if registros_para_atualizar:
+                await self.financeiro_repo.salvar_lote(registros_para_atualizar)
 
         return evento

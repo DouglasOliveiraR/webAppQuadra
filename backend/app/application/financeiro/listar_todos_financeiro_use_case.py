@@ -71,9 +71,19 @@ class ListarTodosFinanceiroUseCase:
 
         # 3. Garantir que confirmados para churrasco tenham registro financeiro
         if eventos_do_mes:
-            for evento in eventos_do_mes:
-                if evento.flag_churrasco:
-                    presencas = await self.presenca_repo.listar_por_evento(evento.id)
+            eventos_churrasco = [e for e in eventos_do_mes if e.flag_churrasco]
+            if eventos_churrasco:
+                eventos_churrasco_ids = [e.id for e in eventos_churrasco]
+                todas_presencas_churrasco = await self.presenca_repo.listar_por_eventos(eventos_churrasco_ids)
+
+                presencas_por_evento = {}
+                for p in todas_presencas_churrasco:
+                    if p.evento_id not in presencas_por_evento:
+                        presencas_por_evento[p.evento_id] = []
+                    presencas_por_evento[p.evento_id].append(p)
+
+                for evento in eventos_churrasco:
+                    presencas = presencas_por_evento.get(evento.id, [])
                     confirmados = [p.usuario_id for p in presencas if p.vai_churrasco]
                     tipo_churrasco = f"CHURRASCO_{evento.id}"
                     

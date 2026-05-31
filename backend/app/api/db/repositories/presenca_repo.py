@@ -52,6 +52,12 @@ class SQLAlchemyPresencaRepository(PresencaRepository):
         ).first()
         return self._to_entity(model)
 
+    async def listar_por_eventos(self, eventos_ids: List[int]) -> List[Presenca]:
+        if not eventos_ids:
+            return []
+        models = self.session.query(PresencaModel).filter(PresencaModel.evento_id.in_(eventos_ids)).all()
+        return [self._to_entity(m) for m in models]
+
     async def listar_por_evento(self, evento_id: int) -> List[Presenca]:
         models = self.session.query(PresencaModel).filter(PresencaModel.evento_id == evento_id).all()
         return [self._to_entity(m) for m in models]

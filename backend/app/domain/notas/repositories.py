@@ -14,3 +14,7 @@ class NotaRepository(ABC):
     @abstractmethod
     async def listar_por_avaliador_e_evento(self, avaliador_id: int, evento_id: int) -> List[Nota]:
         pass
+
+    @abstractmethod
+    async def salvar_em_lote(self, notas: List[Nota]) -> List[Nota]:
+        pass

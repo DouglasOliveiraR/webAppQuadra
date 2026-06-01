@@ -45,7 +45,16 @@ class SorteioUseCase:
 
         import math
         num_times = max(2, math.ceil(len(confirmados) / 6.0))
-        times = [{"id": i, "nome": f"Time {chr(65+i)}", "jogadores": [], "soma_notas": 0.0} for i in range(num_times)]
+        times = [{"id": i, "nome": f"Time {chr(65+i)}", "jogadores": [], "soma_notas": 0.0, "target_linhas": 0, "target_total": 0} for i in range(num_times)]
+
+        linhas_restantes = len(linhas)
+        for i in range(num_times):
+            if linhas_restantes >= 5:
+                times[i]["target_linhas"] = 5
+                linhas_restantes -= 5
+            else:
+                times[i]["target_linhas"] = linhas_restantes
+                linhas_restantes = 0
 
         # Distribuir goleiros (um por vez em cada time)
         for i, gol in enumerate(goleiros):
@@ -53,15 +62,21 @@ class SorteioUseCase:
             time_alvo["jogadores"].append(gol)
             time_alvo["soma_notas"] += gol["nota"]
 
-        # Distribuir linhas balanceando as notas
+        # Calcula a capacidade total de cada time para a métrica de balanceamento
+        for t in times:
+            num_gol = sum(1 for p in t["jogadores"] if p["posicao"] == "GOL")
+            t["target_total"] = t["target_linhas"] + num_gol
+
+        # Distribuir linhas balanceando a média projetada final
         for j in linhas:
-            # Encontrar o time com a menor soma de notas DENTRE OS QUE TÊM MENOS DE 6 JOGADORES
-            times_disponiveis = [t for t in times if len(t["jogadores"]) < 6]
+            # Encontrar os times que ainda não atingiram sua cota exata de linhas
+            times_disponiveis = [t for t in times if sum(1 for p in t["jogadores"] if p["posicao"] != "GOL") < t["target_linhas"]]
             if not times_disponiveis:
-                # Se por algum motivo todos já tiverem 6, adiciona no de menor soma
+                # Fallback de segurança
                 times_disponiveis = times
             
-            time_alvo = min(times_disponiveis, key=lambda t: t["soma_notas"])
+            # Escolhe o time com a MENOR média projetada
+            time_alvo = min(times_disponiveis, key=lambda t: t["soma_notas"] / max(1, t["target_total"]))
             time_alvo["jogadores"].append(j)
             time_alvo["soma_notas"] += j["nota"]
 
@@ -75,4 +90,82 @@ class SorteioUseCase:
                 "media": media
             })
 
-        return {"times": times_response}
+        # --- NOVA LÓGICA: SUGESTÕES DE BANCO ---
+        sugestoes_banco = []
+        target_gol = 1 if goleiros else 0
+        target_linha = 5
+        max_total = target_gol + target_linha
+
+        if max_total > 0 and confirmados:
+            media_geral = sum(p.nota_admin if criterio == "NOTA_ADMIN" else (p.nota_galera_media or p.nota_admin) for p in usuarios) / len(usuarios) if usuarios else 0
+            # Como filtramos e pegamos direto de 'linhas' e 'goleiros':
+            media_geral = sum(p["nota"] for p in (goleiros + linhas)) / len(goleiros + linhas) if (goleiros + linhas) else 0
+
+            for t_inc in times:
+                qtd_gol = sum(1 for p in t_inc["jogadores"] if p["posicao"] == "GOL")
+                qtd_linha = sum(1 for p in t_inc["jogadores"] if p["posicao"] != "GOL")
+                
+                vagas_gol = max(0, target_gol - qtd_gol)
+                vagas_linha = max(0, target_linha - qtd_linha)
+                
+                if vagas_gol == 0 and vagas_linha == 0:
+                    continue # Time já está completo
+                
+                target_soma_total = media_geral * max_total
+                soma_atual = t_inc["soma_notas"]
+                falta_soma = target_soma_total - soma_atual
+                
+                opcoes = []
+                for t_comp in times:
+                    if t_comp["id"] == t_inc["id"]:
+                        continue
+                        
+                    gols_comp = [p for p in t_comp["jogadores"] if p["posicao"] == "GOL"]
+                    linhas_comp = [p for p in t_comp["jogadores"] if p["posicao"] != "GOL"]
+                    
+                    # O time de origem precisa ter os jogadores suficientes para emprestar
+                    if len(gols_comp) < vagas_gol or len(linhas_comp) < vagas_linha:
+                        continue
+                        
+                    import itertools
+                    combo_gol = []
+                    soma_gol = 0
+                    if vagas_gol > 0:
+                        combo_gol = [gols_comp[0]] # Geralmente pega o único goleiro
+                        soma_gol = combo_gol[0]["nota"]
+                        
+                    target_soma_linha = falta_soma - soma_gol
+                    
+                    combo_linha = []
+                    if vagas_linha > 0:
+                        best_combo = None
+                        best_diff = float('inf')
+                        # Testa todas as combinações de linhas do time completo
+                        for combo in itertools.combinations(linhas_comp, vagas_linha):
+                            soma_combo = sum(p["nota"] for p in combo)
+                            diff = abs(soma_combo - target_soma_linha)
+                            if diff < best_diff:
+                                best_diff = diff
+                                best_combo = combo
+                        combo_linha = list(best_combo) if best_combo else []
+                        
+                    sugestao_jogadores = combo_gol + combo_linha
+                    media_simulada = (soma_atual + sum(p["nota"] for p in sugestao_jogadores)) / max_total
+                    
+                    opcoes.append({
+                        "origem": t_comp["nome"],
+                        "jogadores": sugestao_jogadores,
+                        "media_simulada": media_simulada
+                    })
+                    
+                if opcoes:
+                    sugestoes_banco.append({
+                        "time_incompleto": t_inc["nome"],
+                        "vagas": vagas_gol + vagas_linha,
+                        "opcoes": opcoes
+                    })
+
+        return {
+            "times": times_response,
+            "sugestoes_banco": sugestoes_banco
+        }

@@ -688,6 +688,43 @@ export function AdminPage() {
                   </div>
                 ))}
               </div>
+
+              {timesSorteados.sugestoes_banco && timesSorteados.sugestoes_banco.length > 0 && (
+                <div className="mt-8 space-y-4 animate-fade-in">
+                  <div className="flex items-center gap-2 border-b border-outline-variant/30 pb-2">
+                    <span className="material-symbols-outlined text-secondary">transfer_within_a_station</span>
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface">Sugestões de Banco</h3>
+                  </div>
+                  
+                  {timesSorteados.sugestoes_banco.map((sug, idx) => (
+                    <div key={idx} className="glass-panel bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-ambient-1 space-y-3">
+                      <p className="font-medium text-sm text-on-surface-variant">
+                        O <strong className="text-on-surface">{sug.time_incompleto}</strong> precisa de <strong className="text-secondary">{sug.vagas}</strong> jogador(es). Para manter o time com a média equilibrada do jogo, sugerimos puxar:
+                      </p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                        {sug.opcoes.map((opcao, opIdx) => (
+                          <div key={opIdx} className="bg-surface rounded-lg p-3 border border-outline-variant/20 flex flex-col gap-2 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-primary/40"></div>
+                            <div className="flex justify-between items-center text-xs pl-2">
+                              <span className="font-bold text-tertiary">Opção do {opcao.origem}</span>
+                              <span className="font-medium text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded">Média Simulada: {opcao.media_simulada?.toFixed(1)}</span>
+                            </div>
+                            <div className="space-y-1 pl-2">
+                              {opcao.jogadores.map(j => (
+                                <div key={j.id} className="flex justify-between items-center bg-surface-container-low px-2 py-1.5 rounded">
+                                  <span className="text-sm font-medium">{j.nome}</span>
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${j.posicao === 'GOL' ? 'bg-secondary-container/20 text-secondary-container' : 'bg-surface-variant text-tertiary'}`}>{j.posicao}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

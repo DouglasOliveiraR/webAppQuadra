@@ -1,4 +1,5 @@
 backend/.env
+.env
 docs/
 .agents/
 venv/

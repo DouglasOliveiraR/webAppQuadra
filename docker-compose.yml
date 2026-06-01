@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     environment:
       - PROJECT_NAME=Pelada FC Manager
-      - SECRET_KEY=b1eb32886b72a0f6229509df65cd98cd3a2f3e8f8c7b8e9a  # Idealmente, substitua via ambiente ou .env
+      - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=sqlite:////app/data/pelada.db
       - BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:5173", "http://127.0.0.1:5173"]
     volumes:

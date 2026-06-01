@@ -44,13 +44,23 @@ class CheckinUseCase:
         self.usuario_repo = usuario_repo
 
     async def executar(self, evento_id: int, usuario_id: int, chegou: bool, falta_justificada: bool):
-        presenca = await self.presenca_repo.buscar_por_usuario_evento(usuario_id, evento_id)
-        if not presenca:
-            raise RegraDeNegocioError("Jogador não está na lista deste evento")
-            
         usuario = await self.usuario_repo.buscar_por_id(usuario_id)
         if not usuario:
             raise RegraDeNegocioError("Usuário não encontrado")
+            
+        presenca = await self.presenca_repo.buscar_por_usuario_evento(usuario_id, evento_id)
+        if not presenca:
+            # Se o admin está fazendo check-in/falta, assume-se que o jogador devia estar lá
+            presenca = Presenca(
+                id=None,
+                usuario_id=usuario_id,
+                evento_id=evento_id,
+                status_jogo=StatusJogo.DENTRO,
+                posicao=usuario.posicao,
+                vai_churrasco=False,
+                checkin_validado=False,
+                falta_penalizada=False
+            )
             
         # Guarda os estados anteriores para computar a variação exata de pontos
         antigo_chegou = presenca.checkin_validado

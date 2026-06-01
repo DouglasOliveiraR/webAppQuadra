@@ -665,34 +665,28 @@ export function AdminPage() {
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-panel rounded-xl p-0 shadow-ambient-1 overflow-hidden">
-                  <div className="bg-surface-container-high px-4 py-3 flex justify-between items-center">
-                    <h4 className="font-bold text-[16px]">Time A</h4>
-                    <span className="text-sm font-medium bg-surface-lowest px-2 py-1 rounded border border-outline-variant/30">Força Média: {timesSorteados.media_a?.toFixed(1)}</span>
+                {timesSorteados.times?.map((time, idx) => (
+                  <div key={idx} className="glass-panel rounded-xl p-0 shadow-ambient-1 overflow-hidden flex flex-col">
+                    <div className="bg-surface-container-high px-4 py-3 flex justify-between items-center">
+                      <h4 className="font-bold text-[16px]">{time.nome}</h4>
+                      <span className="text-sm font-medium bg-surface-lowest px-2 py-1 rounded border border-outline-variant/30">Força Média: {time.media?.toFixed(1)}</span>
+                    </div>
+                    <div className="divide-y divide-outline-variant/30 flex-1 bg-surface-container-lowest">
+                      {time.jogadores.map(j => (
+                        <div key={j.id} className="px-4 py-3 flex justify-between items-center hover:bg-surface-variant/30 transition-colors">
+                          <span className="font-medium text-on-surface flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${j.posicao === 'GOL' ? 'bg-secondary' : 'bg-primary'}`}></div>
+                            {j.nome}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded ${j.posicao === 'GOL' ? 'bg-secondary-container/20 text-secondary-container' : 'bg-surface-variant text-tertiary'}`}>{j.posicao}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="bg-surface-container-low px-4 py-2 text-xs text-tertiary text-right border-t border-outline-variant/30">
+                      {time.jogadores.length} jogadores
+                    </div>
                   </div>
-                  <div className="divide-y divide-outline-variant/30">
-                    {timesSorteados.time_a.map(j => (
-                      <div key={j.id} className="px-4 py-3 flex justify-between items-center bg-surface-container-lowest">
-                        <span className="font-medium text-on-surface">{j.nome}</span>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded ${j.posicao === 'GOL' ? 'bg-secondary-container/20 text-secondary-container' : 'bg-surface-variant text-tertiary'}`}>{j.posicao}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="glass-panel rounded-xl p-0 shadow-ambient-1 overflow-hidden">
-                  <div className="bg-surface-container-high px-4 py-3 flex justify-between items-center">
-                    <h4 className="font-bold text-[16px]">Time B</h4>
-                    <span className="text-sm font-medium bg-surface-lowest px-2 py-1 rounded border border-outline-variant/30">Força Média: {timesSorteados.media_b?.toFixed(1)}</span>
-                  </div>
-                  <div className="divide-y divide-outline-variant/30">
-                    {timesSorteados.time_b.map(j => (
-                      <div key={j.id} className="px-4 py-3 flex justify-between items-center bg-surface-container-lowest">
-                        <span className="font-medium text-on-surface">{j.nome}</span>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded ${j.posicao === 'GOL' ? 'bg-secondary-container/20 text-secondary-container' : 'bg-surface-variant text-tertiary'}`}>{j.posicao}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           )}

@@ -55,8 +55,8 @@ class CheckinUseCase:
                 id=None,
                 usuario_id=usuario_id,
                 evento_id=evento_id,
-                status_jogo=StatusJogo.DENTRO,
-                posicao=usuario.posicao,
+                status_jogo=StatusJogo.VOU,
+                posicao=Posicao.LINHA,
                 vai_churrasco=False,
                 checkin_validado=False,
                 falta_penalizada=False

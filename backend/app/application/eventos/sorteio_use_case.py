@@ -43,39 +43,36 @@ class SorteioUseCase:
         goleiros.sort(key=lambda x: x["nota"], reverse=True)
         linhas.sort(key=lambda x: x["nota"], reverse=True)
 
-        time_a = []
-        time_b = []
-        soma_a = 0
-        soma_b = 0
+        import math
+        num_times = max(2, math.ceil(len(confirmados) / 6.0))
+        times = [{"id": i, "nome": f"Time {chr(65+i)}", "jogadores": [], "soma_notas": 0.0} for i in range(num_times)]
 
-        # Distribuir goleiros
-        if len(goleiros) >= 1:
-            time_a.append(goleiros[0])
-            soma_a += goleiros[0]["nota"]
-        if len(goleiros) >= 2:
-            time_b.append(goleiros[1])
-            soma_b += goleiros[1]["nota"]
+        # Distribuir goleiros (um por vez em cada time)
+        for i, gol in enumerate(goleiros):
+            time_alvo = times[i % num_times]
+            time_alvo["jogadores"].append(gol)
+            time_alvo["soma_notas"] += gol["nota"]
 
         # Distribuir linhas balanceando as notas
         for j in linhas:
-            if soma_a <= soma_b:
-                if len(time_a) < 6:
-                    time_a.append(j)
-                    soma_a += j["nota"]
-                elif len(time_b) < 6:
-                    time_b.append(j)
-                    soma_b += j["nota"]
-            else:
-                if len(time_b) < 6:
-                    time_b.append(j)
-                    soma_b += j["nota"]
-                elif len(time_a) < 6:
-                    time_a.append(j)
-                    soma_a += j["nota"]
+            # Encontrar o time com a menor soma de notas DENTRE OS QUE TÊM MENOS DE 6 JOGADORES
+            times_disponiveis = [t for t in times if len(t["jogadores"]) < 6]
+            if not times_disponiveis:
+                # Se por algum motivo todos já tiverem 6, adiciona no de menor soma
+                times_disponiveis = times
+            
+            time_alvo = min(times_disponiveis, key=lambda t: t["soma_notas"])
+            time_alvo["jogadores"].append(j)
+            time_alvo["soma_notas"] += j["nota"]
 
-        return {
-            "time_a": time_a,
-            "time_b": time_b,
-            "media_a": soma_a / len(time_a) if time_a else 0,
-            "media_b": soma_b / len(time_b) if time_b else 0
-        }
+        # Formatar a resposta
+        times_response = []
+        for t in times:
+            media = t["soma_notas"] / len(t["jogadores"]) if t["jogadores"] else 0
+            times_response.append({
+                "nome": t["nome"],
+                "jogadores": t["jogadores"],
+                "media": media
+            })
+
+        return {"times": times_response}

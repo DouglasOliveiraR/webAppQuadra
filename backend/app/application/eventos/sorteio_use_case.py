@@ -17,10 +17,8 @@ class SorteioUseCase:
 
         presencas = await self.presenca_repo.listar_por_evento(evento_id)
         
-        # Pega confirmados (idealmente quem tem check-in, mas se ngm tiver, pega todos os VOU)
-        confirmados = [p for p in presencas if p.status_jogo.value == "VOU" and p.checkin_validado]
-        if not confirmados:
-            confirmados = [p for p in presencas if p.status_jogo.value == "VOU"]
+        # Sorteio considera todo mundo que confirmou presença (VOU) OU que recebeu check-in manual do admin (mesmo que não tenha marcado VOU)
+        confirmados = [p for p in presencas if p.status_jogo.value == "VOU" or p.checkin_validado]
 
         if not confirmados:
             raise RegraDeNegocioError("Nenhum jogador confirmado para o sorteio.")

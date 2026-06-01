@@ -137,7 +137,7 @@ export function PerfilPage() {
     setUploadingFoto(true);
     try {
       const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
-      const file = new File([croppedImageBlob], 'perfil.png', { type: 'image/png' });
+      const file = new File([croppedImageBlob], 'perfil.jpg', { type: 'image/jpeg' });
       
       const formData = new FormData();
       formData.append('file', file);
@@ -215,7 +215,7 @@ export function PerfilPage() {
             type="file" 
             ref={fileInputRef} 
             onChange={handleFotoSelect} 
-            accept="image/*" 
+            accept="image/jpeg, image/png, image/webp" 
             className="hidden" 
           />
         </div>

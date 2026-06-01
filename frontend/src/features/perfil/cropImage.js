@@ -52,6 +52,6 @@ export async function getCroppedImg(imageSrc, pixelCrop) {
       } else {
         reject(new Error('Canvas is empty'));
       }
-    }, 'image/png');
+    }, 'image/jpeg', 0.8);
   });
 }

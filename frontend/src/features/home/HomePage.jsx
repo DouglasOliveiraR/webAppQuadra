@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEvento } from '../../hooks/useEvento';
-import api from '../../services/api';
+import api, { getFotoUrl } from '../../services/api';
 
 export function HomePage() {
   const { evento, loading, actionLoading, error, atualizarPresenca } = useEvento(1);
@@ -308,6 +308,44 @@ export function HomePage() {
           </section>
         )}
       </div>
+
+      {/* Lista Completa de Confirmados */}
+      {!nenhumEventoAtivo && presencasConfirmadas.length > 0 && (
+        <section className="col-span-4 md:col-span-12 mt-2 mb-8">
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 md:p-6 shadow-ambient-1">
+            <div className="flex items-center gap-2 mb-4 border-b border-outline-variant/20 pb-3">
+              <span className="material-symbols-outlined text-primary text-[24px]">group</span>
+              <h3 className="font-headline-md text-headline-md text-on-surface">Quem já confirmou ({presencasConfirmadas.length})</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {presencasConfirmadas.map(jogador => (
+                <div key={jogador.usuario_id} className="flex items-center justify-between p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold shrink-0 overflow-hidden shadow-sm">
+                      {jogador.usuario_foto_url ? (
+                        <img src={getFotoUrl(jogador.usuario_foto_url)} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
+                      ) : (
+                        jogador.usuario_nome.charAt(0)
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[120px]" title={jogador.usuario_nome}>{jogador.usuario_nome}</span>
+                      <span className="font-body-sm text-body-sm text-tertiary">{jogador.posicao === 'GOL' ? 'Goleiro' : 'Linha'}</span>
+                    </div>
+                  </div>
+                  {jogador.vai_churrasco && (
+                    <div className="bg-secondary-container/20 text-secondary-container px-2 py-1 rounded-full flex items-center justify-center" title="Confirmado no Churrasco">
+                      <span className="material-symbols-outlined text-[16px]">local_fire_department</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
     </div>
   );
 }

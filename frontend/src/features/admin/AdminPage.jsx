@@ -14,6 +14,7 @@ export function AdminPage() {
     refetch, 
     criarEvento, 
     iniciarVotacao, 
+    cancelarVotacao,
     encerrarVotacao, 
     atualizarChurrasco, 
     atualizarChavePix, 
@@ -522,13 +523,22 @@ export function AdminPage() {
                   <p className="font-body-sm text-body-sm text-tertiary">Jogadores estão votando nos prêmios da partida.</p>
                 </div>
               </div>
-              <button 
-                onClick={encerrarVotacao}
-                disabled={actionLoading}
-                className="w-full py-4 bg-error text-on-error rounded-xl font-headline-md text-headline-md shadow-lg hover:bg-error/90 active:scale-95 transition-all"
-              >
-                Encerrar Partida (Apurar Votos)
-              </button>
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={encerrarVotacao}
+                  disabled={actionLoading}
+                  className="w-full py-4 bg-error text-on-error rounded-xl font-headline-md text-headline-md shadow-lg hover:bg-error/90 active:scale-95 transition-all"
+                >
+                  Encerrar Partida (Apurar Votos)
+                </button>
+                <button 
+                  onClick={cancelarVotacao}
+                  disabled={actionLoading}
+                  className="w-full py-2 bg-transparent text-tertiary border-2 border-tertiary/20 rounded-xl font-label-lg hover:bg-tertiary/10 active:scale-95 transition-all"
+                >
+                  Desfazer (Voltar para Presenças)
+                </button>
+              </div>
             </section>
           )}
 

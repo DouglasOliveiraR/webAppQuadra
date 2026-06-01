@@ -19,6 +19,7 @@ from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPaga
 from application.financeiro.listar_todos_financeiro_use_case import ListarTodosFinanceiroUseCase
 from application.eventos.use_cases import ObterEventoUseCase, CriarEventoUseCase, ListarEventosUseCase
 from application.eventos.iniciar_votacao_use_case import IniciarVotacaoUseCase
+from application.eventos.cancelar_votacao_use_case import CancelarVotacaoUseCase
 from application.eventos.sorteio_use_case import SorteioUseCase
 from application.eventos.atualizar_churrasco_use_case import AtualizarChurrascoUseCase
 from application.eventos.atualizar_chave_pix_use_case import AtualizarChavePixUseCase
@@ -151,6 +152,11 @@ def get_listar_eventos_use_case(db: Session = Depends(get_db)) -> ListarEventosU
 def get_iniciar_votacao_use_case(db: Session = Depends(get_db)) -> IniciarVotacaoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
     return IniciarVotacaoUseCase(evento_repo)
+
+def get_cancelar_votacao_use_case(db: Session = Depends(get_db)) -> CancelarVotacaoUseCase:
+    evento_repo = SQLAlchemyEventoRepository(db)
+    voto_repo = SQLAlchemyVotoRepository(db)
+    return CancelarVotacaoUseCase(evento_repo, voto_repo)
 
 def get_sorteio_use_case(db: Session = Depends(get_db)) -> SorteioUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)

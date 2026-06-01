@@ -104,6 +104,20 @@ export function useEvento(eventoId = 1) {
     }
   };
 
+  const cancelarVotacao = async () => {
+    try {
+      setActionLoading(true);
+      await api.put(`/eventos/${currentEventoId}/cancelar-votacao`);
+      await fetchEvento();
+      showToast('Votação desfeita, retornado para lista de presenças.');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao desfazer votação.';
+      showToast(msg, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const encerrarVotacao = async () => {
     try {
       setActionLoading(true);
@@ -221,6 +235,7 @@ export function useEvento(eventoId = 1) {
     atualizarPresenca, 
     criarEvento,
     iniciarVotacao,
+    cancelarVotacao,
     encerrarVotacao,
     atualizarChurrasco,
     atualizarChavePix,

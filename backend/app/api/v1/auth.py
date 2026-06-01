@@ -44,8 +44,11 @@ async def login(
     # Aplica o Rate Limiting na rota de login
     check_rate_limit(request)
 
+    import re
+    telefone_normalizado = re.sub(r'\D', '', payload.telefone) if payload.telefone else payload.telefone
+
     try:
-        token = await use_case.executar(payload.telefone, payload.senha)
+        token = await use_case.executar(telefone_normalizado, payload.senha)
         return {"access_token": token, "token_type": "bearer"}
     except CredenciaisInvalidasError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=e.detail)

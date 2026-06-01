@@ -13,6 +13,9 @@ class AtualizarUsuarioUseCase:
             raise RegraDeNegocioError("Jogador não encontrado.")
 
         if usuario.telefone != telefone:
+            import re
+            telefone = re.sub(r'\D', '', telefone) if telefone else telefone
+            
             existente = await self.usuario_repo.buscar_por_telefone(telefone)
             if existente and existente.id != usuario_id:
                 raise RegraDeNegocioError("Outro jogador com este telefone já está cadastrado.")

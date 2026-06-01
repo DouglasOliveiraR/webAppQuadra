@@ -30,6 +30,10 @@ class CriarUsuarioUseCase:
         else:
             if not telefone:
                 raise RegraDeNegocioError("O telefone é obrigatório para mensalistas e administradores.")
+            
+            import re
+            telefone = re.sub(r'\D', '', telefone)
+            
             existente = await self.usuario_repo.buscar_por_telefone(telefone)
             if existente:
                 raise RegraDeNegocioError("Um jogador com este telefone já está cadastrado.")

@@ -115,13 +115,37 @@ export function PerfilPage() {
     }
   };
 
-  const handleFotoSelect = (e) => {
-    const file = e.target.files[0];
+  const handleFotoSelect = async (e) => {
+    let file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+
+    if (!file.type.startsWith('image/') && !isHeic) {
       showToast('Apenas arquivos de imagem são permitidos.', 'error');
       return;
+    }
+
+    if (isHeic) {
+      setUploadingFoto(true);
+      try {
+        const heic2any = (await import('heic2any')).default;
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.8
+        });
+        
+        // Se a conversão retornar um array (múltiplas imagens no heic), pega a primeira
+        const finalBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        file = new File([finalBlob], file.name.replace(/\.heic|\.heif/i, '.jpg'), { type: 'image/jpeg' });
+      } catch (err) {
+        console.error("Erro ao converter HEIC", err);
+        showToast("Formato de imagem da Apple não suportado.", "error");
+        setUploadingFoto(false);
+        return;
+      }
+      setUploadingFoto(false);
     }
 
     const reader = new FileReader();

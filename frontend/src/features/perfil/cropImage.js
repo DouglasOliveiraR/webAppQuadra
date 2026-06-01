@@ -27,11 +27,12 @@ export async function getCroppedImg(imageSrc, pixelCrop) {
     return null;
   }
 
-  // Define o tamanho do canvas para o tamanho do recorte final
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  // Forçar o tamanho máximo de 500x500 para evitar erro de memória no Canvas do iPhone (iOS Safari)
+  const MAX_SIZE = 500;
+  canvas.width = MAX_SIZE;
+  canvas.height = MAX_SIZE;
 
-  // Desenha a imagem recortada
+  // Desenha a imagem recortada e redimensionada
   ctx.drawImage(
     image,
     pixelCrop.x,
@@ -40,8 +41,8 @@ export async function getCroppedImg(imageSrc, pixelCrop) {
     pixelCrop.height,
     0,
     0,
-    pixelCrop.width,
-    pixelCrop.height
+    MAX_SIZE,
+    MAX_SIZE
   );
 
   // Retorna como Promise com o Blob final da imagem

@@ -191,8 +191,12 @@ export function VotosPage() {
                 <h3 className="font-headline-md text-headline-md text-white">Escolher {CATEGORIAS.find(c=>c.id === activeCategory)?.titulo}</h3>
                 <p className="font-body-sm text-sm text-gray-400">Selecione o jogador na lista abaixo</p>
               </div>
-              <button onClick={() => setActiveCategory(null)} className="w-10 h-10 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center">
-                <span className="material-symbols-outlined">close</span>
+              <button
+                onClick={() => setActiveCategory(null)}
+                className="w-10 h-10 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label="Fechar"
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
               </button>
             </div>
             

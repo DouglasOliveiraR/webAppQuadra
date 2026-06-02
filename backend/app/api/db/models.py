@@ -180,3 +180,18 @@ class FinanceiroModel(Base):
 
     # Relacionamentos bidirecionais
     usuario: Mapped[Optional["UsuarioModel"]] = relationship(back_populates="financeiro")
+
+class PushSubscriptionModel(Base):
+    __tablename__ = "push_subscriptions"
+    __table_args__ = (
+        UniqueConstraint("usuario_id", "subscription_json", name="uq_push_subscription"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"))
+    subscription_json: Mapped[str] = mapped_column(String)
+    
+    criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    # Relacionamentos bidirecionais
+    usuario: Mapped["UsuarioModel"] = relationship(back_populates="push_subscriptions")

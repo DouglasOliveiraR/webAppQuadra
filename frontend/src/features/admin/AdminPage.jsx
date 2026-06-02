@@ -753,7 +753,7 @@ export function AdminPage() {
       )}
 
       {!nenhumEventoAtivo && activeTab === 'artilharia' && (
-        <AdminArtilhariaTab eventoId={evento.id} presencas={presencasTodas} />
+        <AdminArtilhariaTab eventoId={evento.id} presencas={evento?.presencas || []} />
       )}
 
       {/* Modal de Configuração do Churrasco */}

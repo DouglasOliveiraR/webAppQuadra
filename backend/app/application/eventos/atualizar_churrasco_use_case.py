@@ -13,7 +13,7 @@ class AtualizarChurrascoUseCase:
         if not evento:
             raise RegraDeNegocioError("Evento não encontrado")
 
-        churrasco_foi_ativado = (not evento.flag_churrasco) and flag_churrasco
+        churrasco_foi_ativado = flag_churrasco
 
         evento.flag_churrasco = flag_churrasco
         evento.valor_churrasco = valor_churrasco

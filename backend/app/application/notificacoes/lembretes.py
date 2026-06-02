@@ -7,7 +7,7 @@ from domain.eventos.repositories import EventoRepository
 from domain.eventos.enums import StatusEvento
 from domain.presencas.repositories import PresencaRepository
 from domain.usuarios.repositories import UsuarioRepository
-from domain.usuarios.enums import Perfil
+from domain.usuarios.enums import PerfilUsuario
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class NotificarPresencaPendenteUseCase:
             return
 
         todos_usuarios = await self.usuario_repo.listar_todos()
-        usuarios_validos = [u for u in todos_usuarios if u.perfil in [Perfil.MENSALISTA, Perfil.AVULSO]]
+        usuarios_validos = [u for u in todos_usuarios if u.perfil in [PerfilUsuario.MENSALISTA, PerfilUsuario.AVULSO]]
         
         presencas = await self.presenca_repo.listar_por_evento(evento_aberto.id)
         usuarios_com_presenca = {p.usuario_id for p in presencas}

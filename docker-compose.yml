@@ -11,6 +11,7 @@ services:
       - ./backend/.env
     environment:
       - PROJECT_NAME=Pelada FC Manager
+      - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=sqlite:////app/data/pelada.db
       - BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:5173", "http://127.0.0.1:5173"]
     volumes:

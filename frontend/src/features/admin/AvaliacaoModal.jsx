@@ -12,8 +12,12 @@ export function AvaliacaoModal({ isOpen, onClose, jogador, onSave }) {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-headline-md text-headline-md text-on-surface font-bold">Nota Técnica (Admin)</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label="Fechar"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
           </button>
         </div>
 

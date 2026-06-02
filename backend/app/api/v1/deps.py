@@ -172,7 +172,8 @@ def get_sorteio_use_case(db: Session = Depends(get_db)) -> SorteioUseCase:
 
 def get_atualizar_churrasco_use_case(db: Session = Depends(get_db), disparar_uc=Depends(get_disparar_notificacao_use_case)) -> AtualizarChurrascoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
-    return AtualizarChurrascoUseCase(evento_repo, disparar_notificacao_uc=disparar_uc)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    return AtualizarChurrascoUseCase(evento_repo, usuario_repo, disparar_notificacao_uc=disparar_uc)
 
 def get_atualizar_chave_pix_use_case(db: Session = Depends(get_db)) -> AtualizarChavePixUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)

@@ -17,8 +17,13 @@ from api.v1.deps import (
     get_current_user,
     get_alterar_senha_use_case,
     get_atualizar_foto_perfil_use_case,
-    get_deletar_usuario_use_case
+    get_deletar_usuario_use_case,
+    get_db
 )
+from core.security import get_password_hash
+from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
+from sqlalchemy.orm import Session
+from api.schemas.usuario_schemas import AdminEditUsuarioRequest
 from domain.usuarios.entities import Usuario
 from core.exceptions import RegraDeNegocioError
 
@@ -151,3 +156,24 @@ async def deletar_usuario(
         return {"detail": "Usuário deletado com sucesso!"}
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
+
+@router.put("/{usuario_id}/admin-edit", response_model=UsuarioResponse)
+async def admin_edit_usuario(
+    usuario_id: int,
+    payload: AdminEditUsuarioRequest,
+    admin_user: Usuario = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    repo = SQLAlchemyUsuarioRepository(db)
+    usuario = await repo.buscar_por_id(usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+    
+    if payload.pontos_ranking is not None:
+        usuario.pontos_ranking = payload.pontos_ranking
+    
+    if payload.resetar_senha:
+        usuario.senha_hash = get_password_hash("123456")
+        
+    await repo.salvar(usuario)
+    return usuario

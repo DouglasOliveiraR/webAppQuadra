@@ -130,6 +130,7 @@ class PresencaModel(Base):
     vai_churrasco: Mapped[bool] = mapped_column(Boolean)
     checkin_validado: Mapped[bool] = mapped_column(Boolean)
     falta_penalizada: Mapped[bool] = mapped_column(Boolean)
+    gols: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
     
     criado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())

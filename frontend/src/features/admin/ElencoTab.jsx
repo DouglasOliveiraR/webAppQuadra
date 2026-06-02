@@ -19,6 +19,7 @@ export function ElencoTab() {
   const [perfil, setPerfil] = useState('AVULSO');
   const [statusJogador, setStatusJogador] = useState('ATIVO');
   const [notaAdmin, setNotaAdmin] = useState(5);
+  const [pontosRanking, setPontosRanking] = useState(0);
 
   const fetchElenco = async () => {
     try {
@@ -45,6 +46,7 @@ export function ElencoTab() {
     setPerfil('AVULSO');
     setStatusJogador('ATIVO');
     setNotaAdmin(5);
+    setPontosRanking(0);
     setModalOpen(true);
   };
 
@@ -57,6 +59,7 @@ export function ElencoTab() {
     setPerfil(jogador.perfil || 'AVULSO');
     setStatusJogador(jogador.status || 'ATIVO');
     setNotaAdmin(jogador.nota_admin ?? 5);
+    setPontosRanking(jogador.pontos_ranking || 0);
     setModalOpen(true);
   };
 
@@ -71,6 +74,16 @@ export function ElencoTab() {
     } catch (err) {
       const msg = err.response?.data?.detail || 'Erro ao deletar jogador.';
       showToast(msg, 'error');
+    }
+  };
+
+  const handleResetarSenha = async () => {
+    if (!window.confirm("Deseja resetar a senha deste usuário para '123456'?")) return;
+    try {
+      await api.put(`/usuarios/${idEdicao}/admin-edit`, { resetar_senha: true });
+      showToast("Senha resetada com sucesso para 123456!");
+    } catch (err) {
+      showToast("Erro ao resetar senha.", "error");
     }
   };
 
@@ -96,6 +109,9 @@ export function ElencoTab() {
         await api.put(`/usuarios/${idEdicao}`, {
           ...payload,
           status: statusJogador
+        });
+        await api.put(`/usuarios/${idEdicao}/admin-edit`, {
+          pontos_ranking: parseInt(pontosRanking) || 0
         });
         showToast('Jogador atualizado com sucesso!');
       } else {
@@ -349,6 +365,28 @@ export function ElencoTab() {
                   <span>Craque (10)</span>
                 </div>
               </div>
+
+              {isEditing && (
+                <div className="space-y-1 pt-3 border-t border-outline-variant/10">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px]">Pontos do Ranking</label>
+                  </div>
+                  <input 
+                    type="number" 
+                    value={pontosRanking}
+                    onChange={(e) => setPontosRanking(e.target.value)}
+                    className="block w-full px-3 py-3 bg-[#F1F5F9] dark:bg-surface-lowest border-transparent rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleResetarSenha}
+                    className="w-full mt-3 py-3 border-2 border-error text-error rounded-xl font-label-bold text-label-bold hover:bg-error/10 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">key</span>
+                    Resetar Senha para 123456
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Actions */}

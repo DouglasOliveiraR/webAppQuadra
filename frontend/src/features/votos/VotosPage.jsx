@@ -7,7 +7,7 @@ const CATEGORIAS = [
   { id: 'BOLA_CHEIA', titulo: 'Bola Cheia', desc: 'O Craque', icon: 'star', color: 'text-yellow-400', bgIcon: 'text-yellow-400' },
   { id: 'GOL_BONITO', titulo: 'Gol+ Bonito', desc: 'Golaço', icon: 'sports_soccer', color: 'text-white', bgIcon: 'text-white' },
   { id: 'BOLA_MURCHA', titulo: 'Bola Murcha', desc: 'O Bagre', icon: 'arrow_downward', color: 'text-red-400', bgIcon: 'text-red-500' },
-  { id: 'LAFON', titulo: 'Lafon', desc: 'O Paredão', icon: 'shield', color: 'text-blue-400', bgIcon: 'text-blue-400' },
+  { id: 'LAFON', titulo: 'Lafon', desc: 'O Chorão', icon: 'mood_bad', color: 'text-purple-400', bgIcon: 'text-purple-400' },
 ];
 
 export function VotosPage() {

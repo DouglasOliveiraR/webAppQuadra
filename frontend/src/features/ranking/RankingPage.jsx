@@ -104,12 +104,18 @@ export function RankingPage() {
             return b.pontos_ranking - a.pontos_ranking;
           }
           return (b.nota_galera_media || 0) - (a.nota_galera_media || 0);
-        } else {
+        } else if (criterioOrdenacao === 'nota') {
           if (b.nota_galera_media !== a.nota_galera_media) {
             return (b.nota_galera_media || 0) - (a.nota_galera_media || 0);
           }
           return b.pontos_ranking - a.pontos_ranking;
+        } else if (criterioOrdenacao === 'gols') {
+          if (b.gols_total !== a.gols_total) {
+            return (b.gols_total || 0) - (a.gols_total || 0);
+          }
+          return b.pontos_ranking - a.pontos_ranking;
         }
+        return 0;
       })
     : [];
   const top3 = sortedRanking.slice(0, 3);
@@ -178,6 +184,17 @@ export function RankingPage() {
               >
                 Média da Galera
               </button>
+              <button 
+                onClick={() => setCriterioOrdenacao('gols')}
+                aria-pressed={criterioOrdenacao === 'gols'}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  criterioOrdenacao === 'gols' 
+                    ? 'bg-primary text-on-primary shadow-sm' 
+                    : 'bg-surface-variant text-on-surface-variant hover:bg-surface-container-high'
+                }`}
+              >
+                Gols
+              </button>
             </div>
           </div>
 
@@ -203,7 +220,9 @@ export function RankingPage() {
                     <span className="font-label-bold text-label-bold text-primary">
                       {criterioOrdenacao === 'pontos' 
                         ? `${top3[1].pontos_ranking} pts` 
-                        : `${top3[1].nota_galera_media ? top3[1].nota_galera_media.toFixed(1) : '-'} ★`}
+                        : criterioOrdenacao === 'nota'
+                        ? `${top3[1].nota_galera_media ? top3[1].nota_galera_media.toFixed(1) : '-'} ★`
+                        : `${top3[1].gols_total || 0} gols`}
                     </span>
                   </div>
                 )}
@@ -229,7 +248,9 @@ export function RankingPage() {
                     <span className="font-label-bold text-label-bold text-primary px-2 py-1 bg-primary/10 rounded-full mt-1">
                       {criterioOrdenacao === 'pontos' 
                         ? `${top3[0].pontos_ranking} pts` 
-                        : `${top3[0].nota_galera_media ? top3[0].nota_galera_media.toFixed(1) : '-'} ★`}
+                        : criterioOrdenacao === 'nota'
+                        ? `${top3[0].nota_galera_media ? top3[0].nota_galera_media.toFixed(1) : '-'} ★`
+                        : `${top3[0].gols_total || 0} gols`}
                     </span>
                   </div>
                 )}
@@ -252,7 +273,9 @@ export function RankingPage() {
                     <span className="font-label-bold text-label-bold text-primary">
                       {criterioOrdenacao === 'pontos' 
                         ? `${top3[2].pontos_ranking} pts` 
-                        : `${top3[2].nota_galera_media ? top3[2].nota_galera_media.toFixed(1) : '-'} ★`}
+                        : criterioOrdenacao === 'nota'
+                        ? `${top3[2].nota_galera_media ? top3[2].nota_galera_media.toFixed(1) : '-'} ★`
+                        : `${top3[2].gols_total || 0} gols`}
                     </span>
                   </div>
                 )}
@@ -276,6 +299,7 @@ export function RankingPage() {
               <div className="flex-1 font-label-bold text-label-bold text-on-surface-variant">Jogador</div>
               <div className={`w-16 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'pontos' ? 'text-primary font-bold' : 'text-on-surface-variant'}`}>Pts</div>
               <div className={`w-16 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'nota' ? 'text-primary font-bold' : 'text-on-surface-variant'}`}>Média</div>
+              <div className={`w-12 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'gols' ? 'text-primary font-bold' : 'text-on-surface-variant'}`}>Gols</div>
             </div>
 
             <div className="divide-y divide-outline-variant/50">
@@ -313,8 +337,15 @@ export function RankingPage() {
                       )}
                     </div>
                   </div>
-                  <div className={`w-16 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'pontos' ? 'text-primary font-bold' : 'text-on-surface-variant/80'}`}>{jogador.pontos_ranking}</div>
-                  <div className={`w-16 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'nota' ? 'text-primary font-bold' : 'text-on-surface-variant/80'}`}>{jogador.nota_galera_media ? jogador.nota_galera_media.toFixed(1) : '-'}</div>
+                  <div className={`w-16 text-center text-sm ${criterioOrdenacao === 'pontos' ? 'font-bold text-primary' : 'font-medium text-on-surface'}`}>
+                    {jogador.pontos_ranking}
+                  </div>
+                  <div className={`w-16 text-center text-sm ${criterioOrdenacao === 'nota' ? 'font-bold text-primary' : 'font-medium text-on-surface-variant'}`}>
+                    {jogador.nota_galera_media ? jogador.nota_galera_media.toFixed(1) : '-'}
+                  </div>
+                  <div className={`w-12 text-center text-sm ${criterioOrdenacao === 'gols' ? 'font-bold text-primary' : 'font-medium text-on-surface-variant'}`}>
+                    {jogador.gols_total || 0}
+                  </div>
                 </div>
               ))}
               {restOfRanking.length === 0 && (

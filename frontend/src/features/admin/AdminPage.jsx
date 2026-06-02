@@ -5,6 +5,8 @@ import { showToast } from '../../components/ui/Toast';
 
 import { ElencoTab } from './ElencoTab';
 import { AdminFinanceiroTab } from './AdminFinanceiroTab';
+import { AdminAuditoriaTab } from './AdminAuditoriaTab';
+import { AdminArtilhariaTab } from './AdminArtilhariaTab';
 
 export function AdminPage() {
   const { 
@@ -195,7 +197,8 @@ export function AdminPage() {
         usuario_foto_url: u.foto_url,
         posicao: p?.posicao || 'Linha', // Fallback if no presenca
         vai_churrasco: p?.vai_churrasco || false,
-        checkin_validado: p?.checkin_validado || false
+        checkin_validado: p?.checkin_validado || false,
+        falta_penalizada: p?.falta_penalizada || false
       };
     });
     
@@ -206,7 +209,8 @@ export function AdminPage() {
       usuario_foto_url: p.usuario_foto_url,
       posicao: p.posicao,
       vai_churrasco: p.vai_churrasco,
-      checkin_validado: p.checkin_validado
+      checkin_validado: p.checkin_validado,
+      falta_penalizada: p.falta_penalizada
     }));
     
     // Sort alphabetically by name
@@ -394,7 +398,7 @@ export function AdminPage() {
 
       {!nenhumEventoAtivo && (
         <div className="flex border-b border-outline-variant/30 mb-4 overflow-x-auto hide-scrollbar">
-          {['geral', 'check-in', 'elenco', 'sorteio', 'financeiro'].map(tab => (
+          {['geral', 'check-in', 'elenco', 'sorteio', 'financeiro', 'auditoria', 'artilharia'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -589,7 +593,9 @@ export function AdminPage() {
             ) : (
               <div className="space-y-3">
                 {jogadoresCheckin.map(jogador => {
-                  const chegou = jogador.checkin_validado;
+                  const presente = jogador.checkin_validado;
+                  const faltou = jogador.falta_penalizada;
+                  const pendente = !presente && !faltou;
                   return (
                     <div key={jogador.usuario_id} className="glass-panel rounded-xl p-4 flex flex-col gap-3 shadow-ambient-1">
                       <div className="flex justify-between items-center border-b border-outline-variant/20 pb-2">
@@ -610,9 +616,17 @@ export function AdminPage() {
                       </div>
                       <div className="flex gap-2">
                         <button 
+                          onClick={() => handleCheckin(jogador.usuario_id, false, true)}
+                          disabled={loadingCheckin === jogador.usuario_id}
+                          className={`py-2 text-[12px] font-bold uppercase flex-1 rounded-lg transition-colors ${pendente ? 'bg-surface-variant text-on-surface' : 'border border-surface-variant text-on-surface-variant hover:bg-surface-container-high'}`}
+                        >
+                          <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1">schedule</span>
+                          Pendente
+                        </button>
+                        <button 
                           onClick={() => handleCheckin(jogador.usuario_id, true, false)}
                           disabled={loadingCheckin === jogador.usuario_id}
-                          className={`py-2 text-[12px] font-bold uppercase flex-1 rounded-lg transition-colors ${chegou === true ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant hover:bg-surface-container-high'}`}
+                          className={`py-2 text-[12px] font-bold uppercase flex-1 rounded-lg transition-colors ${presente ? 'bg-primary text-on-primary' : 'border border-primary/50 text-primary hover:bg-primary/10'}`}
                         >
                           <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1">check_circle</span>
                           Chegou
@@ -620,7 +634,7 @@ export function AdminPage() {
                         <button 
                           onClick={() => handleCheckin(jogador.usuario_id, false, false)}
                           disabled={loadingCheckin === jogador.usuario_id}
-                          className={`py-2 text-[12px] font-bold uppercase flex-1 rounded-lg transition-colors ${chegou === false ? 'bg-error text-white' : 'border border-error text-error hover:bg-error/10'}`}
+                          className={`py-2 text-[12px] font-bold uppercase flex-1 rounded-lg transition-colors ${faltou ? 'bg-error text-white' : 'border border-error/50 text-error hover:bg-error/10'}`}
                         >
                           <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1">cancel</span>
                           Faltou
@@ -732,6 +746,14 @@ export function AdminPage() {
 
       {!nenhumEventoAtivo && activeTab === 'financeiro' && (
         <AdminFinanceiroTab />
+      )}
+
+      {!nenhumEventoAtivo && activeTab === 'auditoria' && (
+        <AdminAuditoriaTab eventoId={evento.id} />
+      )}
+
+      {!nenhumEventoAtivo && activeTab === 'artilharia' && (
+        <AdminArtilhariaTab eventoId={evento.id} presencas={presencasTodas} />
       )}
 
       {/* Modal de Configuração do Churrasco */}

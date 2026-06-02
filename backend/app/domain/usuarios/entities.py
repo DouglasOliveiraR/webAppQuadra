@@ -12,6 +12,7 @@ class UsuarioRanking:
     nota_galera_media: float
     foto_url: Optional[str]
     premios: list
+    gols_total: int = 0
 
 @dataclass
 class Usuario:

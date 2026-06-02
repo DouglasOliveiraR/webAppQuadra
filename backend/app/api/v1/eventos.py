@@ -238,3 +238,67 @@ async def listar_eventos(
         return await use_case.executar()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.get("/{id}/votos-auditoria")
+async def auditoria_votos(
+    id: int,
+    db: Session = Depends(get_db),
+    admin_user: Usuario = Depends(get_admin_user)
+):
+    from sqlalchemy import select
+    from api.db.models import VotoModel, NotaModel, UsuarioModel
+    
+    # Obter todos os votos do evento
+    stmt_votos = select(VotoModel).where(VotoModel.evento_id == id)
+    result_votos = db.execute(stmt_votos)
+    votos = result_votos.scalars().all()
+
+    # Obter todas as notas do evento
+    stmt_notas = select(NotaModel).where(NotaModel.evento_id == id)
+    result_notas = db.execute(stmt_notas)
+    notas = result_notas.scalars().all()
+
+    # Obter os usuários envolvidos
+    usuario_ids = set()
+    for v in votos:
+        usuario_ids.add(v.eleitor_id)
+        usuario_ids.add(v.candidato_id)
+    for n in notas:
+        usuario_ids.add(n.avaliador_id)
+        usuario_ids.add(n.avaliado_id)
+        
+    if not usuario_ids:
+        return []
+        
+    stmt_usuarios = select(UsuarioModel).where(UsuarioModel.id.in_(usuario_ids))
+    usuarios = db.execute(stmt_usuarios).scalars().all()
+    mapa_usuarios = {u.id: u.nome for u in usuarios}
+
+    # Estruturar o retorno por eleitor
+    auditoria = {}
+    for v in votos:
+        eleitor_nome = mapa_usuarios.get(v.eleitor_id, "Desconhecido")
+        if eleitor_nome not in auditoria:
+            auditoria[eleitor_nome] = {"categorias": {}, "notas": {}}
+        candidato_nome = mapa_usuarios.get(v.candidato_id, "Desconhecido")
+        auditoria[eleitor_nome]["categorias"][v.categoria.value] = candidato_nome
+        
+    for n in notas:
+        eleitor_nome = mapa_usuarios.get(n.avaliador_id, "Desconhecido")
+        if eleitor_nome not in auditoria:
+            auditoria[eleitor_nome] = {"categorias": {}, "notas": {}}
+        candidato_nome = mapa_usuarios.get(n.avaliado_id, "Desconhecido")
+        auditoria[eleitor_nome]["notas"][candidato_nome] = n.nota
+
+    # Transformar em lista para o frontend
+    resultado = []
+    for eleitor, dados in auditoria.items():
+        resultado.append({
+            "votante": eleitor,
+            "categorias": dados["categorias"],
+            "notas": dados["notas"]
+        })
+        
+    # Ordenar por nome do votante
+    resultado.sort(key=lambda x: x["votante"])
+    return resultado

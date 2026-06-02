@@ -274,11 +274,11 @@ export function PerfilPage() {
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-tertiary/20 text-tertiary flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">shield</span>
+            <div className="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">mood_bad</span>
             </div>
             <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Paredão</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Lafon (Chorão)</span>
           </div>
 
           <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">

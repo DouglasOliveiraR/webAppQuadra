@@ -12,7 +12,7 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         from api.db.models import PremioModel, NotaModel, TipoNota
         from domain.usuarios.enums import StatusUsuario
         from sqlalchemy import func
-        from collections import defaultdict, Counter
+        from collections import defaultdict
 
         # 1. Fetch the aggregated data directly using SQLAlchemy
         # Subquery for notes
@@ -48,6 +48,19 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             PremioModel.usuario_id, PremioModel.categoria
         ).all()
 
+        # 2.5 Fetch aggregated goals using SQLAlchemy grouping
+        from api.db.models import PresencaModel
+        gols_agrupados = self.session.query(
+            PresencaModel.usuario_id,
+            func.sum(PresencaModel.gols).label('total_gols')
+        ).filter(
+            PresencaModel.usuario_id.in_(usuarios_ids)
+        ).group_by(
+            PresencaModel.usuario_id
+        ).all()
+
+        gols_map = {g.usuario_id: (g.total_gols or 0) for g in gols_agrupados}
+
         # Build prize map
         premios_map = defaultdict(list)
         for premio in premios_agrupados:
@@ -68,7 +81,8 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
                 nota_admin=u.nota_admin,
                 nota_galera_media=nota_galera,
                 foto_url=u.foto_url,
-                premios=premios_map.get(u.id, [])
+                premios=premios_map.get(u.id, []),
+                gols_total=gols_map.get(u.id, 0)
             )
             resultado.append(ranking_obj)
 

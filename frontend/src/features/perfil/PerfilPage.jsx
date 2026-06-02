@@ -264,15 +264,23 @@ export function PerfilPage() {
             <div className="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary-container flex items-center justify-center mb-3">
               <span className="material-symbols-outlined text-[24px]">star</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'BOLA_CHEIA')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">Bola Cheia</span>
+          </div>
+
+          <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">sports_soccer</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'GOL_BONITO')?.quantidade || 0}x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Gol + Bonito</span>
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center mb-3">
               <span className="material-symbols-outlined text-[24px]">warning</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'BOLA_MURCHA')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">O Bagre</span>
           </div>
 
@@ -280,15 +288,31 @@ export function PerfilPage() {
             <div className="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
               <span className="material-symbols-outlined text-[24px]">mood_bad</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">0x</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'LAFON')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">Lafon (Chorão)</span>
           </div>
 
-          <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+          <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">sports</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.gols_total || 0}</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Gols Marcados</span>
+          </div>
+
+          <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
+            <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mb-3">
+              <span className="material-symbols-outlined text-[24px]">trending_up</span>
+            </div>
+            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.nota_galera_media ? parseFloat(meusDados.nota_galera_media).toFixed(1) : '-'}</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Média da Galera</span>
+          </div>
+
+          <div className="col-span-2 bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-3">
               <span className="material-symbols-outlined text-[24px]">emoji_events</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1 text-primary">{meusDados?.pontos || 0}</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1 text-primary">{meusDados?.pontos_ranking || 0}</span>
             <span className="font-body-sm text-body-sm text-primary">Total de Pontos</span>
           </div>
         </div>

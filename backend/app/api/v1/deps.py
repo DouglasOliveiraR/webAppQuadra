@@ -140,18 +140,24 @@ def get_obter_evento_use_case(db: Session = Depends(get_db)) -> ObterEventoUseCa
     nota_repo = SQLAlchemyNotaRepository(db)
     return ObterEventoUseCase(evento_repo, presenca_repo, usuario_repo, voto_repo, nota_repo)
 
-def get_criar_evento_use_case(db: Session = Depends(get_db)) -> CriarEventoUseCase:
+def get_disparar_notificacao_use_case(db: Session = Depends(get_db)):
+    from application.notificacoes.disparar_notificacao import DispararNotificacaoUseCase
+    from api.db.repositories.push_subscription_repo import SQLAlchemyPushSubscriptionRepository
+    repo = SQLAlchemyPushSubscriptionRepository(db)
+    return DispararNotificacaoUseCase(repo)
+
+def get_criar_evento_use_case(db: Session = Depends(get_db), disparar_uc=Depends(get_disparar_notificacao_use_case)) -> CriarEventoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
     financeiro_repo = SQLAlchemyFinanceiroRepository(db)
-    return CriarEventoUseCase(evento_repo, financeiro_repo)
+    return CriarEventoUseCase(evento_repo, financeiro_repo, disparar_notificacao_uc=disparar_uc)
 
 def get_listar_eventos_use_case(db: Session = Depends(get_db)) -> ListarEventosUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
     return ListarEventosUseCase(evento_repo)
 
-def get_iniciar_votacao_use_case(db: Session = Depends(get_db)) -> IniciarVotacaoUseCase:
+def get_iniciar_votacao_use_case(db: Session = Depends(get_db), disparar_uc=Depends(get_disparar_notificacao_use_case)) -> IniciarVotacaoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)
-    return IniciarVotacaoUseCase(evento_repo)
+    return IniciarVotacaoUseCase(evento_repo, disparar_notificacao_uc=disparar_uc)
 
 def get_cancelar_votacao_use_case(db: Session = Depends(get_db)) -> CancelarVotacaoUseCase:
     evento_repo = SQLAlchemyEventoRepository(db)

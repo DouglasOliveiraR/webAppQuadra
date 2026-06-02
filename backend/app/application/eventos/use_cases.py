@@ -10,9 +10,10 @@ from core.exceptions import RecursoNaoEncontradoError
 from typing import List
 
 class CriarEventoUseCase:
-    def __init__(self, evento_repo: EventoRepository, financeiro_repo: FinanceiroRepository):
+    def __init__(self, evento_repo: EventoRepository, financeiro_repo: FinanceiroRepository, disparar_notificacao_uc=None):
         self.evento_repo = evento_repo
         self.financeiro_repo = financeiro_repo
+        self.disparar_notificacao_uc = disparar_notificacao_uc
         
     async def executar(self, evento: Evento) -> Evento:
         evento_salvo = await self.evento_repo.salvar(evento)
@@ -29,6 +30,16 @@ class CriarEventoUseCase:
             if registros_atualizados:
                 await self.financeiro_repo.salvar_lote(registros_atualizados)
                     
+        if self.disparar_notificacao_uc:
+            data_formatada = evento_salvo.data_jogo.strftime("%d/%m")
+            import asyncio
+            asyncio.create_task(
+                self.disparar_notificacao_uc.executar(
+                    titulo="Nova Pelada Marcada! ⚽",
+                    corpo=f"Pelada marcada para {data_formatada} às {evento_salvo.hora_inicio}. Faça seu check-in agora!"
+                )
+            )
+            
         return evento_salvo
 
 class ListarEventosUseCase:

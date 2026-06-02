@@ -6,6 +6,10 @@ from application.financeiro.virada_mes_use_case import ViradaMesUseCase
 from api.db.repositories.financeiro_repo import SQLAlchemyFinanceiroRepository
 from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from api.db.repositories.evento_repo import SQLAlchemyEventoRepository
+from api.db.repositories.presenca_repo import SQLAlchemyPresencaRepository
+from api.db.repositories.push_subscription_repo import SQLAlchemyPushSubscriptionRepository
+from application.notificacoes.disparar_notificacao import DispararNotificacaoUseCase
+from application.notificacoes.lembretes import NotificarMensalidadeAtrasadaUseCase, NotificarPresencaPendenteUseCase
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +37,62 @@ async def job_virada_mes():
     finally:
         db.close()
 
+async def job_lembrete_mensalidade():
+    logger.info("Iniciando rotina de lembrete de mensalidade...")
+    db = SessionLocal()
+    try:
+        financeiro_repo = SQLAlchemyFinanceiroRepository(db)
+        push_repo = SQLAlchemyPushSubscriptionRepository(db)
+        disparar_uc = DispararNotificacaoUseCase(push_repo)
+        
+        use_case = NotificarMensalidadeAtrasadaUseCase(financeiro_repo, disparar_uc)
+        await use_case.executar()
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao executar rotina de lembrete de mensalidade: {e}")
+    finally:
+        db.close()
+
+async def job_lembrete_presenca():
+    logger.info("Iniciando rotina de lembrete de presenca...")
+    db = SessionLocal()
+    try:
+        evento_repo = SQLAlchemyEventoRepository(db)
+        usuario_repo = SQLAlchemyUsuarioRepository(db)
+        presenca_repo = SQLAlchemyPresencaRepository(db)
+        push_repo = SQLAlchemyPushSubscriptionRepository(db)
+        disparar_uc = DispararNotificacaoUseCase(push_repo)
+        
+        use_case = NotificarPresencaPendenteUseCase(evento_repo, usuario_repo, presenca_repo, disparar_uc)
+        await use_case.executar()
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao executar rotina de lembrete de presenca: {e}")
+    finally:
+        db.close()
+
 def start_scheduler():
     # Roda dia 1 de cada mês às 00:01
     scheduler.add_job(
         job_virada_mes,
         CronTrigger(day=1, hour=0, minute=1),
         id="virada_mes_job",
+        replace_existing=True
+    )
+    # Lembrete de Mensalidade: Diário às 12:00
+    scheduler.add_job(
+        job_lembrete_mensalidade,
+        CronTrigger(hour=12, minute=0),
+        id="lembrete_mensalidade_job",
+        replace_existing=True
+    )
+    # Lembrete de Presença: Diário às 13:00, 15:00 e 18:00
+    scheduler.add_job(
+        job_lembrete_presenca,
+        CronTrigger(hour='13,15,18', minute=0),
+        id="lembrete_presenca_job",
         replace_existing=True
     )
     scheduler.start()

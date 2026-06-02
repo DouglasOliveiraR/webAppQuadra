@@ -4,6 +4,7 @@ import api, { API_URL, getFotoUrl } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from './cropImage';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 
 export function PerfilPage() {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export function PerfilPage() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+  const { isSupported, permission, subscribeToPush, loading: loadingPush } = usePushNotifications();
 
   const handleAbrirModalSenha = () => {
     setSenhaAtual('');
@@ -303,6 +306,37 @@ export function PerfilPage() {
           </div>
           <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
         </button>
+
+        {isSupported && permission !== 'granted' && (
+          <button 
+            onClick={subscribeToPush}
+            disabled={loadingPush}
+            className="flex items-center justify-between bg-primary/10 border border-primary/20 text-primary rounded-xl p-4 shadow-ambient-1 hover:bg-primary/20 transition-colors mb-3 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined">notifications_active</span>
+              <div className="flex flex-col text-left">
+                <span className="font-body-md text-body-md font-bold">Ativar Notificações</span>
+                <span className="font-body-sm text-body-sm text-primary/80">Receba avisos de pelada e votações</span>
+              </div>
+            </div>
+            {loadingPush ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent"></div>
+            ) : (
+              <span className="material-symbols-outlined">chevron_right</span>
+            )}
+          </button>
+        )}
+
+        {isSupported && permission === 'granted' && (
+          <div className="flex items-center justify-between bg-surface-container-low border border-outline-variant/30 text-on-surface-variant rounded-xl p-4 mb-3">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-green-500">notifications_active</span>
+              <span className="font-body-md text-body-md font-medium">Notificações Ativas</span>
+            </div>
+            <span className="material-symbols-outlined text-green-500">check_circle</span>
+          </div>
+        )}
 
         <button 
           onClick={handleLogout}

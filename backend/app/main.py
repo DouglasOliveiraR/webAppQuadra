@@ -5,7 +5,7 @@ from api.db.database import engine
 from api.db.models import Base
 from core.config import settings
 
-from api.v1 import auth, eventos, ranking, financeiro, usuarios, notas
+from api.v1 import auth, eventos, ranking, financeiro, usuarios, notas, notificacoes
 
 # Cria as tabelas do banco (Apenas para MVP SQLite, em prod usar Alembic)
 Base.metadata.create_all(bind=engine)
@@ -51,6 +51,7 @@ app.include_router(eventos.router)
 app.include_router(ranking.router)
 app.include_router(financeiro.router)
 app.include_router(notas.router)
+app.include_router(notificacoes.router)
 
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi import Request

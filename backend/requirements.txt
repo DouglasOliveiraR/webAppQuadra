@@ -10,3 +10,5 @@ pytest==9.0.3
 httpx==0.28.1
 python-multipart==0.0.29
 apscheduler==3.10.4
+pywebpush==2.0.0
+cryptography==44.0.1

@@ -55,6 +55,9 @@ class UsuarioModel(Base):
     notas_dadas: Mapped[List["NotaModel"]] = relationship(
         back_populates="avaliador", foreign_keys="[NotaModel.avaliador_id]", passive_deletes=True
     )
+    push_subscriptions: Mapped[List["PushSubscriptionModel"]] = relationship(
+        back_populates="usuario", cascade="all, delete-orphan", passive_deletes=True
+    )
 
 class PremioModel(Base):
     __tablename__ = "premios"

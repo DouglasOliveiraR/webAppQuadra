@@ -26,8 +26,9 @@ from api.v1.deps import (
     get_atualizar_mensalidade_use_case,
     get_atualizar_custo_quadra_use_case,
     get_cancelar_evento_use_case, get_listar_eventos_use_case,
-    get_cancelar_votacao_use_case
+    get_cancelar_votacao_use_case, get_db
 )
+from sqlalchemy.orm import Session
 from domain.usuarios.entities import Usuario
 from core.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError
 
@@ -169,6 +170,38 @@ async def atualizar_presenca(
         return presenca
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
+
+from pydantic import BaseModel
+class GolsRequest(BaseModel):
+    delta: int
+
+@router.post("/{id}/presencas/{usuario_id}/gols")
+async def ajustar_gols(
+    id: int,
+    usuario_id: int,
+    payload: GolsRequest,
+    db: Session = Depends(get_db),
+    admin_user: Usuario = Depends(get_admin_user)
+):
+    from api.db.models import PresencaModel
+    from sqlalchemy import select
+    
+    stmt = select(PresencaModel).where(
+        PresencaModel.evento_id == id,
+        PresencaModel.usuario_id == usuario_id
+    )
+    presenca = db.execute(stmt).scalars().first()
+    
+    if not presenca:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Presença não encontrada")
+        
+    presenca.gols = (presenca.gols or 0) + payload.delta
+    if presenca.gols < 0:
+        presenca.gols = 0
+        
+    db.commit()
+    db.refresh(presenca)
+    return {"gols": presenca.gols}
 
 @router.post("/{id}/checkin/{usuario_id}", response_model=PresencaResponse)
 async def registrar_checkin(

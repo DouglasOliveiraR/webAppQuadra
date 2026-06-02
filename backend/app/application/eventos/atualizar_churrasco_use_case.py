@@ -26,14 +26,14 @@ class AtualizarChurrascoUseCase:
         if churrasco_foi_ativado and self.disparar_notificacao_uc:
             try:
                 todos_usuarios = await self.usuario_repo.listar_todos()
-                ids_mensalistas = [u.id for u in todos_usuarios if u.perfil == PerfilUsuario.MENSALISTA]
+                ids_alvos = [u.id for u in todos_usuarios if u.perfil in (PerfilUsuario.MENSALISTA, PerfilUsuario.ADMIN)]
                 
-                if ids_mensalistas:
+                if ids_alvos:
                     await self.disparar_notificacao_uc.executar(
                         titulo="Vai ter Churras! 🍖🍻",
                         corpo=f"O admin ativou o churrasco da pelada no valor de R${valor_churrasco:.2f}. Acesse o app para confirmar se vai!",
                         url="/",
-                        usuarios_ids=ids_mensalistas
+                        usuarios_ids=ids_alvos
                     )
             except Exception:
                 pass  # Ignore notification errors

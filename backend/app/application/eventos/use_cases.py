@@ -77,7 +77,8 @@ class ObterEventoUseCase:
                 "status_jogo": p.status_jogo.value,
                 "posicao": p.posicao.value,
                 "vai_churrasco": p.vai_churrasco,
-                "checkin_validado": p.checkin_validado
+                "checkin_validado": p.checkin_validado,
+                "gols": p.gols
             })
 
         votos = await self.voto_repo.listar_por_evento(evento_id)

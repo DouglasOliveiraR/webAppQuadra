@@ -20,6 +20,7 @@ class SQLAlchemyPresencaRepository(PresencaRepository):
             vai_churrasco=model.vai_churrasco,
             checkin_validado=model.checkin_validado,
             falta_penalizada=model.falta_penalizada,
+            gols=model.gols,
             criado_em=model.criado_em,
             atualizado_em=model.atualizado_em
         )
@@ -33,7 +34,8 @@ class SQLAlchemyPresencaRepository(PresencaRepository):
             posicao=entity.posicao,
             vai_churrasco=entity.vai_churrasco,
             checkin_validado=entity.checkin_validado,
-            falta_penalizada=entity.falta_penalizada
+            falta_penalizada=entity.falta_penalizada,
+            gols=entity.gols
         )
         if entity.criado_em:
             model.criado_em = entity.criado_em

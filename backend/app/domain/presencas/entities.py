@@ -13,5 +13,6 @@ class Presenca:
     vai_churrasco: bool
     checkin_validado: bool
     falta_penalizada: bool
+    gols: int = 0
     criado_em: Optional[datetime] = None
     atualizado_em: Optional[datetime] = None

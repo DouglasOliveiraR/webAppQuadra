@@ -210,8 +210,8 @@ export function PerfilPage() {
       {/* Header */}
       <header className="flex items-center justify-center py-4 relative mb-6">
         <h2 className="font-headline-md text-headline-md text-primary font-bold text-[20px]">Meu Perfil</h2>
-        <button className="absolute right-0 text-primary p-2">
-          <span className="material-symbols-outlined">notifications</span>
+        <button className="absolute right-0 text-primary p-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Notificações">
+          <span className="material-symbols-outlined" aria-hidden="true">notifications</span>
         </button>
       </header>
 

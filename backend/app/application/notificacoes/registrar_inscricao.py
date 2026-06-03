@@ -7,6 +7,15 @@ class RegistrarInscricaoUseCase:
         self.push_repo = push_repo
 
     async def executar(self, usuario_id: int, subscription_data: dict) -> bool:
+        endpoint = subscription_data.get("endpoint")
+        if not endpoint:
+            raise ValueError("Payload inválido: sem endpoint")
+
+        # [Security Fix] Previne que um usuário forje o endpoint para sobrescrever ou roubar a inscrição de outro
+        inscricao_existente = await self.push_repo.buscar_por_endpoint(endpoint)
+        if inscricao_existente and inscricao_existente.usuario_id != usuario_id:
+            raise ValueError("Endpoint já registrado por outro usuário")
+
         # Convert the dictionary back to JSON string for storage
         sub_json = json.dumps(subscription_data)
         

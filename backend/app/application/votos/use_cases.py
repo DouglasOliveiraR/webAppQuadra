@@ -147,10 +147,7 @@ class EncerrarVotacaoUseCase:
 
     async def _deletar_usuarios_avulsos(self):
         try:
-            todos_usuarios = await self.usuario_repo.listar_todos()
-            ids_avulsos = [u.id for u in todos_usuarios if u.perfil == PerfilUsuario.AVULSO]
-            if ids_avulsos:
-                await self.usuario_repo.deletar_lote(ids_avulsos)
+            await self.usuario_repo.deletar_por_perfil(PerfilUsuario.AVULSO)
         except Exception as e:
             print(f"Erro ao deletar usuários avulsos no encerramento: {e}")
 

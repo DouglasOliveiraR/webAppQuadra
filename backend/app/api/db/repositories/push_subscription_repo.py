@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from domain.notificacoes.entities import PushSubscription
 from domain.notificacoes.repositories import PushSubscriptionRepository
 from api.db.models import PushSubscriptionModel
@@ -50,9 +51,9 @@ class SQLAlchemyPushSubscriptionRepository(PushSubscriptionRepository):
         return self._to_entity(model)
 
     async def deletar_por_endpoint(self, endpoint: str) -> bool:
-        # Note: In SQLite we might need to use LIKE to match the endpoint inside the JSON string
+        # [Security Fix] Usa json_extract do SQLite para evitar SQL Injection via LIKE/Boolean Blind
         models = self.session.query(PushSubscriptionModel).filter(
-            PushSubscriptionModel.subscription_json.like(f"%{endpoint}%")
+            func.json_extract(PushSubscriptionModel.subscription_json, "$.endpoint") == endpoint
         ).all()
         
         if models:
@@ -71,3 +72,9 @@ class SQLAlchemyPushSubscriptionRepository(PushSubscriptionRepository):
     async def listar_todos(self) -> List[PushSubscription]:
         models = self.session.query(PushSubscriptionModel).all()
         return [self._to_entity(m) for m in models]
+
+    async def buscar_por_endpoint(self, endpoint: str) -> Optional[PushSubscription]:
+        model = self.session.query(PushSubscriptionModel).filter(
+            func.json_extract(PushSubscriptionModel.subscription_json, "$.endpoint") == endpoint
+        ).first()
+        return self._to_entity(model) if model else None

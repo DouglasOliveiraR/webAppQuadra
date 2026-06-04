@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Pelada FC Manager"
     DATABASE_URL: str = "sqlite:///./pelada.db"
     SECRET_KEY: str
+
+    def model_post_init(self, __context):
+        # [Security Fix] Ensures SECRET_KEY is not a weak/default mock key
+        if self.SECRET_KEY == "super_secret_key_mock_for_mvp":
+            raise ValueError("CRÍTICO: SECRET_KEY não pode ser o valor default/mockado de MVP.")
     ALGORITHM: str = "HS256"
     # [Security Fix] Reduzido para 24h para minimizar a janela de exposição de tokens roubados.
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 hours

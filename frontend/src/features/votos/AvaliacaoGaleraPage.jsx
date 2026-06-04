@@ -29,9 +29,15 @@ export function AvaliacaoGaleraPage() {
 
   const handleSave = async () => {
     try {
+      // Monta o payload garantindo que quem não teve o slider mexido receba a nota 5
+      const notasPayload = {};
+      candidatos.forEach(jogador => {
+        notasPayload[jogador.usuario_id] = notas[jogador.usuario_id] !== undefined ? notas[jogador.usuario_id] : 5;
+      });
+
       await api.post('/notas/galera', {
         evento_id: evento.id,
-        notas: notas
+        notas: notasPayload
       });
 
       showToast('Avaliações salvas com sucesso!');
@@ -96,21 +102,26 @@ export function AvaliacaoGaleraPage() {
                   </span>
                 </div>
                 
-                <div className="relative px-2">
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="10" 
-                    step="1" 
-                    value={nota}
-                    onChange={(e) => handleSliderChange(jogador.usuario_id, e.target.value)}
-                    className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, var(--color-primary-fixed) ${(nota / 10) * 100}%, #1f2937 ${(nota / 10) * 100}%)`
-                    }}
-                  />
-
-                  {/* Custom CSS for webkit thumb is usually global, but inline styling works for track */}
+                <div className="relative px-2 pt-2 pb-1">
+                  <div className="relative">
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="10" 
+                      step="1" 
+                      value={nota}
+                      onChange={(e) => handleSliderChange(jogador.usuario_id, e.target.value)}
+                      className="w-full h-3 rounded-full appearance-none cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 shadow-inner"
+                      style={{
+                        background: `linear-gradient(to right, ${nota >= 7 ? '#6bff8f' : nota >= 4 ? '#facc15' : '#f87171'} ${(nota / 10) * 100}%, #374151 ${(nota / 10) * 100}%)`
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-gray-500 font-bold mt-2 px-1">
+                    <span>0</span>
+                    <span>5</span>
+                    <span>10</span>
+                  </div>
                 </div>
               </div>
             );
@@ -137,13 +148,31 @@ export function AvaliacaoGaleraPage() {
       <style dangerouslySetInnerHTML={{__html: `
         input[type=range]::-webkit-slider-thumb {
           -webkit-appearance: none;
-          height: 20px;
-          width: 20px;
+          height: 24px;
+          width: 24px;
           border-radius: 50%;
-          background: var(--color-primary-fixed);
+          background: #ffffff;
+          border: 2px solid #111827;
+          box-shadow: 0 0 0 2px #6bff8f, 0 4px 6px -1px rgba(0, 0, 0, 0.5);
           cursor: pointer;
-          margin-top: -9px;
-          box-shadow: 0 0 10px rgba(107,255,143,0.5);
+          margin-top: 0px;
+          transition: transform 0.1s ease-in-out;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+          transform: scale(1.15);
+        }
+        input[type=range]::-moz-range-thumb {
+          height: 24px;
+          width: 24px;
+          border-radius: 50%;
+          background: #ffffff;
+          border: 2px solid #111827;
+          box-shadow: 0 0 0 2px #6bff8f, 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+          cursor: pointer;
+          transition: transform 0.1s ease-in-out;
+        }
+        input[type=range]::-moz-range-thumb:active {
+          transform: scale(1.15);
         }
       `}} />
     </div>

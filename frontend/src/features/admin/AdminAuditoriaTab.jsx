@@ -3,12 +3,29 @@ import api from '../../services/api';
 
 export function AdminAuditoriaTab({ eventoId }) {
   const [auditoria, setAuditoria] = useState([]);
+  const [eventosDisponiveis, setEventosDisponiveis] = useState([]);
+  const [selectedEventoId, setSelectedEventoId] = useState(eventoId);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAuditoria = async () => {
+    const fetchEventos = async () => {
       try {
-        const response = await api.get(`/eventos/${eventoId}/votos-auditoria`);
+        const response = await api.get('/eventos');
+        setEventosDisponiveis(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar eventos", err);
+      }
+    };
+    fetchEventos();
+  }, []);
+
+  useEffect(() => {
+    const fetchAuditoria = async () => {
+      setLoading(true);
+      try {
+        const targetId = selectedEventoId || eventoId;
+        if (!targetId) return;
+        const response = await api.get(`/eventos/${targetId}/votos-auditoria`);
         setAuditoria(response.data);
       } catch (err) {
         console.error("Erro ao buscar auditoria de votos", err);
@@ -17,8 +34,8 @@ export function AdminAuditoriaTab({ eventoId }) {
       }
     };
     
-    if (eventoId) fetchAuditoria();
-  }, [eventoId]);
+    fetchAuditoria();
+  }, [selectedEventoId, eventoId]);
 
   if (loading) {
     return <div className="py-10 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div></div>;
@@ -40,9 +57,26 @@ export function AdminAuditoriaTab({ eventoId }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-primary text-[28px]">policy</span>
-        <h2 className="font-headline-md text-headline-md font-bold text-on-surface">Auditoria de Votos</h2>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-[28px]">policy</span>
+          <h2 className="font-headline-md text-headline-md font-bold text-on-surface">Auditoria de Votos</h2>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <label className="text-sm font-bold text-on-surface-variant whitespace-nowrap">Evento:</label>
+          <select 
+            value={selectedEventoId || eventoId || ''}
+            onChange={(e) => setSelectedEventoId(e.target.value)}
+            className="w-full sm:w-auto bg-surface-container-high text-on-surface border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {eventosDisponiveis.map(ev => (
+              <option key={ev.id} value={ev.id}>
+                {new Date(ev.data_jogo).toLocaleDateString('pt-BR')} {ev.status_evento === 'ENCERRADO' ? '(Encerrado)' : ''}
+              </option>
+            ))}
+            {eventosDisponiveis.length === 0 && <option value={eventoId || ''}>Evento Atual</option>}
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -55,9 +89,16 @@ export function AdminAuditoriaTab({ eventoId }) {
                 {item.votante.charAt(0)}
               </div>
               <h3 className="font-bold text-[16px] text-on-background truncate">{item.votante}</h3>
-              <span className="ml-auto text-[10px] font-bold px-2 py-0.5 bg-surface-variant text-tertiary rounded-full">
-                Votante
-              </span>
+              <div className="ml-auto flex flex-col items-end">
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-surface-variant text-tertiary rounded-full">
+                  Votante
+                </span>
+                {Object.keys(item.notas).length > 0 && (
+                  <span className="text-[10px] text-on-surface-variant mt-1 font-medium bg-surface-container-highest px-2 rounded" title="Média das notas distribuídas">
+                    Média dada: {(Object.values(item.notas).reduce((a, b) => a + b, 0) / Object.keys(item.notas).length).toFixed(1)}
+                  </span>
+                )}
+              </div>
             </div>
             
             <div className="space-y-4 flex-1">

@@ -19,3 +19,4 @@ backend/app/static/fotos/*
 *.patch
 *.patch2
 *.orig
+pelada_vps.db

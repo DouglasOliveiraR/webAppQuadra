@@ -262,58 +262,65 @@ export function PerfilPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary-container flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">star</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">star</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'BOLA_CHEIA')?.quantidade || 0}x</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Bola Cheia</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'BOLA_CHEIA')?.quantidade || 0}x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Bola Cheia</span>
+            <span className="sr-only">Prêmio Bola Cheia: {meusDados?.premios?.find(p => p.categoria === 'BOLA_CHEIA')?.quantidade || 0} vezes</span>
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">sports_soccer</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">sports_soccer</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'GOL_BONITO')?.quantidade || 0}x</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Gol + Bonito</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'GOL_BONITO')?.quantidade || 0}x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Gol + Bonito</span>
+            <span className="sr-only">Prêmio Gol Mais Bonito: {meusDados?.premios?.find(p => p.categoria === 'GOL_BONITO')?.quantidade || 0} vezes</span>
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">warning</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">warning</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'BOLA_MURCHA')?.quantidade || 0}x</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">O Bagre</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'BOLA_MURCHA')?.quantidade || 0}x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">O Bagre</span>
+            <span className="sr-only">Prêmio O Bagre: {meusDados?.premios?.find(p => p.categoria === 'BOLA_MURCHA')?.quantidade || 0} vezes</span>
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">mood_bad</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">mood_bad</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.premios?.find(p => p.categoria === 'LAFON')?.quantidade || 0}x</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Lafon (Chorão)</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'LAFON')?.quantidade || 0}x</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Lafon (Chorão)</span>
+            <span className="sr-only">Prêmio Lafon Chorão: {meusDados?.premios?.find(p => p.categoria === 'LAFON')?.quantidade || 0} vezes</span>
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">sports</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">sports</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.gols_total || 0}</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Gols Marcados</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.gols_total || 0}</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Gols Marcados</span>
+            <span className="sr-only">Total de Gols Marcados: {meusDados?.gols_total || 0}</span>
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">trending_up</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">trending_up</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1">{meusDados?.nota_galera_media ? parseFloat(meusDados.nota_galera_media).toFixed(1) : '-'}</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Média da Galera</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.nota_galera_media ? parseFloat(meusDados.nota_galera_media).toFixed(1) : '-'}</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Média da Galera</span>
+            <span className="sr-only">Média de Nota da Galera: {meusDados?.nota_galera_media ? parseFloat(meusDados.nota_galera_media).toFixed(1) : 'Sem nota'}</span>
           </div>
 
           <div className="col-span-2 bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
             <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]">emoji_events</span>
+              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">emoji_events</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold mb-1 text-primary">{meusDados?.pontos_ranking || 0}</span>
-            <span className="font-body-sm text-body-sm text-primary">Total de Pontos</span>
+            <span className="font-headline-md text-headline-md font-bold mb-1 text-primary" aria-hidden="true">{meusDados?.pontos_ranking || 0}</span>
+            <span className="font-body-sm text-body-sm text-primary" aria-hidden="true">Total de Pontos</span>
+            <span className="sr-only">Total de Pontos no Ranking: {meusDados?.pontos_ranking || 0}</span>
           </div>
         </div>
       </section>

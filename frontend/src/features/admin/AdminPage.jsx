@@ -22,6 +22,7 @@ export function AdminPage() {
     atualizarChavePix, 
     atualizarMensalidade, 
     atualizarCustoQuadra,
+    abrirPresenca,
     cancelarEvento, 
     sortearTimes, 
     actionLoading 

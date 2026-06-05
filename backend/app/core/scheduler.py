@@ -118,7 +118,7 @@ def start_scheduler():
     # Abertura automática de lista: Diário às 10:00
     scheduler.add_job(
         job_abrir_presenca_automatica,
-        CronTrigger(hour=10, minute=0),
+        CronTrigger(hour=10, minute=20),
         id="abrir_presenca_automatica_job",
         replace_existing=True
     )

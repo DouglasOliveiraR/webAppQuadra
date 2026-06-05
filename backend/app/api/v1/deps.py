@@ -11,6 +11,7 @@ from api.db.repositories.presenca_repo import SQLAlchemyPresencaRepository
 from api.db.repositories.voto_repo import SQLAlchemyVotoRepository
 from api.db.repositories.financeiro_repo import SQLAlchemyFinanceiroRepository
 
+import logging
 from application.auth.use_cases import LoginUseCase
 from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
 from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
@@ -18,6 +19,8 @@ from application.ranking.use_cases import ListarRankingUseCase
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
 from application.financeiro.listar_todos_financeiro_use_case import ListarTodosFinanceiroUseCase
 from application.eventos.use_cases import ObterEventoUseCase, CriarEventoUseCase, ListarEventosUseCase
+
+logger = logging.getLogger(__name__)
 from application.eventos.iniciar_votacao_use_case import IniciarVotacaoUseCase
 from application.eventos.cancelar_votacao_use_case import CancelarVotacaoUseCase
 from application.eventos.sorteio_use_case import SorteioUseCase
@@ -62,6 +65,7 @@ async def get_current_user(
 
 async def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
     if current_user.perfil.value != "ADMIN":
+        logger.warning(f"Tentativa de acesso não autorizado por {current_user.telefone} (ID: {current_user.id})")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Privilégios insuficientes")
     return current_user
 

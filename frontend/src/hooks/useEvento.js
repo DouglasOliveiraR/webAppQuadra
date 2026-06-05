@@ -104,6 +104,21 @@ export function useEvento(eventoId = 1) {
     }
   };
 
+  const abrirPresenca = async () => {
+    try {
+      setActionLoading(true);
+      await api.put(`/eventos/${currentEventoId}/abrir-presenca`);
+      await fetchEvento();
+      showToast('Lista de presença aberta!');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Erro ao abrir lista de presença.';
+      showToast(msg, 'error');
+      throw err;
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const cancelarVotacao = async () => {
     try {
       setActionLoading(true);
@@ -236,6 +251,7 @@ export function useEvento(eventoId = 1) {
     criarEvento,
     iniciarVotacao,
     cancelarVotacao,
+    abrirPresenca,
     encerrarVotacao,
     atualizarChurrasco,
     atualizarChavePix,

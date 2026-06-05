@@ -236,3 +236,8 @@ def get_obter_transparencia_use_case(db: Session = Depends(get_db)):
     financeiro_repo = SQLAlchemyFinanceiroRepository(db)
     evento_repo = SQLAlchemyEventoRepository(db)
     return ObterTransparenciaUseCase(financeiro_repo, evento_repo)
+
+def get_abrir_presenca_use_case(db: Session = Depends(get_db), disparar_uc=Depends(get_disparar_notificacao_use_case)):
+    from application.eventos.abrir_presenca_use_case import AbrirPresencaUseCase
+    evento_repo = SQLAlchemyEventoRepository(db)
+    return AbrirPresencaUseCase(evento_repo, disparar_notificacao_uc=disparar_uc)

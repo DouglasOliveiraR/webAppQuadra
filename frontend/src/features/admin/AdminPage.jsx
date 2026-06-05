@@ -501,6 +501,24 @@ export function AdminPage() {
             </button>
           </div>
 
+          {evento.status_evento === 'AGENDADO' && (
+            <section className="glass-panel rounded-xl p-4 ambient-shadow border-l-4 border-primary flex flex-col gap-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-bold text-lg">Ações da Quadra</h3>
+                  <p className="text-sm text-tertiary">O evento está agendado. Abra a lista de presença manualmente se necessário.</p>
+                </div>
+                <button 
+                  onClick={abrirPresenca}
+                  disabled={actionLoading}
+                  className="bg-primary text-on-primary px-3 py-2 rounded-lg font-label-bold flex gap-2 items-center text-label-bold hover:bg-primary/90"
+                >
+                  <span className="material-symbols-outlined text-[16px]">how_to_reg</span> Abrir Lista
+                </button>
+              </div>
+            </section>
+          )}
+
           {presencaAberta && (
             <section className="glass-panel rounded-xl p-4 ambient-shadow border-l-4 border-secondary-container flex flex-col gap-4">
               <div className="flex justify-between items-center">

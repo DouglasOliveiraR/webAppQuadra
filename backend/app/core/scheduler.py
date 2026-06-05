@@ -10,6 +10,7 @@ from api.db.repositories.presenca_repo import SQLAlchemyPresencaRepository
 from api.db.repositories.push_subscription_repo import SQLAlchemyPushSubscriptionRepository
 from application.notificacoes.disparar_notificacao import DispararNotificacaoUseCase
 from application.notificacoes.lembretes import NotificarMensalidadeAtrasadaUseCase, NotificarPresencaPendenteUseCase
+from application.eventos.abrir_presenca_use_case import AbrirPresencaUseCase
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,25 @@ async def job_lembrete_presenca():
     finally:
         db.close()
 
+async def job_abrir_presenca_automatica():
+    logger.info("Iniciando rotina de abertura automática de presenças...")
+    db = SessionLocal()
+    try:
+        evento_repo = SQLAlchemyEventoRepository(db)
+        push_repo = SQLAlchemyPushSubscriptionRepository(db)
+        disparar_uc = DispararNotificacaoUseCase(push_repo)
+        
+        use_case = AbrirPresencaUseCase(evento_repo, disparar_uc)
+        qtd = await use_case.executar_automatico()
+        db.commit()
+        if qtd > 0:
+            logger.info(f"Rotina concluída: {qtd} evento(s) tiveram a presença aberta.")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Erro ao executar rotina de abertura de presencas: {e}")
+    finally:
+        db.close()
+
 def start_scheduler():
     # Roda dia 1 de cada mês às 00:01
     scheduler.add_job(
@@ -93,6 +113,13 @@ def start_scheduler():
         job_lembrete_presenca,
         CronTrigger(hour='13,15,18', minute=0),
         id="lembrete_presenca_job",
+        replace_existing=True
+    )
+    # Abertura automática de lista: Diário às 10:00
+    scheduler.add_job(
+        job_abrir_presenca_automatica,
+        CronTrigger(hour=10, minute=0),
+        id="abrir_presenca_automatica_job",
         replace_existing=True
     )
     scheduler.start()

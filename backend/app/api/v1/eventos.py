@@ -26,7 +26,7 @@ from api.v1.deps import (
     get_atualizar_mensalidade_use_case,
     get_atualizar_custo_quadra_use_case,
     get_cancelar_evento_use_case, get_listar_eventos_use_case,
-    get_cancelar_votacao_use_case, get_db
+    get_cancelar_votacao_use_case, get_abrir_presenca_use_case, get_db
 )
 from sqlalchemy.orm import Session
 from domain.usuarios.entities import Usuario
@@ -57,6 +57,17 @@ async def criar_evento(
         return await use_case.executar(evento)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.put("/{id}/abrir-presenca", response_model=EventoResponse)
+async def abrir_presenca(
+    id: int,
+    admin_user: Usuario = Depends(get_admin_user),
+    use_case = Depends(get_abrir_presenca_use_case)
+):
+    try:
+        return await use_case.executar_manual(id)
+    except RegraDeNegocioError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
 
 @router.put("/{id}/iniciar-votacao", response_model=EventoResponse)
 async def iniciar_votacao(

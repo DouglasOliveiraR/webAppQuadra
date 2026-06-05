@@ -54,6 +54,7 @@ export function LoginPage() {
             onChange={(e) => setTelefone(e.target.value)}
             className="dark-autofill bg-transparent border-none outline-none text-white w-full font-body-md placeholder-gray-500 focus:ring-0 p-0"
             placeholder="Telefone (ex: 11999999999)"
+            autoComplete="username"
             disabled={loading}
             required
           />
@@ -69,6 +70,7 @@ export function LoginPage() {
             onChange={(e) => setSenha(e.target.value)}
             className="dark-autofill bg-transparent border-none outline-none text-white w-full font-body-md placeholder-gray-500 focus:ring-0 p-0"
             placeholder="Senha"
+            autoComplete="current-password"
             disabled={loading}
             required
           />

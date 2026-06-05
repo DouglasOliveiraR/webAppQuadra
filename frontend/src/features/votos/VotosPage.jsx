@@ -165,7 +165,7 @@ export function VotosPage() {
                           <span className="material-symbols-outlined text-[12px] text-on-primary-container font-bold">check</span>
                         </div>
                       </div>
-                      <span className="font-label-bold text-label-bold text-on-primary truncate w-full text-center">{candidatoVotado?.usuario_nome?.split(' ')[0]}</span>
+                      <span className="font-label-bold text-label-bold text-on-primary truncate w-full text-center px-1">{candidatoVotado?.usuario_nome}</span>
                     </>
                   ) : (
                     <>

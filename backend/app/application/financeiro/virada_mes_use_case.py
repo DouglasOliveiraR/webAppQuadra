@@ -60,13 +60,18 @@ class ViradaMesUseCase:
         novas_mensalidades = []
         
         # 3. Verificar para cada usuário se já existe a mensalidade
+        # ⚡ Bolt: Fetch all relevant records in a single query to avoid N+1 queries.
+        # Impacto: Reduz o bloqueio do event loop e o tempo de transação no banco.
+        usuarios_ids = [u.id for u in usuarios_alvo]
+        registros_existentes = await self.financeiro_repo.listar_por_usuarios_e_mes(usuarios_ids, mes_atual)
+
+        # Cria um set de IDs de usuários que já possuem mensalidade neste mês
+        usuarios_com_mensalidade = {
+            r.usuario_id for r in registros_existentes if r.tipo == "MENSALIDADE"
+        }
+
         for usuario in usuarios_alvo:
-            # listar_por_usuario pode ser custoso em lote (N+1 queries se não otimizado)
-            # Mas como roda em background 1x por mês, é aceitável.
-            registros = await self.financeiro_repo.listar_por_usuario(usuario.id)
-            tem_mensalidade = any(r.tipo == "MENSALIDADE" and r.mes_referencia == mes_atual for r in registros)
-            
-            if not tem_mensalidade:
+            if usuario.id not in usuarios_com_mensalidade:
                 nova_mensalidade = Financeiro(
                     id=None,
                     usuario_id=usuario.id,

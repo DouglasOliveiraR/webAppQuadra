@@ -338,7 +338,7 @@ export function PerfilPage() {
           <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
         </button>
 
-        {isSupported && permission !== 'granted' && (
+        {isSupported && (!permission || permission === 'default' || permission === 'prompt') && (
           <button 
             onClick={subscribeToPush}
             disabled={loadingPush}
@@ -357,6 +357,18 @@ export function PerfilPage() {
               <span className="material-symbols-outlined">chevron_right</span>
             )}
           </button>
+        )}
+
+        {isSupported && permission === 'denied' && (
+          <div className="flex items-center justify-between bg-surface-variant border border-outline-variant/30 text-on-surface-variant rounded-xl p-4 mb-3 shadow-ambient-1">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-error">notifications_off</span>
+              <div className="flex flex-col text-left">
+                <span className="font-body-md text-body-md font-bold">Notificações Bloqueadas</span>
+                <span className="font-body-sm text-body-sm opacity-80">Permita nas configurações do navegador</span>
+              </div>
+            </div>
+          </div>
         )}
 
         {isSupported && permission === 'granted' && (

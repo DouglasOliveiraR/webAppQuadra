@@ -57,6 +57,22 @@ export default defineConfig({
                 statuses: [0, 200]
               }
             }
+          },
+          {
+            // ⚡ Bolt: Cache First para assets estáticos para PWA (imagens, ícones).
+            // Impacto esperado: Menor uso de banda e carregamento instantâneo de assets estáticos offline.
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-assets-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // <== 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ]
       },

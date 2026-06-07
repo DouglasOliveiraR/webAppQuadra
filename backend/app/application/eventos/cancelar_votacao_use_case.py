@@ -20,8 +20,6 @@ class CancelarVotacaoUseCase:
         evento.status_evento = StatusEvento.PRESENCA_ABERTA
         
         # Apaga eventuais votos que já foram feitos para não ficarem "fantasmas"
-        votos = await self.voto_repo.listar_por_evento(evento_id)
-        for voto in votos:
-            await self.voto_repo.deletar(voto.id)
+        await self.voto_repo.deletar_por_evento(evento_id)
             
         return await self.evento_repo.salvar(evento)

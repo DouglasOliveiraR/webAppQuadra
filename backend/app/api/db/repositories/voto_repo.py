@@ -69,3 +69,10 @@ class SQLAlchemyVotoRepository(VotoRepository):
             self.session.commit()
             return True
         return False
+
+    async def deletar_por_evento(self, evento_id: int) -> int:
+        deleted_count = self.session.query(VotoModel).filter(
+            VotoModel.evento_id == evento_id
+        ).delete(synchronize_session=False)
+        self.session.commit()
+        return deleted_count

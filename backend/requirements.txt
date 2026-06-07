@@ -12,3 +12,4 @@ python-multipart==0.0.29
 apscheduler==3.10.4
 pywebpush==2.0.0
 cryptography==44.0.1
+pytest-asyncio==1.4.0

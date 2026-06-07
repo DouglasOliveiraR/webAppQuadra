@@ -26,6 +26,22 @@ class SorteioUseCase:
         usuarios = await self.usuario_repo.buscar_por_ids([p.usuario_id for p in confirmados])
         usuario_dict = {u.id: u for u in usuarios}
 
+        goleiros, linhas = self._obter_jogadores_separados(confirmados, usuario_dict, criterio)
+
+        times = self._inicializar_times(len(confirmados), len(linhas))
+
+        self._distribuir_jogadores(times, goleiros, linhas)
+
+        times_response = self._formatar_times_response(times)
+
+        sugestoes_banco = self._gerar_sugestoes_banco(times, usuarios, goleiros, linhas, criterio, confirmados)
+
+        return {
+            "times": times_response,
+            "sugestoes_banco": sugestoes_banco
+        }
+
+    def _obter_jogadores_separados(self, confirmados: List, usuario_dict: Dict, criterio: str):
         goleiros = []
         linhas = []
         for p in confirmados:
@@ -42,12 +58,14 @@ class SorteioUseCase:
 
         goleiros.sort(key=lambda x: x["nota"], reverse=True)
         linhas.sort(key=lambda x: x["nota"], reverse=True)
+        return goleiros, linhas
 
+    def _inicializar_times(self, num_confirmados: int, total_linhas: int):
         import math
-        num_times = max(2, math.ceil(len(confirmados) / 6.0))
+        num_times = max(2, math.ceil(num_confirmados / 6.0))
         times = [{"id": i, "nome": f"Time {chr(65+i)}", "jogadores": [], "soma_notas": 0.0, "target_linhas": 0, "target_total": 0} for i in range(num_times)]
 
-        linhas_restantes = len(linhas)
+        linhas_restantes = total_linhas
         for i in range(num_times):
             if linhas_restantes >= 5:
                 times[i]["target_linhas"] = 5
@@ -55,7 +73,10 @@ class SorteioUseCase:
             else:
                 times[i]["target_linhas"] = linhas_restantes
                 linhas_restantes = 0
+        return times
 
+    def _distribuir_jogadores(self, times: List[Dict], goleiros: List[Dict], linhas: List[Dict]):
+        num_times = len(times)
         # Distribuir goleiros (um por vez em cada time)
         for i, gol in enumerate(goleiros):
             time_alvo = times[i % num_times]
@@ -80,7 +101,7 @@ class SorteioUseCase:
             time_alvo["jogadores"].append(j)
             time_alvo["soma_notas"] += j["nota"]
 
-        # Formatar a resposta
+    def _formatar_times_response(self, times: List[Dict]):
         times_response = []
         for t in times:
             media = t["soma_notas"] / len(t["jogadores"]) if t["jogadores"] else 0
@@ -89,8 +110,9 @@ class SorteioUseCase:
                 "jogadores": t["jogadores"],
                 "media": media
             })
+        return times_response
 
-        # --- NOVA LÓGICA: SUGESTÕES DE BANCO ---
+    def _gerar_sugestoes_banco(self, times: List[Dict], usuarios: List, goleiros: List[Dict], linhas: List[Dict], criterio: str, confirmados: List):
         sugestoes_banco = []
         target_gol = 1 if goleiros else 0
         target_linha = 5
@@ -164,8 +186,4 @@ class SorteioUseCase:
                         "vagas": vagas_gol + vagas_linha,
                         "opcoes": opcoes
                     })
-
-        return {
-            "times": times_response,
-            "sugestoes_banco": sugestoes_banco
-        }
+        return sugestoes_banco

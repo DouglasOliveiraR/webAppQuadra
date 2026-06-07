@@ -21,6 +21,8 @@ class Settings(BaseSettings):
         # [Security Fix] Ensures SECRET_KEY is not a weak/default mock key
         if self.SECRET_KEY == "super_secret_key_mock_for_mvp":
             raise ValueError("CRÍTICO: SECRET_KEY não pode ser o valor default/mockado de MVP.")
+        if len(self.SECRET_KEY) < 32:
+            raise ValueError("CRÍTICO: SECRET_KEY deve ter pelo menos 32 caracteres.")
     ALGORITHM: str = "HS256"
     # [Security Fix] Reduzido para 24h para minimizar a janela de exposição de tokens roubados.
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 hours

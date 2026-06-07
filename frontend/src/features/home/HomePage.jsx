@@ -172,7 +172,7 @@ export function HomePage() {
 
               {evento.status_evento === 'PRESENCA_ABERTA' && (
                 <div className="flex flex-col gap-3">
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <button 
                       onClick={() => {
                         if (statusPresenca === 'VOU') {
@@ -183,25 +183,45 @@ export function HomePage() {
                         }
                       }}
                       disabled={actionLoading}
-                      className={`flex-1 font-label-bold text-label-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${
+                      className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
                         statusPresenca === 'VOU' 
-                        ? 'bg-primary text-on-primary shadow-sm ring-2 ring-primary-container ring-offset-2' 
-                        : 'bg-primary text-on-primary hover:bg-primary/90'
+                        ? 'bg-primary text-on-primary shadow-md' 
+                        : 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80'
                       }`}
                     >
-                      <span className="material-symbols-outlined">check_circle</span>
+                      <span className="material-symbols-outlined text-[20px]">check_circle</span>
                       Vou
                     </button>
+
                     <button 
-                      onClick={() => handlePresenca('NAO_VOU')}
+                      onClick={() => {
+                        handlePresenca('PENDENTE');
+                        setShowPositionSelection(false);
+                      }}
                       disabled={actionLoading}
-                      className={`flex-1 font-label-bold text-label-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${
-                        statusPresenca === 'NAO_VOU'
-                        ? 'bg-error text-white shadow-sm'
-                        : 'border border-primary text-primary hover:bg-primary/5'
+                      className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
+                        statusPresenca === 'PENDENTE'
+                        ? 'bg-tertiary text-on-tertiary shadow-md'
+                        : 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80'
                       }`}
                     >
-                      <span className="material-symbols-outlined">cancel</span>
+                      <span className="material-symbols-outlined text-[20px]">help</span>
+                      Pendente
+                    </button>
+
+                    <button 
+                      onClick={() => {
+                        handlePresenca('NAO_VOU');
+                        setShowPositionSelection(false);
+                      }}
+                      disabled={actionLoading}
+                      className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
+                        statusPresenca === 'NAO_VOU'
+                        ? 'bg-error text-on-error shadow-md'
+                        : 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">cancel</span>
                       Não Vou
                     </button>
                   </div>

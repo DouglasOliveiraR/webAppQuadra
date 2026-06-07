@@ -61,9 +61,14 @@ class NotificarPresencaPendenteUseCase:
         usuarios_validos = [u for u in todos_usuarios if u.perfil in [PerfilUsuario.MENSALISTA, PerfilUsuario.AVULSO]]
         
         presencas = await self.presenca_repo.listar_por_evento(evento_aberto.id)
-        usuarios_com_presenca = {p.usuario_id for p in presencas}
+        # ⚡ Bolt: Apenas quem já respondeu VOU ou NAO_VOU é removido da lista de pendentes.
+        # Quem não tem registro, ou tem registro explícito como PENDENTE, continua recebendo o lembrete.
+        usuarios_com_resposta_definitiva = {
+            p.usuario_id for p in presencas 
+            if p.status_jogo in [StatusJogo.VOU, StatusJogo.NAO_VOU]
+        }
 
-        usuarios_pendentes = [u.id for u in usuarios_validos if u.id not in usuarios_com_presenca]
+        usuarios_pendentes = [u.id for u in usuarios_validos if u.id not in usuarios_com_resposta_definitiva]
 
         if usuarios_pendentes:
             logger.info(f"Notificando {len(usuarios_pendentes)} usuarios sobre presença pendente.")

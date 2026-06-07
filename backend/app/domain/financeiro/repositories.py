@@ -30,3 +30,7 @@ class FinanceiroRepository(ABC):
     @abstractmethod
     async def deletar_pendentes_por_usuario(self, usuario_id: int) -> bool:
         pass
+
+    @abstractmethod
+    async def listar_por_usuarios_e_mes(self, usuario_ids: List[int], mes_referencia: str) -> List[Financeiro]:
+        pass

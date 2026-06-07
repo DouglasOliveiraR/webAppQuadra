@@ -16,8 +16,15 @@ def check_rate_limit(request: Request):
     if request.client and request.client.host == "testclient":
         return
 
-    # Use X-Forwarded-For to properly support reverse proxies
-    client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
+    # [Security Fix] Previne bypass do Rate Limit via spoofing do header X-Forwarded-For.
+    # O X-Forwarded-For pode conter uma lista de IPs (ex: "spoofed_ip, real_ip").
+    # Pegamos sempre o último IP da lista, que é o IP real adicionado pelo proxy reverso,
+    # suportando ambientes de nuvem/docker onde o proxy não é necessariamente localhost.
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        client_ip = forwarded.split(",")[-1].strip()
+    else:
+        client_ip = request.client.host if request.client else "unknown"
 
     now = time.time()
 

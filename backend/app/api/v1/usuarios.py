@@ -118,6 +118,21 @@ async def upload_foto_perfil(
     if ext not in [".png", ".jpg", ".jpeg", ".webp"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Apenas imagens (.png, .jpg, .jpeg, .webp) são permitidas.")
     
+    # Validação do conteúdo do arquivo (Magic Numbers)
+    header = await file.read(12)
+    await file.seek(0)
+
+    is_valid_magic = False
+    if ext == ".png" and header.startswith(b"\x89PNG\r\n\x1a\n"):
+        is_valid_magic = True
+    elif ext in [".jpg", ".jpeg"] and header.startswith(b"\xff\xd8\xff"):
+        is_valid_magic = True
+    elif ext == ".webp" and header.startswith(b"RIFF") and header[8:12] == b"WEBP":
+        is_valid_magic = True
+
+    if not is_valid_magic:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Apenas imagens válidas são permitidas.")
+
     # Caminho para salvar a foto
     # Salva dentro da pasta backend/app/static/fotos
     current_dir = os.path.dirname(os.path.abspath(__file__))

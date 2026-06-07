@@ -73,6 +73,14 @@ class SQLAlchemyPushSubscriptionRepository(PushSubscriptionRepository):
         models = self.session.query(PushSubscriptionModel).all()
         return [self._to_entity(m) for m in models]
 
+    async def listar_por_usuarios(self, usuarios_ids: List[int]) -> List[PushSubscription]:
+        if not usuarios_ids:
+            return []
+        models = self.session.query(PushSubscriptionModel).filter(
+            PushSubscriptionModel.usuario_id.in_(usuarios_ids)
+        ).all()
+        return [self._to_entity(m) for m in models]
+
     async def buscar_por_endpoint(self, endpoint: str) -> Optional[PushSubscription]:
         model = self.session.query(PushSubscriptionModel).filter(
             func.json_extract(PushSubscriptionModel.subscription_json, "$.endpoint") == endpoint

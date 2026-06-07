@@ -40,10 +40,7 @@ class DispararNotificacaoUseCase:
 
         # Busca inscricoes
         if usuarios_ids:
-            todas_inscricoes = []
-            for uid in usuarios_ids:
-                inscricoes = await self.push_repo.listar_por_usuario(uid)
-                todas_inscricoes.extend(inscricoes)
+            todas_inscricoes = await self.push_repo.listar_por_usuarios(usuarios_ids)
         else:
             todas_inscricoes = await self.push_repo.listar_todos()
 

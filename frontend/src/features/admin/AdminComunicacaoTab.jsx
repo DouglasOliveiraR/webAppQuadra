@@ -30,12 +30,15 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       const rankingData = resRanking.data;
       const ultimoData = resUltimo.data;
 
+      // Ordenar por Média Geral
+      const rankingSorted = [...rankingData].sort((a, b) => (b.nota_galera_media || 0) - (a.nota_galera_media || 0));
+
       let text = `🏆 *Resultados da Pelada* 🏆\n\n`;
       text += `*🌟 Top 5 - Média Geral*\n`;
       
       const medalhas = ['🥇 1º', '🥈 2º', '🥉 3º', '🏅 4º', '🏅 5º'];
-      rankingData.slice(0, 5).forEach((jogador, index) => {
-        text += `${medalhas[index]} ${jogador.nome} (${jogador.pontos.toFixed(1)})\n`;
+      rankingSorted.slice(0, 5).forEach((jogador, index) => {
+        text += `${medalhas[index]} ${jogador.nome} (${(jogador.nota_galera_media || 0).toFixed(1)})\n`;
       });
 
       if (ultimoData && ultimoData.top5_medias && ultimoData.top5_medias.length > 0) {

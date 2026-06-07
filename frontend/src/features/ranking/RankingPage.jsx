@@ -205,7 +205,7 @@ export function RankingPage() {
               <div className="flex items-end justify-center gap-2 h-40">
                 {/* 2º Lugar */}
                 {top3[1] && (
-                  <div className="flex flex-col items-center w-1/3 relative z-10 transform translate-y-4">
+                  <div className="flex flex-col items-center w-1/3 relative z-10 transform translate-y-4 transition-transform duration-300 hover:scale-105 hover:translate-y-2">
                     <div className="w-16 h-16 rounded-full border-4 border-[#C0C0C0] shadow-md overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[1].foto_url ? (
                         <img src={getFotoUrl(top3[1].foto_url)} alt={top3[1].nome} className="w-full h-full object-cover" />
@@ -230,7 +230,7 @@ export function RankingPage() {
 
                 {/* 1º Lugar */}
                 {top3[0] && (
-                  <div className="flex flex-col items-center w-1/3 relative z-20 transform -translate-y-4">
+                  <div className="flex flex-col items-center w-1/3 relative z-20 transform -translate-y-4 transition-transform duration-300 hover:scale-105 hover:-translate-y-6">
                     <div className="absolute -top-6 text-[#FFD700]">
                       <span className="material-symbols-outlined text-3xl" style={{fontVariationSettings: "'FILL' 1"}} aria-hidden="true">workspace_premium</span>
                     </div>
@@ -258,7 +258,7 @@ export function RankingPage() {
 
                 {/* 3º Lugar */}
                 {top3[2] && (
-                  <div className="flex flex-col items-center w-1/3 relative z-10 transform translate-y-6">
+                  <div className="flex flex-col items-center w-1/3 relative z-10 transform translate-y-6 transition-transform duration-300 hover:scale-105 hover:translate-y-4">
                     <div className="w-14 h-14 rounded-full border-4 border-[#CD7F32] shadow-md overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[2].foto_url ? (
                         <img src={getFotoUrl(top3[2].foto_url)} alt={top3[2].nome} className="w-full h-full object-cover" />

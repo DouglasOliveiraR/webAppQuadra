@@ -405,7 +405,7 @@ export function RankingPage() {
 
                 {/* Gol Bonito */}
                 <PremioCard 
-                  titulo="Gol Bonito"
+                  titulo="Gol + Bonito"
                   icone="sports_soccer"
                   subtitulo="A pintura do dia"
                   pontos="+2"

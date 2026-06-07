@@ -6,24 +6,25 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
   const [loading, setLoading] = useState(false);
 
   // Dicionário seguro de Emojis que contorna qualquer problema de minificação ou encoding (ASCII-only)
+  // O parseInt impede o esbuild de pre-computar o valor, garantindo que rode apenas no navegador.
   const E = {
-    TROPHY: String.fromCodePoint(0x1F3C6),
-    STAR: String.fromCodePoint(0x1F31F),
-    M1: String.fromCodePoint(0x1F947),
-    M2: String.fromCodePoint(0x1F948),
-    M3: String.fromCodePoint(0x1F949),
-    M4: String.fromCodePoint(0x1F3C5),
-    FIRE: String.fromCodePoint(0x1F525),
-    MASK: String.fromCodePoint(0x1F3AD),
-    SOCCER: String.fromCodePoint(0x26BD),
-    COMET: String.fromCodePoint(0x2604, 0xFE0F),
-    TURTLE: String.fromCodePoint(0x1F422),
-    GLOVE: String.fromCodePoint(0x1F9E4),
-    AMB: String.fromCodePoint(0x1F691),
-    SIREN: String.fromCodePoint(0x1F6A8),
-    MONEY: String.fromCodePoint(0x1F4B0),
-    PRAY: String.fromCodePoint(0x1F64F),
-    POINT: String.fromCodePoint(0x1F449)
+    TROPHY: String.fromCodePoint(parseInt('1F3C6', 16)),
+    STAR: String.fromCodePoint(parseInt('1F31F', 16)),
+    M1: String.fromCodePoint(parseInt('1F947', 16)),
+    M2: String.fromCodePoint(parseInt('1F948', 16)),
+    M3: String.fromCodePoint(parseInt('1F949', 16)),
+    M4: String.fromCodePoint(parseInt('1F3C5', 16)),
+    FIRE: String.fromCodePoint(parseInt('1F525', 16)),
+    MASK: String.fromCodePoint(parseInt('1F3AD', 16)),
+    SOCCER: String.fromCodePoint(parseInt('26BD', 16)),
+    COMET: String.fromCodePoint(parseInt('2604', 16), parseInt('FE0F', 16)),
+    TURTLE: String.fromCodePoint(parseInt('1F422', 16)),
+    GLOVE: String.fromCodePoint(parseInt('1F9E4', 16)),
+    AMB: String.fromCodePoint(parseInt('1F691', 16)),
+    SIREN: String.fromCodePoint(parseInt('1F6A8', 16)),
+    MONEY: String.fromCodePoint(parseInt('1F4B0', 16)),
+    PRAY: String.fromCodePoint(parseInt('1F64F', 16)),
+    POINT: String.fromCodePoint(parseInt('1F449', 16))
   };
   
   // Função auxiliar para abrir o WhatsApp
@@ -73,7 +74,7 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
         text += `\n*${E.MASK} Destaques do Jogo*\n`;
         const v = ultimoData.vencedores;
         if (v.BOLA_CHEIA?.length) text += `${E.SOCCER} *Bola Cheia:* ${v.BOLA_CHEIA.map(x=>x.nome).join(', ')} (${v.BOLA_CHEIA[0].votos} votos)\n`;
-        if (v.GOL_BONITO?.length) text += `${E.COMET} *Gol Bonito:* ${v.GOL_BONITO.map(x=>x.nome).join(', ')} (${v.GOL_BONITO[0].votos} votos)\n`;
+        if (v.GOL_BONITO?.length) text += `${E.COMET} *Gol + Bonito:* ${v.GOL_BONITO.map(x=>x.nome).join(', ')} (${v.GOL_BONITO[0].votos} votos)\n`;
         if (v.BOLA_MURCHA?.length) text += `${E.TURTLE} *Bola Murcha:* ${v.BOLA_MURCHA.map(x=>x.nome).join(', ')} (${v.BOLA_MURCHA[0].votos} votos)\n`;
         if (v.LAFON?.length) text += `${E.GLOVE} *Lafon:* ${v.LAFON.map(x=>x.nome).join(', ')} (${v.LAFON[0].votos} votos)\n`;
       }

@@ -76,6 +76,21 @@ class SQLAlchemyEventoRepository(EventoRepository):
         self.session.refresh(model)
         return self._to_entity(model)
 
+    async def salvar_lote(self, eventos: List[Evento]) -> List[Evento]:
+        models = []
+        for evento in eventos:
+            model = self._to_model(evento)
+            if model.id:
+                model = self.session.merge(model)
+            else:
+                self.session.add(model)
+            models.append(model)
+
+        self.session.flush()
+        entities = [self._to_entity(m) for m in models]
+        self.session.commit()
+        return entities
+
     async def deletar(self, evento_id: int) -> bool:
         model = self.session.query(EventoModel).filter(EventoModel.id == evento_id).first()
         if model:

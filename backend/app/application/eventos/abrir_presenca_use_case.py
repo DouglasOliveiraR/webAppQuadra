@@ -23,11 +23,12 @@ class AbrirPresencaUseCase:
         limite_abertura = hoje + timedelta(days=4)
         
         eventos_alterados = 0
+        eventos_para_salvar = []
         
         for evento in eventos:
             if evento.status_evento == StatusEvento.AGENDADO and evento.data_jogo <= limite_abertura:
                 evento.status_evento = StatusEvento.PRESENCA_ABERTA
-                await self.evento_repo.salvar(evento)
+                eventos_para_salvar.append(evento)
                 eventos_alterados += 1
                 
                 if self.disparar_notificacao_uc:
@@ -41,6 +42,10 @@ class AbrirPresencaUseCase:
                         )
                     )
                     
+        if eventos_para_salvar:
+            # ⚡ BOLT OPTIMIZATION: Process in batch to avoid N+1 update query bottleneck
+            await self.evento_repo.salvar_lote(eventos_para_salvar)
+
         return eventos_alterados
 
     async def executar_manual(self, evento_id: int) -> Evento:

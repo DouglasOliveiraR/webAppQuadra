@@ -20,5 +20,9 @@ class EventoRepository(ABC):
         pass
 
     @abstractmethod
+    async def salvar_lote(self, eventos: List[Evento]) -> List[Evento]:
+        pass
+
+    @abstractmethod
     async def deletar(self, evento_id: int) -> bool:
         pass

@@ -1,7 +1,11 @@
 import asyncio
+import logging
 from api.db.database import SessionLocal
 from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from application.auth.use_cases import LoginUseCase
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 async def test_login():
     db = SessionLocal()
@@ -10,9 +14,9 @@ async def test_login():
     
     try:
         token = await use_case.executar("11999999999", "admin123")
-        print("LOGIN SUCESSO! Token:", token)
+        logger.info("LOGIN SUCESSO! Token: %s", token)
     except Exception as e:
-        print("ERRO:", type(e), str(e))
+        logger.error("ERRO: %s - %s", type(e), str(e))
     finally:
         db.close()
 

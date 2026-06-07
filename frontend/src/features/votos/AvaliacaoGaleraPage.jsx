@@ -145,36 +145,6 @@ export function AvaliacaoGaleraPage() {
           <span className="material-symbols-outlined text-[20px]">save</span>
         </button>
       </div>
-      <style dangerouslySetInnerHTML={{__html: `
-        input[type=range]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          height: 24px;
-          width: 24px;
-          border-radius: 50%;
-          background: #ffffff;
-          border: 2px solid #111827;
-          box-shadow: 0 0 0 2px #6bff8f, 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-          cursor: pointer;
-          margin-top: 0px;
-          transition: transform 0.1s ease-in-out;
-        }
-        input[type=range]::-webkit-slider-thumb:active {
-          transform: scale(1.15);
-        }
-        input[type=range]::-moz-range-thumb {
-          height: 24px;
-          width: 24px;
-          border-radius: 50%;
-          background: #ffffff;
-          border: 2px solid #111827;
-          box-shadow: 0 0 0 2px #6bff8f, 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-          cursor: pointer;
-          transition: transform 0.1s ease-in-out;
-        }
-        input[type=range]::-moz-range-thumb:active {
-          transform: scale(1.15);
-        }
-      `}} />
     </div>
   );
 }

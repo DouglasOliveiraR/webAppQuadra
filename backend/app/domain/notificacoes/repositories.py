@@ -18,3 +18,7 @@ class PushSubscriptionRepository(ABC):
     @abstractmethod
     async def listar_todos(self) -> List[PushSubscription]:
         pass
+
+    @abstractmethod
+    async def listar_por_usuarios(self, usuarios_ids: List[int]) -> List[PushSubscription]:
+        pass

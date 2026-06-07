@@ -33,31 +33,31 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       // Ordenar por Média Geral
       const rankingSorted = [...rankingData].sort((a, b) => (b.nota_galera_media || 0) - (a.nota_galera_media || 0));
 
-      let text = `🏆 *Resultados da Pelada* 🏆\n\n`;
-      text += `*🌟 Top 5 - Média Geral*\n`;
+      let text = `\u{1F3C6} *Resultados da Pelada* \u{1F3C6}\n\n`;
+      text += `*\u{1F31F} Top 5 - Média Geral*\n`;
       
-      const medalhas = ['🥇 1º', '🥈 2º', '🥉 3º', '🏅 4º', '🏅 5º'];
+      const medalhas = ['\u{1F947} 1º', '\u{1F948} 2º', '\u{1F949} 3º', '\u{1F3C5} 4º', '\u{1F3C5} 5º'];
       rankingSorted.slice(0, 5).forEach((jogador, index) => {
         text += `${medalhas[index]} ${jogador.nome} (${(jogador.nota_galera_media || 0).toFixed(1)})\n`;
       });
 
       if (ultimoData && ultimoData.top5_medias && ultimoData.top5_medias.length > 0) {
-        text += `\n*🔥 Top 5 - Último Jogo (Média)*\n`;
+        text += `\n*\u{1F525} Top 5 - Último Jogo (Média)*\n`;
         ultimoData.top5_medias.slice(0, 5).forEach((jogador, index) => {
           text += `${medalhas[index]} ${jogador.nome} (${jogador.media.toFixed(1)})\n`;
         });
       }
 
       if (ultimoData && ultimoData.vencedores) {
-        text += `\n*🎭 Destaques do Jogo*\n`;
+        text += `\n*\u{1F3AD} Destaques do Jogo*\n`;
         const v = ultimoData.vencedores;
-        if (v.BOLA_CHEIA?.length) text += `⚽ *Bola Cheia:* ${v.BOLA_CHEIA.map(x=>x.nome).join(', ')} (${v.BOLA_CHEIA[0].votos} votos)\n`;
-        if (v.GOL_BONITO?.length) text += `☄️ *Gol Bonito:* ${v.GOL_BONITO.map(x=>x.nome).join(', ')} (${v.GOL_BONITO[0].votos} votos)\n`;
-        if (v.BOLA_MURCHA?.length) text += `🐢 *Bola Murcha:* ${v.BOLA_MURCHA.map(x=>x.nome).join(', ')} (${v.BOLA_MURCHA[0].votos} votos)\n`;
-        if (v.LAFON?.length) text += `🧤 *Lafon:* ${v.LAFON.map(x=>x.nome).join(', ')} (${v.LAFON[0].votos} votos)\n`;
+        if (v.BOLA_CHEIA?.length) text += `\u{26BD} *Bola Cheia:* ${v.BOLA_CHEIA.map(x=>x.nome).join(', ')} (${v.BOLA_CHEIA[0].votos} votos)\n`;
+        if (v.GOL_BONITO?.length) text += `\u{2604}\u{FE0F} *Gol Bonito:* ${v.GOL_BONITO.map(x=>x.nome).join(', ')} (${v.GOL_BONITO[0].votos} votos)\n`;
+        if (v.BOLA_MURCHA?.length) text += `\u{1F422} *Bola Murcha:* ${v.BOLA_MURCHA.map(x=>x.nome).join(', ')} (${v.BOLA_MURCHA[0].votos} votos)\n`;
+        if (v.LAFON?.length) text += `\u{1F9E4} *Lafon:* ${v.LAFON.map(x=>x.nome).join(', ')} (${v.LAFON[0].votos} votos)\n`;
       }
 
-      text += `\nConfira a lista completa no App!\n👉 https://futpeladafc.com`;
+      text += `\nConfira a lista completa no App!\n\u{1F449} https://futpeladafc.com`;
       
       sendToWhatsApp(text);
     } catch (err) {
@@ -105,12 +105,12 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       if (confirmados.length === 0) text += `(Nenhum confirmado)\n`;
 
       text += `\n*Goleiros*\n`;
-      goleiros.forEach((n, i) => text += `${i+1} - ${n} 🧤\n`);
+      goleiros.forEach((n, i) => text += `${i+1} - ${n} \u{1F9E4}\n`);
       if (goleiros.length === 0) text += `(Nenhum goleiro)\n`;
 
       if (ausentes.length > 0) {
         text += `\n*Ausentes*\n`;
-        ausentes.forEach((n, i) => text += `${i+1} - ${n} 🚑\n`);
+        ausentes.forEach((n, i) => text += `${i+1} - ${n} \u{1F691}\n`);
       }
 
       sendToWhatsApp(text);
@@ -130,11 +130,11 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       const res = await api.post(`/eventos/${eventoId}/sorteio`, { criterio: "MEDIA_GERAL" });
       const times = res.data.times || [];
       
-      let text = `⚽ *Times Sorteados!* ⚽\n\n`;
+      let text = `\u{26BD} *Times Sorteados!* \u{26BD}\n\n`;
       times.forEach(t => {
         text += `*${t.nome}*\n`;
         t.jogadores.forEach((j, idx) => {
-          text += `${idx+1}. ${j.nome} ${j.posicao === 'GOL' ? '🧤' : ''}\n`;
+          text += `${idx+1}. ${j.nome} ${j.posicao === 'GOL' ? '\u{1F9E4}' : ''}\n`;
         });
         text += `\n`;
       });
@@ -150,12 +150,12 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
   };
 
   const handleShareConvite = () => {
-    const text = `🚨 *VAGAS ABERTAS!* 🚨\n\nTemos vagas sobrando para a pelada desta semana.\nQuem tiver convidado/avulso, avise a diretoria para adicionarmos na lista do sorteio!`;
+    const text = `\u{1F6A8} *VAGAS ABERTAS!* \u{1F6A8}\n\nTemos vagas sobrando para a pelada desta semana.\nQuem tiver convidado/avulso, avise a diretoria para adicionarmos na lista do sorteio!`;
     sendToWhatsApp(text);
   };
 
   const handleShareFinanceiro = () => {
-    const text = `💰 *Atenção Financeiro!* 💰\n\nFala galera, lembrando que o fechamento financeiro (mensalidade/quadra) está em aberto!\nQuem ainda não acertou, por favor envie o Pix para não atrasarmos o pagamento da quadra. Agradecemos a colaboração! 🙏`;
+    const text = `\u{1F4B0} *Atenção Financeiro!* \u{1F4B0}\n\nFala galera, lembrando que o fechamento financeiro (mensalidade/quadra) está em aberto!\nQuem ainda não acertou, por favor envie o Pix para não atrasarmos o pagamento da quadra. Agradecemos a colaboração! \u{1F64F}`;
     sendToWhatsApp(text);
   };
 

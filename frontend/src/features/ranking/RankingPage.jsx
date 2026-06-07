@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api, { API_URL, getFotoUrl } from '../../services/api';
+import { showToast } from '../../components/ui/Toast';
 
 function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
   return (
@@ -66,7 +67,7 @@ export function RankingPage() {
       const response = await api.get('/ranking/ultimo-resultado');
       setUltimoResultado(response.data);
     } catch (err) {
-      console.error('Erro ao carregar último resultado', err);
+      showToast('Erro ao carregar último resultado', 'error');
     }
   };
 

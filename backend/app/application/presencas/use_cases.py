@@ -93,3 +93,32 @@ class CheckinUseCase:
         
         await self.usuario_repo.salvar(usuario)
         return await self.presenca_repo.salvar(presenca)
+
+class AtualizarPresencaAdminUseCase:
+    def __init__(self, presenca_repo: PresencaRepository, evento_repo: EventoRepository):
+        self.presenca_repo = presenca_repo
+        self.evento_repo = evento_repo
+
+    async def executar(self, usuario_id: int, evento_id: int, status: StatusJogo, posicao: Posicao, churrasco: bool):
+        evento = await self.evento_repo.buscar_por_id(evento_id)
+        if not evento:
+            raise RegraDeNegocioError("Evento não encontrado")
+            
+        presenca = await self.presenca_repo.buscar_por_usuario_evento(usuario_id, evento_id)
+        if not presenca:
+            presenca = Presenca(
+                id=None,
+                usuario_id=usuario_id,
+                evento_id=evento_id,
+                status_jogo=status,
+                posicao=posicao,
+                vai_churrasco=churrasco,
+                checkin_validado=False,
+                falta_penalizada=False
+            )
+        else:
+            presenca.status_jogo = status
+            presenca.posicao = posicao
+            presenca.vai_churrasco = churrasco
+            
+        return await self.presenca_repo.salvar(presenca)

@@ -4,17 +4,20 @@ from domain.eventos.repositories import EventoRepository
 from domain.eventos.enums import StatusEvento
 from domain.votos.repositories import VotoRepository
 from domain.usuarios.repositories import UsuarioRepository
+from domain.notas.repositories import NotaRepository
 
 class ObterUltimoResultadoUseCase:
     def __init__(
         self,
         evento_repo: EventoRepository,
         voto_repo: VotoRepository,
-        usuario_repo: UsuarioRepository
+        usuario_repo: UsuarioRepository,
+        nota_repo: NotaRepository
     ):
         self.evento_repo = evento_repo
         self.voto_repo = voto_repo
         self.usuario_repo = usuario_repo
+        self.nota_repo = nota_repo
 
     async def executar(self) -> Optional[Dict[str, Any]]:
         # 1 e 2. Busca diretamente o último evento encerrado
@@ -74,9 +77,45 @@ class ObterUltimoResultadoUseCase:
                     })
             vencedores[cat] = usuarios_detalhes
             
+        # 8. Obter todas as notas dadas neste evento
+        todas_notas = await self.nota_repo.listar_por_evento(ultimo_evento.id)
+        
+        # Agrupa as notas por avaliado e calcula a média
+        notas_por_avaliado = defaultdict(list)
+        for n in todas_notas:
+            notas_por_avaliado[n.avaliado_id].append(n.nota)
+            
+        medias_evento = []
+        for av_id, lista_notas in notas_por_avaliado.items():
+            if lista_notas:
+                media = sum(lista_notas) / len(lista_notas)
+                medias_evento.append({
+                    "id": av_id,
+                    "media": media
+                })
+                todos_candidatos.add(av_id)
+                
+        # Atualiza a lista de usuários com os novos IDs que possam estar apenas nas notas
+        if todos_candidatos:
+            usuarios = await self.usuario_repo.buscar_por_ids(list(todos_candidatos))
+            usuarios_dit = {u.id: u for u in usuarios}
+            
+        medias_evento.sort(key=lambda x: x["media"], reverse=True)
+        top5_medias = []
+        for m in medias_evento[:5]:
+            u = usuarios_dit.get(m["id"])
+            if u:
+                top5_medias.append({
+                    "id": u.id,
+                    "nome": u.nome,
+                    "foto_url": u.foto_url,
+                    "media": round(m["media"], 2)
+                })
+
         return {
             "evento_id": ultimo_evento.id,
             "data_jogo": ultimo_evento.data_jogo,
             "endereco": ultimo_evento.endereco,
-            "vencedores": vencedores
+            "vencedores": vencedores,
+            "top5_medias": top5_medias
         }

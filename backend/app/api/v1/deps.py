@@ -13,7 +13,7 @@ from api.db.repositories.financeiro_repo import SQLAlchemyFinanceiroRepository
 
 import logging
 from application.auth.use_cases import LoginUseCase
-from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase
+from application.presencas.use_cases import AtualizarPresencaUseCase, CheckinUseCase, AtualizarPresencaAdminUseCase
 from application.votos.use_cases import RegistrarVotoUseCase, EncerrarVotacaoUseCase
 from application.ranking.use_cases import ListarRankingUseCase
 from application.financeiro.use_cases import ListarFinanceiroUseCase, BaixarPagamentoUseCase
@@ -91,6 +91,12 @@ def get_atualizar_presenca_use_case(
     evento_repo: SQLAlchemyEventoRepository = Depends(get_evento_repo)
 ) -> AtualizarPresencaUseCase:
     return AtualizarPresencaUseCase(presenca_repo, evento_repo)
+
+def get_atualizar_presenca_admin_use_case(
+    presenca_repo: SQLAlchemyPresencaRepository = Depends(get_presenca_repo),
+    evento_repo: SQLAlchemyEventoRepository = Depends(get_evento_repo)
+) -> AtualizarPresencaAdminUseCase:
+    return AtualizarPresencaAdminUseCase(presenca_repo, evento_repo)
 
 def get_checkin_use_case(
     repo: SQLAlchemyPresencaRepository = Depends(get_presenca_repo),
@@ -223,10 +229,12 @@ def get_atualizar_foto_perfil_use_case(db: Session = Depends(get_db)) -> Atualiz
     return AtualizarFotoPerfilUseCase(usuario_repo)
 
 def get_obter_ultimo_resultado_use_case(db: Session = Depends(get_db)) -> ObterUltimoResultadoUseCase:
+    from api.db.repositories.nota_repo import SQLAlchemyNotaRepository
     evento_repo = SQLAlchemyEventoRepository(db)
     voto_repo = SQLAlchemyVotoRepository(db)
     usuario_repo = SQLAlchemyUsuarioRepository(db)
-    return ObterUltimoResultadoUseCase(evento_repo, voto_repo, usuario_repo)
+    nota_repo = SQLAlchemyNotaRepository(db)
+    return ObterUltimoResultadoUseCase(evento_repo, voto_repo, usuario_repo, nota_repo)
 
 def get_deletar_usuario_use_case(db: Session = Depends(get_db)) -> DeletarUsuarioUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)

@@ -18,6 +18,7 @@ from domain.eventos.entities import Evento
 from domain.eventos.enums import StatusEvento
 from api.v1.deps import (
     get_current_user, get_admin_user, get_atualizar_presenca_use_case,
+    get_atualizar_presenca_admin_use_case,
     get_checkin_use_case, get_registrar_voto_use_case,
     get_encerrar_votacao_use_case, get_obter_evento_use_case,
     get_criar_evento_use_case, get_iniciar_votacao_use_case,
@@ -173,6 +174,26 @@ async def atualizar_presenca(
     try:
         presenca = await use_case.executar(
             usuario_id=current_user.id,
+            evento_id=id,
+            status=payload.status,
+            posicao=payload.posicao,
+            churrasco=payload.churrasco
+        )
+        return presenca
+    except RegraDeNegocioError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
+
+@router.put("/{id}/presencas/{usuario_id}/admin-status", response_model=PresencaResponse)
+async def atualizar_presenca_admin(
+    id: int,
+    usuario_id: int,
+    payload: PresencaUpdateRequest,
+    admin_user: Usuario = Depends(get_admin_user),
+    use_case = Depends(get_atualizar_presenca_admin_use_case)
+):
+    try:
+        presenca = await use_case.executar(
+            usuario_id=usuario_id,
             evento_id=id,
             status=payload.status,
             posicao=payload.posicao,

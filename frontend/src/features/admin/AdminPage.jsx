@@ -7,6 +7,8 @@ import { ElencoTab } from './ElencoTab';
 import { AdminFinanceiroTab } from './AdminFinanceiroTab';
 import { AdminAuditoriaTab } from './AdminAuditoriaTab';
 import { AdminArtilhariaTab } from './AdminArtilhariaTab';
+import { AdminPrePresencaTab } from './AdminPrePresencaTab';
+import { AdminComunicacaoTab } from './AdminComunicacaoTab';
 
 export function AdminPage() {
   const { 
@@ -399,7 +401,7 @@ export function AdminPage() {
 
       {!nenhumEventoAtivo && (
         <div className="flex border-b border-outline-variant/30 mb-4 overflow-x-auto hide-scrollbar">
-          {['geral', 'check-in', 'elenco', 'sorteio', 'financeiro', 'auditoria', 'artilharia'].map(tab => (
+          {['geral', 'pré-presença', 'check-in', 'artilharia', 'sorteio', 'comunicação', 'financeiro', 'elenco', 'auditoria'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -670,6 +672,14 @@ export function AdminPage() {
 
       {!nenhumEventoAtivo && activeTab === 'elenco' && (
         <ElencoTab />
+      )}
+
+      {!nenhumEventoAtivo && activeTab === 'pré-presença' && (
+        <AdminPrePresencaTab eventoId={evento.id} />
+      )}
+
+      {!nenhumEventoAtivo && activeTab === 'comunicação' && (
+        <AdminComunicacaoTab eventoId={evento.id} evento={evento} />
       )}
 
       {!nenhumEventoAtivo && activeTab === 'sorteio' && (

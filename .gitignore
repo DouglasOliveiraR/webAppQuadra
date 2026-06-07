@@ -20,3 +20,4 @@ backend/app/static/fotos/*
 *.patch2
 *.orig
 .venv/
+backend/pelada_vps.db

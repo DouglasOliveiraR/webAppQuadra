@@ -122,14 +122,26 @@ class EncerrarVotacaoUseCase:
             "LAFON": -1
         }
 
-        novos_premios = []
+        self._atualizar_pontos_ranking(usuarios_atualizados, vencedores_por_categoria, pontos_map)
+        novos_premios = self._gerar_premios(evento_id, mes_ref, vencedores_por_categoria)
 
+        if novos_premios:
+            await self.premio_repo.salvar_lote(novos_premios)
+
+        if usuarios_atualizados:
+            await self.usuario_repo.salvar_lote(list(usuarios_atualizados.values()))
+
+    def _atualizar_pontos_ranking(self, usuarios_atualizados, vencedores_por_categoria, pontos_map):
         for cat_nome, vencedores in vencedores_por_categoria.items():
             pontos = pontos_map.get(cat_nome, 0)
             for v_id in vencedores:
                 if v_id in usuarios_atualizados:
                     usuarios_atualizados[v_id].pontos_ranking += pontos
-                    
+
+    def _gerar_premios(self, evento_id, mes_ref, vencedores_por_categoria):
+        novos_premios = []
+        for cat_nome, vencedores in vencedores_por_categoria.items():
+            for v_id in vencedores:
                 novo_premio = Premio(
                     id=None,
                     usuario_id=v_id,
@@ -138,12 +150,7 @@ class EncerrarVotacaoUseCase:
                     mes_referencia=mes_ref
                 )
                 novos_premios.append(novo_premio)
-
-        if novos_premios:
-            await self.premio_repo.salvar_lote(novos_premios)
-                    
-        if usuarios_atualizados:
-            await self.usuario_repo.salvar_lote(list(usuarios_atualizados.values()))
+        return novos_premios
 
     async def _deletar_usuarios_avulsos(self):
         try:

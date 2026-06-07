@@ -22,3 +22,7 @@ class VotoRepository(ABC):
     @abstractmethod
     async def deletar(self, voto_id: int) -> bool:
         pass
+
+    @abstractmethod
+    async def deletar_por_evento(self, evento_id: int) -> int:
+        pass

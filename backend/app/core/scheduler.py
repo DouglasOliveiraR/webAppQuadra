@@ -34,7 +34,7 @@ async def job_virada_mes():
         logger.info(f"Rotina de Virada de Mês concluída. {qtd} novas mensalidades geradas.")
     except Exception as e:
         db.rollback()
-        logger.error(f"Erro ao executar rotina de Virada de Mês: {e}", exc_info=True)
+        logger.exception("Erro ao executar rotina de Virada de Mês")
     finally:
         db.close()
 
@@ -51,7 +51,7 @@ async def job_lembrete_mensalidade():
         db.commit()
     except Exception as e:
         db.rollback()
-        logger.error(f"Erro ao executar rotina de lembrete de mensalidade: {e}")
+        logger.exception("Erro ao executar rotina de lembrete de mensalidade")
     finally:
         db.close()
 
@@ -70,7 +70,7 @@ async def job_lembrete_presenca():
         db.commit()
     except Exception as e:
         db.rollback()
-        logger.error(f"Erro ao executar rotina de lembrete de presenca: {e}")
+        logger.exception("Erro ao executar rotina de lembrete de presenca")
     finally:
         db.close()
 
@@ -89,7 +89,7 @@ async def job_abrir_presenca_automatica():
             logger.info(f"Rotina concluída: {qtd} evento(s) tiveram a presença aberta.")
     except Exception as e:
         db.rollback()
-        logger.error(f"Erro ao executar rotina de abertura de presencas: {e}")
+        logger.exception("Erro ao executar rotina de abertura de presencas")
     finally:
         db.close()
 

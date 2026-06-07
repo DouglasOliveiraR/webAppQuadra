@@ -8,21 +8,17 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    async def obter_ranking_agrupado(self) -> List[UsuarioRanking]:
-        from api.db.models import PremioModel, NotaModel, TipoNota
+    def _obter_usuarios_com_notas(self):
+        from api.db.models import NotaModel, TipoNota
         from domain.usuarios.enums import StatusUsuario
         from sqlalchemy import func
-        from collections import defaultdict
 
-        # 1. Fetch the aggregated data directly using SQLAlchemy
-        # Subquery for notes
         subq_notas = self.session.query(
             NotaModel.avaliado_id.label('uid'),
             func.avg(NotaModel.nota).label('media')
         ).filter(NotaModel.tipo == TipoNota.GALERA).group_by(NotaModel.avaliado_id).subquery()
 
-        # Join UsuarioModel with subq_notas
-        usuarios_com_notas = self.session.query(
+        return self.session.query(
             UsuarioModel,
             subq_notas.c.media
         ).outerjoin(
@@ -31,14 +27,11 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             UsuarioModel.status == StatusUsuario.ATIVO
         ).all()
 
-        if not usuarios_com_notas:
-            return []
+    def _obter_premios_agrupados(self, usuarios_ids: List[int]):
+        from api.db.models import PremioModel
+        from sqlalchemy import func
 
-        # Get the IDs of the active users
-        usuarios_ids = [u.UsuarioModel.id for u in usuarios_com_notas]
-
-        # 2. Fetch the aggregated prizes using SQLAlchemy grouping
-        premios_agrupados = self.session.query(
+        return self.session.query(
             PremioModel.usuario_id,
             PremioModel.categoria,
             func.count(PremioModel.id).label('quantidade')
@@ -48,9 +41,11 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             PremioModel.usuario_id, PremioModel.categoria
         ).all()
 
-        # 2.5 Fetch aggregated goals using SQLAlchemy grouping
+    def _obter_gols_agrupados(self, usuarios_ids: List[int]):
         from api.db.models import PresencaModel
-        gols_agrupados = self.session.query(
+        from sqlalchemy import func
+
+        return self.session.query(
             PresencaModel.usuario_id,
             func.sum(PresencaModel.gols).label('total_gols')
         ).filter(
@@ -58,6 +53,24 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         ).group_by(
             PresencaModel.usuario_id
         ).all()
+
+    async def obter_ranking_agrupado(self) -> List[UsuarioRanking]:
+        from collections import defaultdict
+
+        # 1. Fetch the aggregated data directly using SQLAlchemy
+        usuarios_com_notas = self._obter_usuarios_com_notas()
+
+        if not usuarios_com_notas:
+            return []
+
+        # Get the IDs of the active users
+        usuarios_ids = [u.UsuarioModel.id for u in usuarios_com_notas]
+
+        # 2. Fetch the aggregated prizes using SQLAlchemy grouping
+        premios_agrupados = self._obter_premios_agrupados(usuarios_ids)
+
+        # 2.5 Fetch aggregated goals using SQLAlchemy grouping
+        gols_agrupados = self._obter_gols_agrupados(usuarios_ids)
 
         gols_map = {g.usuario_id: (g.total_gols or 0) for g in gols_agrupados}
 

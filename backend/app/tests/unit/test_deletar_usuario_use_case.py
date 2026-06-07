@@ -7,8 +7,6 @@ from domain.eventos.entities import Evento
 from domain.eventos.enums import StatusEvento
 from domain.presencas.entities import Presenca
 from domain.presencas.enums import StatusJogo, Posicao
-from domain.financeiro.entities import Financeiro
-from domain.financeiro.enums import StatusPagamento
 from datetime import date, time
 
 @pytest.mark.asyncio

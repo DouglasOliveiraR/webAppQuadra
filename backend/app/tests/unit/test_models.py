@@ -1,6 +1,6 @@
 from sqlalchemy.orm import configure_mappers
 from api.db.models import (
-    Base, UsuarioModel, EventoModel, PresencaModel, VotoModel, FinanceiroModel
+    UsuarioModel, EventoModel, PresencaModel, VotoModel, FinanceiroModel
 )
 
 def test_models_mapper_configuration():

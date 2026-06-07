@@ -1,3 +1,4 @@
+import os
 import uuid
 import socket
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,7 +30,7 @@ class Settings(BaseSettings):
     # Push Notifications
     VAPID_PRIVATE_KEY: str = ""
     VAPID_PUBLIC_KEY: str = ""
-    VAPID_CLAIMS_EMAIL: str = "mailto:admin@futpeladafc.com"
+    VAPID_CLAIMS_EMAIL: str = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:admin@futpeladafc.com")
 
     @property
     def cors_origins(self) -> list[str]:

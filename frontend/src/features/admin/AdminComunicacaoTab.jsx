@@ -4,6 +4,27 @@ import { showToast } from '../../components/ui/Toast';
 
 export function AdminComunicacaoTab({ eventoId, evento }) {
   const [loading, setLoading] = useState(false);
+
+  // Dicionário seguro de Emojis que contorna qualquer problema de minificação ou encoding (ASCII-only)
+  const E = {
+    TROPHY: String.fromCodePoint(0x1F3C6),
+    STAR: String.fromCodePoint(0x1F31F),
+    M1: String.fromCodePoint(0x1F947),
+    M2: String.fromCodePoint(0x1F948),
+    M3: String.fromCodePoint(0x1F949),
+    M4: String.fromCodePoint(0x1F3C5),
+    FIRE: String.fromCodePoint(0x1F525),
+    MASK: String.fromCodePoint(0x1F3AD),
+    SOCCER: String.fromCodePoint(0x26BD),
+    COMET: String.fromCodePoint(0x2604, 0xFE0F),
+    TURTLE: String.fromCodePoint(0x1F422),
+    GLOVE: String.fromCodePoint(0x1F9E4),
+    AMB: String.fromCodePoint(0x1F691),
+    SIREN: String.fromCodePoint(0x1F6A8),
+    MONEY: String.fromCodePoint(0x1F4B0),
+    PRAY: String.fromCodePoint(0x1F64F),
+    POINT: String.fromCodePoint(0x1F449)
+  };
   
   // Função auxiliar para abrir o WhatsApp
   const sendToWhatsApp = (text) => {
@@ -33,31 +54,31 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       // Ordenar por Média Geral
       const rankingSorted = [...rankingData].sort((a, b) => (b.nota_galera_media || 0) - (a.nota_galera_media || 0));
 
-      let text = `\u{1F3C6} *Resultados da Pelada* \u{1F3C6}\n\n`;
-      text += `*\u{1F31F} Top 5 - Média Geral*\n`;
+      let text = `${E.TROPHY} *Resultados da Pelada* ${E.TROPHY}\n\n`;
+      text += `*${E.STAR} Top 5 - Média Geral*\n`;
       
-      const medalhas = ['\u{1F947} 1º', '\u{1F948} 2º', '\u{1F949} 3º', '\u{1F3C5} 4º', '\u{1F3C5} 5º'];
+      const medalhas = [`${E.M1} 1º`, `${E.M2} 2º`, `${E.M3} 3º`, `${E.M4} 4º`, `${E.M4} 5º`];
       rankingSorted.slice(0, 5).forEach((jogador, index) => {
         text += `${medalhas[index]} ${jogador.nome} (${(jogador.nota_galera_media || 0).toFixed(1)})\n`;
       });
 
       if (ultimoData && ultimoData.top5_medias && ultimoData.top5_medias.length > 0) {
-        text += `\n*\u{1F525} Top 5 - Último Jogo (Média)*\n`;
+        text += `\n*${E.FIRE} Top 5 - Último Jogo (Média)*\n`;
         ultimoData.top5_medias.slice(0, 5).forEach((jogador, index) => {
           text += `${medalhas[index]} ${jogador.nome} (${jogador.media.toFixed(1)})\n`;
         });
       }
 
       if (ultimoData && ultimoData.vencedores) {
-        text += `\n*\u{1F3AD} Destaques do Jogo*\n`;
+        text += `\n*${E.MASK} Destaques do Jogo*\n`;
         const v = ultimoData.vencedores;
-        if (v.BOLA_CHEIA?.length) text += `\u{26BD} *Bola Cheia:* ${v.BOLA_CHEIA.map(x=>x.nome).join(', ')} (${v.BOLA_CHEIA[0].votos} votos)\n`;
-        if (v.GOL_BONITO?.length) text += `\u{2604}\u{FE0F} *Gol Bonito:* ${v.GOL_BONITO.map(x=>x.nome).join(', ')} (${v.GOL_BONITO[0].votos} votos)\n`;
-        if (v.BOLA_MURCHA?.length) text += `\u{1F422} *Bola Murcha:* ${v.BOLA_MURCHA.map(x=>x.nome).join(', ')} (${v.BOLA_MURCHA[0].votos} votos)\n`;
-        if (v.LAFON?.length) text += `\u{1F9E4} *Lafon:* ${v.LAFON.map(x=>x.nome).join(', ')} (${v.LAFON[0].votos} votos)\n`;
+        if (v.BOLA_CHEIA?.length) text += `${E.SOCCER} *Bola Cheia:* ${v.BOLA_CHEIA.map(x=>x.nome).join(', ')} (${v.BOLA_CHEIA[0].votos} votos)\n`;
+        if (v.GOL_BONITO?.length) text += `${E.COMET} *Gol Bonito:* ${v.GOL_BONITO.map(x=>x.nome).join(', ')} (${v.GOL_BONITO[0].votos} votos)\n`;
+        if (v.BOLA_MURCHA?.length) text += `${E.TURTLE} *Bola Murcha:* ${v.BOLA_MURCHA.map(x=>x.nome).join(', ')} (${v.BOLA_MURCHA[0].votos} votos)\n`;
+        if (v.LAFON?.length) text += `${E.GLOVE} *Lafon:* ${v.LAFON.map(x=>x.nome).join(', ')} (${v.LAFON[0].votos} votos)\n`;
       }
 
-      text += `\nConfira a lista completa no App!\n\u{1F449} https://futpeladafc.com`;
+      text += `\nConfira a lista completa no App!\n${E.POINT} https://futpeladafc.com`;
       
       sendToWhatsApp(text);
     } catch (err) {
@@ -105,12 +126,12 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       if (confirmados.length === 0) text += `(Nenhum confirmado)\n`;
 
       text += `\n*Goleiros*\n`;
-      goleiros.forEach((n, i) => text += `${i+1} - ${n} \u{1F9E4}\n`);
+      goleiros.forEach((n, i) => text += `${i+1} - ${n} ${E.GLOVE}\n`);
       if (goleiros.length === 0) text += `(Nenhum goleiro)\n`;
 
       if (ausentes.length > 0) {
         text += `\n*Ausentes*\n`;
-        ausentes.forEach((n, i) => text += `${i+1} - ${n} \u{1F691}\n`);
+        ausentes.forEach((n, i) => text += `${i+1} - ${n} ${E.AMB}\n`);
       }
 
       sendToWhatsApp(text);
@@ -130,11 +151,11 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
       const res = await api.post(`/eventos/${eventoId}/sorteio`, { criterio: "MEDIA_GERAL" });
       const times = res.data.times || [];
       
-      let text = `\u{26BD} *Times Sorteados!* \u{26BD}\n\n`;
+      let text = `${E.SOCCER} *Times Sorteados!* ${E.SOCCER}\n\n`;
       times.forEach(t => {
         text += `*${t.nome}*\n`;
         t.jogadores.forEach((j, idx) => {
-          text += `${idx+1}. ${j.nome} ${j.posicao === 'GOL' ? '\u{1F9E4}' : ''}\n`;
+          text += `${idx+1}. ${j.nome} ${j.posicao === 'GOL' ? E.GLOVE : ''}\n`;
         });
         text += `\n`;
       });
@@ -150,12 +171,12 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
   };
 
   const handleShareConvite = () => {
-    const text = `\u{1F6A8} *VAGAS ABERTAS!* \u{1F6A8}\n\nTemos vagas sobrando para a pelada desta semana.\nQuem tiver convidado/avulso, avise a diretoria para adicionarmos na lista do sorteio!`;
+    const text = `${E.SIREN} *VAGAS ABERTAS!* ${E.SIREN}\n\nTemos vagas sobrando para a pelada desta semana.\nQuem tiver convidado/avulso, avise a diretoria para adicionarmos na lista do sorteio!`;
     sendToWhatsApp(text);
   };
 
   const handleShareFinanceiro = () => {
-    const text = `\u{1F4B0} *Atenção Financeiro!* \u{1F4B0}\n\nFala galera, lembrando que o fechamento financeiro (mensalidade/quadra) está em aberto!\nQuem ainda não acertou, por favor envie o Pix para não atrasarmos o pagamento da quadra. Agradecemos a colaboração! \u{1F64F}`;
+    const text = `${E.MONEY} *Atenção Financeiro!* ${E.MONEY}\n\nFala galera, lembrando que o fechamento financeiro (mensalidade/quadra) está em aberto!\nQuem ainda não acertou, por favor envie o Pix para não atrasarmos o pagamento da quadra. Agradecemos a colaboração! ${E.PRAY}`;
     sendToWhatsApp(text);
   };
 

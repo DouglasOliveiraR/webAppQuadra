@@ -22,8 +22,8 @@ class Settings(BaseSettings):
         if self.SECRET_KEY == "super_secret_key_mock_for_mvp":
             raise ValueError("CRÍTICO: SECRET_KEY não pode ser o valor default/mockado de MVP.")
     ALGORITHM: str = "HS256"
-    # [Security Fix] Reduzido para 24h para minimizar a janela de exposição de tokens roubados.
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 hours
+    # Revertido para 30 dias para não prejudicar a usabilidade do MVP semanal (sem refresh token).
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30 # 30 days
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     
     # Push Notifications

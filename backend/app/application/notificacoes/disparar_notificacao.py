@@ -62,7 +62,7 @@ class DispararNotificacaoUseCase:
             try:
                 sub_info = json.loads(sub.subscription_json)
                 tasks.append(self._enviar_notificacao(sub_info, payload))
-            except Exception as e:
+            except json.JSONDecodeError as e:
                 logger.error(f"Erro ao decodificar subscription: {e}")
 
         if tasks:

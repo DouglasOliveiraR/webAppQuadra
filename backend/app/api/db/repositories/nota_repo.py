@@ -56,6 +56,10 @@ class SQLAlchemyNotaRepository(NotaRepository):
         ).all()
         return [self._to_entity(m) for m in models]
 
+    async def listar_por_evento(self, evento_id: int) -> List[Nota]:
+        models = self.session.query(NotaModel).filter(NotaModel.evento_id == evento_id).all()
+        return [self._to_entity(m) for m in models]
+
     async def salvar_em_lote(self, notas: List[Nota]) -> List[Nota]:
         if not notas:
             return []

@@ -18,3 +18,7 @@ class NotaRepository(ABC):
     @abstractmethod
     async def salvar_em_lote(self, notas: List[Nota]) -> List[Nota]:
         pass
+
+    @abstractmethod
+    async def listar_por_evento(self, evento_id: int) -> List[Nota]:
+        pass

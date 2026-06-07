@@ -10,6 +10,7 @@ from core.exceptions import RegraDeNegocioError
 from core.security import get_password_hash
 from datetime import datetime
 import secrets
+import logging
 
 class CriarUsuarioUseCase:
     def __init__(
@@ -79,6 +80,6 @@ class CriarUsuarioUseCase:
                         await self.presenca_repo.salvar(nova_presenca)
             except Exception as e:
                 # Silencia erros se porventura falhar a criação automática de presença
-                print(f"Erro ao cadastrar presença automática de avulso: {e}")
+                logging.error(f"Erro ao cadastrar presença automática de avulso: {e}")
 
         return usuario_salvo

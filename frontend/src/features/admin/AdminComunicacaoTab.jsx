@@ -132,7 +132,7 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
 
       if (ausentes.length > 0) {
         text += `\n*Ausentes*\n`;
-        ausentes.forEach((n, i) => text += `${i+1} - ${n} ${E.AMB}\n`);
+        ausentes.forEach((n, i) => text += `${i+1} - ${n}\n`);
       }
 
       sendToWhatsApp(text);

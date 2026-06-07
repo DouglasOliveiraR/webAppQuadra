@@ -39,7 +39,7 @@ async def unsubscribe(
     repo = SQLAlchemyPushSubscriptionRepository(db)
     use_case = DesregistrarInscricaoUseCase(repo)
     try:
-        await use_case.executar(payload.endpoint)
+        await use_case.executar(payload.endpoint, current_user.id)
         return {"detail": "Inscrição removida com sucesso"}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -51,7 +51,6 @@ class SQLAlchemyPushSubscriptionRepository(PushSubscriptionRepository):
         return self._to_entity(model)
 
     async def deletar_por_endpoint(self, endpoint: str) -> bool:
-        # [Security Fix] Usa json_extract do SQLite para evitar SQL Injection via LIKE/Boolean Blind
         models = self.session.query(PushSubscriptionModel).filter(
             func.json_extract(PushSubscriptionModel.subscription_json, "$.endpoint") == endpoint
         ).all()

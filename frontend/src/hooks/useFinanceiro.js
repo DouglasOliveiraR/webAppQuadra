@@ -3,10 +3,8 @@ import api from '../services/api';
 import { showToast } from '../components/ui/Toast';
 
 // Cache em nível de módulo
-let globalFinanceiroCache = {};
-let globalFinanceiroAdminCache = {};
-let globalFinanceiroCacheTime = {};
-let globalFinanceiroAdminCacheTime = {};
+let cacheJogador = {};
+let cacheAdmin = {};
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
 export function useFinanceiro() {
@@ -23,8 +21,8 @@ export function useFinanceiro() {
     const now = Date.now();
 
     // Impacto: Uso do cache em useFinanceiro evita requests repetitivos na navegação, garantindo navegação instantânea.
-    if (!force && globalFinanceiroCache[key] && globalFinanceiroCacheTime[key] && (now - globalFinanceiroCacheTime[key] < CACHE_DURATION)) {
-      setPendencias(globalFinanceiroCache[key]);
+    if (!force && cacheJogador[key]?.data && cacheJogador[key]?.timestamp && (now - cacheJogador[key].timestamp < CACHE_DURATION)) {
+      setPendencias(cacheJogador[key].data);
       setLoading(false);
       return;
     }
@@ -34,8 +32,7 @@ export function useFinanceiro() {
       const params = mes ? { mes } : {};
       const { data } = await api.get('/financeiro/me', { params });
 
-      globalFinanceiroCache[key] = data;
-      globalFinanceiroCacheTime[key] = now;
+      cacheJogador[key] = { data, timestamp: now };
       setPendencias(data);
     } catch (err) {
       setError('Erro ao buscar seus dados financeiros.');
@@ -48,8 +45,8 @@ export function useFinanceiro() {
     const key = mes || 'current';
     const now = Date.now();
 
-    if (!force && globalFinanceiroAdminCache[key] && globalFinanceiroAdminCacheTime[key] && (now - globalFinanceiroAdminCacheTime[key] < CACHE_DURATION)) {
-      setPendenciasAdmin(globalFinanceiroAdminCache[key]);
+    if (!force && cacheAdmin[key]?.data && cacheAdmin[key]?.timestamp && (now - cacheAdmin[key].timestamp < CACHE_DURATION)) {
+      setPendenciasAdmin(cacheAdmin[key].data);
       setLoadingAdmin(false);
       return;
     }
@@ -59,8 +56,7 @@ export function useFinanceiro() {
       const params = mes ? { mes } : {};
       const { data } = await api.get('/financeiro/admin', { params });
 
-      globalFinanceiroAdminCache[key] = data;
-      globalFinanceiroAdminCacheTime[key] = now;
+      cacheAdmin[key] = { data, timestamp: now };
       setPendenciasAdmin(data);
     } catch (err) {
       setErrorAdmin('Erro ao buscar dados financeiros dos mensalistas.');

@@ -159,18 +159,24 @@ export function AdminFinanceiroTab() {
                       <span className="font-headline-md text-[16px] text-on-surface">{jogador.usuario_nome}</span>
                     </div>
                     <button
-                      onClick={() => !pago && registroChurras && baixarPagamentoAdmin(registroChurras.id, selectedMonth)}
-                      disabled={actionLoading || pago || !registroChurras}
-                      aria-label={`Dar baixa no pagamento do churrasco para ${jogador.usuario_nome}`}
-                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-colors flex justify-center items-center min-w-[108px] ${pago
-                          ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default'
-                          : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
+                      onClick={() => registroChurras && baixarPagamentoAdmin(registroChurras.id, selectedMonth)}
+                      disabled={actionLoading || !registroChurras}
+                      aria-label={`${pago ? 'Desfazer' : 'Dar'} baixa no pagamento do churrasco para ${jogador.usuario_nome}`}
+                      className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all flex justify-center items-center min-w-[108px] active:scale-95 disabled:opacity-50 ${pago
+                          ? 'bg-primary/10 border-primary/20 text-primary hover:bg-error/10 hover:text-error hover:border-error/20 group'
+                          : 'bg-transparent border-primary text-primary hover:bg-primary/10'
                         }`}
+                      title={pago ? "Clique para desfazer" : "Dar baixa"}
                     >
-                      {pago ? (
-                        <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">check</span> Pago</span>
-                      ) : actionLoading ? (
+                      {actionLoading ? (
                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      ) : pago ? (
+                        <span className="flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[16px] group-hover:hidden">check</span>
+                          <span className="material-symbols-outlined text-[16px] hidden group-hover:inline">undo</span>
+                          <span className="group-hover:hidden">Pago</span>
+                          <span className="hidden group-hover:inline">Desfazer</span>
+                        </span>
                       ) : (
                         'Dar Baixa'
                       )}
@@ -253,21 +259,24 @@ export function AdminFinanceiroTab() {
                       </div>
 
                       <button
-                        onClick={() => !isPago && baixarPagamentoAdmin(item.id, selectedMonth)}
-                        disabled={actionLoading || isPago}
-                        aria-label={`Dar baixa na mensalidade de ${item.usuario_nome || 'Jogador'}`}
-                        className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all flex justify-center items-center min-w-[108px] ${isPago
-                            ? 'bg-primary border-primary text-on-primary opacity-90 cursor-default'
-                            : 'bg-transparent border-primary text-primary hover:bg-primary/10 active:scale-95 disabled:opacity-50'
+                        onClick={() => baixarPagamentoAdmin(item.id, selectedMonth)}
+                        disabled={actionLoading}
+                        aria-label={`${isPago ? 'Desfazer' : 'Dar'} baixa na mensalidade de ${item.usuario_nome || 'Jogador'}`}
+                        className={`px-4 py-2 rounded-lg font-label-bold text-label-bold border transition-all flex justify-center items-center min-w-[108px] active:scale-95 disabled:opacity-50 ${isPago
+                            ? 'bg-primary/10 border-primary/20 text-primary hover:bg-error/10 hover:text-error hover:border-error/20 group'
+                            : 'bg-transparent border-primary text-primary hover:bg-primary/10'
                           }`}
+                        title={isPago ? "Clique para desfazer" : "Dar baixa"}
                       >
-                        {isPago ? (
-                          <span className="flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[16px]">check</span>
-                            Baixado
-                          </span>
-                        ) : actionLoading ? (
+                        {actionLoading ? (
                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        ) : isPago ? (
+                          <span className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[16px] group-hover:hidden">check</span>
+                            <span className="material-symbols-outlined text-[16px] hidden group-hover:inline">undo</span>
+                            <span className="group-hover:hidden">Baixado</span>
+                            <span className="hidden group-hover:inline">Desfazer</span>
+                          </span>
                         ) : (
                           'Dar Baixa'
                         )}

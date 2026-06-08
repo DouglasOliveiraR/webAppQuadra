@@ -262,8 +262,8 @@ export function PerfilPage() {
         
         <div className="grid grid-cols-2 gap-4">
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-secondary-container/20 text-secondary-container flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">star</span>
+            <div className="w-12 h-12 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-3">
+              <img src="/assets/golden_ball_3d.png" alt="Bola Cheia" className="w-8 h-8 object-contain" />
             </div>
             <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'BOLA_CHEIA')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Bola Cheia</span>
@@ -271,8 +271,8 @@ export function PerfilPage() {
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">sports_soccer</span>
+            <div className="w-12 h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-3">
+              <img src="/assets/top_corner_goal_3d.png" alt="Gol Mais Bonito" className="w-8 h-8 object-contain" />
             </div>
             <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'GOL_BONITO')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Gol + Bonito</span>
@@ -280,8 +280,8 @@ export function PerfilPage() {
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">warning</span>
+            <div className="w-12 h-12 rounded-full bg-[#FFE4E6] flex items-center justify-center mb-3">
+              <img src="/assets/deflated_ball_3d.png" alt="Bola Murcha" className="w-8 h-8 object-contain" />
             </div>
             <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'BOLA_MURCHA')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">O Bagre</span>
@@ -289,8 +289,8 @@ export function PerfilPage() {
           </div>
 
           <div className="glass-panel rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-ambient-1 hover:shadow-ambient-2 transition-shadow">
-            <div className="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined text-[24px]" aria-hidden="true">mood_bad</span>
+            <div className="w-12 h-12 rounded-full bg-[#FCE7F3] flex items-center justify-center mb-3">
+              <img src="/assets/cry_face_3d.png" alt="Lafon Chorão" className="w-8 h-8 object-contain" />
             </div>
             <span className="font-headline-md text-headline-md font-bold mb-1" aria-hidden="true">{meusDados?.premios?.find(p => p.categoria === 'LAFON')?.quantidade || 0}x</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant" aria-hidden="true">Lafon (Chorão)</span>

@@ -30,6 +30,7 @@ export function useFinanceiro() {
     try {
       setLoading(true);
       const params = mes ? { mes } : {};
+      if (force) params._t = Date.now();
       const { data } = await api.get('/financeiro/me', { params });
 
       cacheJogador[key] = { data, timestamp: now };
@@ -54,6 +55,7 @@ export function useFinanceiro() {
     try {
       setLoadingAdmin(true);
       const params = mes ? { mes } : {};
+      if (force) params._t = Date.now();
       const { data } = await api.get('/financeiro/admin', { params });
 
       cacheAdmin[key] = { data, timestamp: now };
@@ -71,7 +73,7 @@ export function useFinanceiro() {
       await api.put(`/financeiro/${id}/baixar`);
       // Recarrega os dados do jogador forçando o bypass do cache
       await fetchFinanceiro(mes, true);
-      showToast('Pagamento baixado com sucesso!');
+      showToast('Status do pagamento atualizado!');
     } catch (err) {
       const msg = err.response?.data?.detail || 'Erro ao dar baixa no pagamento.';
       setError(msg);
@@ -87,7 +89,7 @@ export function useFinanceiro() {
       await api.put(`/financeiro/${id}/baixar`);
       // Recarrega os dados do admin forçando o bypass do cache
       await fetchFinanceiroAdmin(mes, true);
-      showToast('Pagamento baixado com sucesso!');
+      showToast('Status do pagamento atualizado!');
     } catch (err) {
       const msg = err.response?.data?.detail || 'Erro ao dar baixa no pagamento.';
       setErrorAdmin(msg);

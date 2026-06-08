@@ -35,14 +35,20 @@ export function ToastContainer() {
   const isError = toast.type === 'error';
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] animate-bounce-in max-w-sm w-[90%] md:w-auto">
-      <div className={`px-4 py-3 rounded-card shadow-lvl3 text-sm font-bold flex items-center gap-2 border backdrop-blur-md transition-all duration-300 ${
+    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] animate-bounce-in max-w-sm w-[90%] md:w-auto">
+      <div className={`px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.6)] text-[14px] flex items-center gap-3 border backdrop-blur-xl transition-all duration-300 ${
         isError 
-          ? 'bg-error-container/95 text-on-error-container border-error/30' 
-          : 'bg-primary-container/95 text-on-primary-container border-primary/30'
+          ? 'bg-[#111111]/95 text-white border-error/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]' 
+          : 'bg-[#111111]/95 text-white border-primary/40 shadow-[0_0_20px_rgba(234,179,8,0.15)]'
       }`}>
-        <span className="text-base">{isError ? '⚠️' : '✅'}</span>
-        <span>{toast.message}</span>
+        {isError ? (
+          <span className="material-symbols-outlined text-[22px] text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+        ) : (
+          <div className="flex items-center justify-center text-primary drop-shadow-[0_0_8px_rgba(234,179,8,0.6)]">
+            <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          </div>
+        )}
+        <span className="font-semibold tracking-wide">{toast.message}</span>
       </div>
     </div>
   );

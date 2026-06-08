@@ -60,11 +60,37 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
         return [self._to_entity(m) for m in models]
 
     async def salvar(self, financeiro: Financeiro) -> Financeiro:
+        if financeiro.id:
+            # Expurgar qualquer instância em cache na sessão para evitar conflito de identity map
+            existing = self.session.get(FinanceiroModel, financeiro.id)
+            if existing:
+                existing.usuario_id = financeiro.usuario_id
+                existing.tipo = financeiro.tipo
+                existing.valor = financeiro.valor
+                existing.status_pagamento = financeiro.status_pagamento
+                existing.mes_referencia = financeiro.mes_referencia
+                self.session.flush()
+                self.session.commit()
+                self.session.refresh(existing)
+                return self._to_entity(existing)
+        
+        # Novo registro
         model = self._to_model(financeiro)
-        if model.id:
-            model = self.session.merge(model)
+        self.session.add(model)
+        self.session.commit()
+        self.session.refresh(model)
+        return self._to_entity(model)
+
+    async def alternar_status_pagamento(self, pagamento_id: int) -> Optional[Financeiro]:
+        """Toggle atômico do status de pagamento, evitando conflito de identity map."""
+        model = self.session.get(FinanceiroModel, pagamento_id)
+        if not model:
+            return None
+        
+        if model.status_pagamento == StatusPagamento.PAGO:
+            model.status_pagamento = StatusPagamento.PENDENTE
         else:
-            self.session.add(model)
+            model.status_pagamento = StatusPagamento.PAGO
         
         self.session.commit()
         self.session.refresh(model)

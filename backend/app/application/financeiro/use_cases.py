@@ -59,9 +59,7 @@ class BaixarPagamentoUseCase:
         self.financeiro_repo = financeiro_repo
 
     async def executar(self, pagamento_id: int) -> Financeiro:
-        pagamento = await self.financeiro_repo.buscar_por_id(pagamento_id)
-        if not pagamento:
+        resultado = await self.financeiro_repo.alternar_status_pagamento(pagamento_id)
+        if not resultado:
             raise RecursoNaoEncontradoError("Pagamento não encontrado")
-        
-        pagamento.status_pagamento = StatusPagamento.PAGO
-        return await self.financeiro_repo.salvar(pagamento)
+        return resultado

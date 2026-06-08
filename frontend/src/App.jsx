@@ -31,25 +31,23 @@ function ProtectedRoute() {
 function MainLayout() {
   return (
     <>
-      <header className="fixed top-0 w-full z-50 shadow-sm bg-surface dark:bg-surface-dim">
-        <div className="flex items-center justify-between px-container-margin-mobile md:px-container-margin-desktop h-16 w-full max-w-screen-xl mx-auto">
+      <header className="fixed top-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 max-w-screen-xl z-50 bg-surface/90 glass-panel shadow-bento border border-outline/20 rounded-3xl md:rounded-full">
+        <div className="flex items-center justify-between px-6 h-16 w-full">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-bold text-label-bold">
-              PFC
-            </div>
-            <h1 className="font-headline-md text-headline-md text-primary font-bold">Pelada FC</h1>
+            <img src="/assets/logo_peladafc.png" alt="Pelada FC Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
+            <h1 className="font-headline-sm text-primary font-bold tracking-tight">Pelada FC</h1>
           </div>
           <Link 
             to="/ranking"
             aria-label="Ver Ranking"
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant dark:text-on-surface-variant active:scale-95 duration-100"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-variant hover:bg-surface-variant/80 transition-colors text-on-surface-variant active:scale-95 duration-100"
           >
             <span className="material-symbols-outlined">military_tech</span>
           </Link>
         </div>
       </header>
       
-      <main className="w-full max-w-screen-xl mx-auto px-container-margin-mobile md:px-container-margin-desktop pt-20 pb-24 md:pb-0 min-h-screen">
+      <main className="w-full max-w-screen-xl mx-auto px-container-margin-mobile md:px-container-margin-desktop pt-28 pb-24 md:pb-0 min-h-screen">
         <ForceVoteGuard>
           <Outlet />
         </ForceVoteGuard>

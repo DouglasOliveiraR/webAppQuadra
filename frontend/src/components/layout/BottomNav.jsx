@@ -27,8 +27,8 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface dark:bg-surface-dim shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-      <div className="flex justify-around items-center w-full max-w-screen-xl mx-auto px-2 py-3 pb-safe">
+    <nav className="fixed bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 max-w-[500px] z-50 rounded-3xl md:rounded-full bg-surface/90 glass-panel shadow-bento border border-outline/20">
+      <div className="flex justify-around items-center w-full px-2 py-3">
         {links.map(({ to, icon, label }) => (
           <NavLink
             key={to}

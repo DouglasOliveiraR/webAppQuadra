@@ -2,43 +2,49 @@ import React, { useState, useEffect } from 'react';
 import api, { API_URL, getFotoUrl } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 
-function PremioCard({ titulo, icone, subtitulo, pontos, estilo, vencedores }) {
+function PremioCard({ titulo, icone, imgSrc, subtitulo, pontos, estilo, vencedores }) {
   return (
-    <div className={`bg-gradient-to-br ${estilo} border rounded-xl p-5 shadow-ambient-1 flex flex-col justify-between min-h-[160px] transition-all duration-300 hover:shadow-md hover:-translate-y-[2px]`}>
+    <div className={`bento-card bg-gradient-to-br ${estilo} border border-outline/10 p-6 flex flex-col justify-between min-h-[180px]`}>
       <div>
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[24px] icon-fill" aria-hidden="true">{icone}</span>
-            <h4 className="font-headline-md text-headline-md font-bold">{titulo}</h4>
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-3">
+            {imgSrc ? (
+              <img src={imgSrc} alt={titulo} className="w-12 h-12 object-contain drop-shadow-md" />
+            ) : (
+              <span className="material-symbols-outlined text-[32px] icon-fill text-surface" aria-hidden="true">{icone}</span>
+            )}
+            <div>
+              <h4 className="font-headline-md text-title-md font-bold text-surface drop-shadow-sm">{titulo}</h4>
+              <p className="text-[12px] text-surface/80 font-medium">{subtitulo}</p>
+            </div>
           </div>
-          <span className="font-label-bold text-label-bold px-2 py-0.5 rounded-full bg-white/40 dark:bg-black/20 text-xs">
-            {pontos} pts
+          <span className="font-headline-md text-headline-sm px-3 py-1 rounded-full bg-white/20 text-surface shadow-sm backdrop-blur-sm">
+            {pontos}
           </span>
         </div>
-        <p className="text-[12px] opacity-80 mb-4">{subtitulo}</p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2 mt-4">
         {vencedores && vencedores.length > 0 ? (
           vencedores.map(v => (
-            <div key={v.id} className="flex items-center justify-between bg-white/50 dark:bg-black/10 rounded-lg p-2.5">
+            <div key={v.id} className="flex items-center justify-between bg-white/40 dark:bg-black/20 rounded-2xl p-2.5 backdrop-blur-sm shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-[11px] font-bold overflow-hidden shrink-0 border border-outline-variant/30">
+                <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-[14px] font-bold overflow-hidden shrink-0 border-2 border-surface shadow-sm">
                   {v.foto_url ? (
                     <img src={getFotoUrl(v.foto_url)} alt={v.nome} className="w-full h-full object-cover" />
                   ) : (
                     v.nome.charAt(0)
                   )}
                 </div>
-                <span className="font-body-md text-body-md font-bold text-on-surface">{v.nome}</span>
+                <span className="font-headline-md text-body-lg font-bold text-surface drop-shadow-sm">{v.nome}</span>
               </div>
-              <span className="font-label-bold text-label-bold text-xs bg-white/80 dark:bg-black/20 px-2 py-1 rounded">
+              <span className="font-label-bold text-label-bold text-xs bg-white/50 dark:bg-black/40 text-surface px-2 py-1 rounded-lg shadow-sm">
                 {v.votos} {v.votos === 1 ? 'voto' : 'votos'}
               </span>
             </div>
           ))
         ) : (
-          <div className="text-center py-3 text-body-sm opacity-60">Nenhum voto registrado.</div>
+          <div className="text-center py-4 bg-white/20 rounded-2xl backdrop-blur-sm text-surface/80 text-sm font-medium">Nenhum voto registrado.</div>
         )}
       </div>
     </div>
@@ -231,8 +237,8 @@ export function RankingPage() {
                 {/* 1º Lugar */}
                 {top3[0] && (
                   <div className="flex flex-col items-center w-1/3 relative z-20 transform -translate-y-4 transition-transform duration-300 hover:scale-105 hover:-translate-y-6">
-                    <div className="absolute -top-6 text-[#FFD700]">
-                      <span className="material-symbols-outlined text-3xl" style={{fontVariationSettings: "'FILL' 1"}} aria-hidden="true">workspace_premium</span>
+                    <div className="absolute -top-8">
+                      <img src="/assets/trophy_3d.png" alt="Troféu" className="w-12 h-12 object-contain drop-shadow-lg" />
                     </div>
                     <div className="w-20 h-20 rounded-full border-4 border-[#FFD700] shadow-lg overflow-hidden bg-surface-container mb-2 relative flex items-center justify-center font-bold text-surface-dim">
                       {top3[0].foto_url ? (
@@ -397,9 +403,10 @@ export function RankingPage() {
                 <PremioCard 
                   titulo="Bola Cheia"
                   icone="emoji_events"
+                  imgSrc="/assets/golden_ball_3d.png"
                   subtitulo="O craque da rodada"
                   pontos="+3"
-                  estilo="from-[#FFFBEB] to-[#FEF3C7] dark:from-amber-950/20 dark:to-amber-900/10 border-amber-200/50 text-[#D97706] dark:text-amber-400"
+                  estilo="from-[#FCD34D] to-[#F59E0B] border-amber-300 text-white"
                   vencedores={ultimoResultado.vencedores?.BOLA_CHEIA}
                 />
 
@@ -407,9 +414,10 @@ export function RankingPage() {
                 <PremioCard 
                   titulo="Gol + Bonito"
                   icone="sports_soccer"
+                  imgSrc="/assets/top_corner_goal_3d.png"
                   subtitulo="A pintura do dia"
                   pontos="+2"
-                  estilo="from-[#F0FDF4] to-[#DCFCE7] dark:from-emerald-950/20 dark:to-emerald-900/10 border-emerald-200/50 text-[#059669] dark:text-emerald-400"
+                  estilo="from-[#6EE7B7] to-[#10B981] border-emerald-300 text-white"
                   vencedores={ultimoResultado.vencedores?.GOL_BONITO}
                 />
 
@@ -417,9 +425,10 @@ export function RankingPage() {
                 <PremioCard 
                   titulo="Bola Murcha"
                   icone="thumb_down"
+                  imgSrc="/assets/deflated_ball_3d.png"
                   subtitulo="Deixou a desejar"
                   pontos="-1"
-                  estilo="from-[#FEF2F2] to-[#FEE2E2] dark:from-rose-950/20 dark:to-rose-900/10 border-rose-200/50 text-[#DC2626] dark:text-rose-400"
+                  estilo="from-[#FDA4AF] to-[#F43F5E] border-rose-300 text-white"
                   vencedores={ultimoResultado.vencedores?.BOLA_MURCHA}
                 />
 
@@ -427,9 +436,10 @@ export function RankingPage() {
                 <PremioCard 
                   titulo="O Lafon"
                   icone="sentiment_very_dissatisfied"
+                  imgSrc="/assets/cry_face_3d.png"
                   subtitulo="O chorão da rodada"
                   pontos="-1"
-                  estilo="from-[#FDF2F8] to-[#FCE7F3] dark:from-pink-950/20 dark:to-pink-900/10 border-pink-200/50 text-[#DB2777] dark:text-pink-400"
+                  estilo="from-[#F9A8D4] to-[#EC4899] border-pink-300 text-white"
                   vencedores={ultimoResultado.vencedores?.LAFON}
                 />
               </div>

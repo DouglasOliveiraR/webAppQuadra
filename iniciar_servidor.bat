@@ -6,7 +6,7 @@ echo ========================================
 echo.
 
 echo 🐍 [Backend] Iniciando o servidor FastAPI...
-start "Backend (API)" cmd /k "cd /d e:\APP_FUT_V2\backend && .venv\Scripts\activate && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+start "Backend (API)" cmd /k "cd /d e:\APP_FUT_V2\backend && .venv\Scripts\activate && set PYTHONPATH=e:\APP_FUT_V2\backend\app && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
 
 echo ⚛️ [Frontend] Iniciando o servidor Vite...
 start "Frontend (App)" cmd /k "cd /d e:\APP_FUT_V2\frontend && npm run dev"

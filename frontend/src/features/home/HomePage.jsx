@@ -94,23 +94,32 @@ export function HomePage() {
   return (
     <div className="grid grid-cols-4 md:grid-cols-12 gap-gutter w-full">
       {/* Welcome & Summary Bento Grid */}
-      <section className="col-span-4 md:col-span-12 mb-6">
-        <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-4">E aí, {nomeExibicao.split(' ')[0]}! ⚽</h2>
-        <div className="grid grid-cols-3 gap-2 md:gap-4">
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-3 shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-200 flex flex-col items-center justify-center gap-1">
-            <span className="material-symbols-outlined text-primary icon-fill text-[24px]">emoji_events</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Pontos</span>
-            <span className="font-headline-md text-headline-md text-on-surface font-bold">{meusDados?.pontos_ranking || 0}</span>
+      <section className="mb-8 col-span-4 md:col-span-12">
+        <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-4 flex items-center">
+          E aí, {nomeExibicao.split(' ')[0]}! 
+          <img src="/assets/golden_ball_3d.png" className="w-8 h-8 inline-block ml-2 drop-shadow-sm" alt="bola" />
+        </h2>
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
+          <div className="bento-card bg-surface flex flex-col items-center justify-center gap-2 p-4 text-center">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-1">
+              <span className="material-symbols-outlined icon-fill">emoji_events</span>
+            </div>
+            <span className="font-body-sm text-[11px] text-on-surface-variant uppercase tracking-wider font-bold">Pontos</span>
+            <span className="font-display-lg text-title-lg text-on-surface font-extrabold">{meusDados?.pontos_ranking || 0}</span>
           </div>
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-3 shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-200 flex flex-col items-center justify-center gap-1">
-            <span className="material-symbols-outlined text-secondary-container icon-fill text-[24px]">star</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Galera</span>
-            <span className="font-headline-md text-headline-md text-on-surface font-bold">{meusDados?.nota_galera_media ? meusDados.nota_galera_media.toFixed(1) : '-'}</span>
+          <div className="bento-card bg-surface flex flex-col items-center justify-center gap-2 p-4 text-center">
+            <div className="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary-container mb-1">
+              <span className="material-symbols-outlined icon-fill">star</span>
+            </div>
+            <span className="font-body-sm text-[11px] text-on-surface-variant uppercase tracking-wider font-bold">Galera</span>
+            <span className="font-display-lg text-title-lg text-on-surface font-extrabold">{meusDados?.nota_galera_media ? meusDados.nota_galera_media.toFixed(1) : '-'}</span>
           </div>
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-3 shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-200 flex flex-col items-center justify-center gap-1">
-            <span className="material-symbols-outlined text-tertiary icon-fill text-[24px]">shield</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Admin</span>
-            <span className="font-headline-md text-headline-md text-on-surface font-bold">{meusDados?.nota_admin ? meusDados.nota_admin.toFixed(1) : '-'}</span>
+          <div className="bento-card bg-surface flex flex-col items-center justify-center gap-2 p-4 text-center">
+            <div className="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary mb-1">
+              <span className="material-symbols-outlined icon-fill">shield</span>
+            </div>
+            <span className="font-body-sm text-[11px] text-on-surface-variant uppercase tracking-wider font-bold">Admin</span>
+            <span className="font-display-lg text-title-lg text-on-surface font-extrabold">{meusDados?.nota_admin ? meusDados.nota_admin.toFixed(1) : '-'}</span>
           </div>
         </div>
       </section>
@@ -123,10 +132,10 @@ export function HomePage() {
 
       {/* Next Match Card */}
       <section className="col-span-4 md:col-span-8 mb-6">
-        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 md:p-6 shadow-ambient-1 relative overflow-hidden">
+        <div className="bento-card p-6 relative overflow-hidden bg-surface border border-outline/10">
           {!nenhumEventoAtivo && (
-            <div className="absolute top-0 right-0 bg-primary-container text-on-primary-container px-3 py-1 rounded-bl-xl font-label-bold text-label-bold flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            <div className="absolute top-0 right-0 bg-primary/10 text-primary px-4 py-1.5 rounded-bl-3xl font-label-bold text-label-bold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(52,199,89,0.8)]"></span>
               {evento.status_evento === 'AGENDADO' ? 'Agendado' :
                evento.status_evento === 'PRESENCA_ABERTA' ? 'Lista Aberta' :
                evento.status_evento === 'VOTACAO_ABERTA' ? 'Votação Aberta' :
@@ -135,22 +144,22 @@ export function HomePage() {
                evento.status_evento}
             </div>
           )}
-          <h3 className="font-headline-md text-headline-md mb-2 mt-4 md:mt-0">Próxima Pelada</h3>
+          <h3 className="font-headline-md text-title-lg font-bold mb-4 mt-2">Próxima Pelada</h3>
           
           {!nenhumEventoAtivo ? (
             <>
-              <div className="flex flex-col gap-2 mb-6">
-                <div className="flex items-center gap-2 text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[20px]">calendar_today</span>
-                  <span className="font-body-md text-body-md">{formatarData(evento.data_jogo, evento.hora_inicio)}</span>
+              <div className="flex flex-col gap-3 mb-6">
+                <div className="flex items-center gap-3 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[20px] text-primary">calendar_today</span>
+                  <span className="font-body-lg font-semibold">{formatarData(evento.data_jogo, evento.hora_inicio)}</span>
                 </div>
-                <div className="flex items-center justify-between gap-2 text-on-surface-variant">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[20px]">stadium</span>
+                <div className="flex items-center justify-between gap-3 text-on-surface-variant">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[20px] text-primary">stadium</span>
                     <div className="flex flex-col">
-                      <span className="font-body-md text-body-md text-on-surface">Arena Oficial</span>
+                      <span className="font-body-lg font-semibold text-on-surface">Arena Oficial</span>
                       {evento.endereco && (
-                        <span className="font-body-sm text-body-sm truncate max-w-[150px] md:max-w-full text-tertiary" title={evento.endereco}>
+                        <span className="font-body-sm text-[12px] truncate max-w-[150px] md:max-w-[200px]" title={evento.endereco}>
                           {evento.endereco}
                         </span>
                       )}
@@ -161,7 +170,7 @@ export function HomePage() {
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evento.endereco)}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-primary hover:text-primary/80 font-label-bold text-[12px] bg-primary/10 px-3 py-2 rounded-lg transition-colors"
+                      className="flex items-center gap-1 text-primary font-label-bold text-[13px] bg-primary/10 px-4 py-2.5 rounded-xl hover:bg-primary/20 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[16px]">location_on</span>
                       GPS
@@ -172,7 +181,7 @@ export function HomePage() {
 
               {evento.status_evento === 'PRESENCA_ABERTA' && (
                 <div className="flex flex-col gap-3">
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button 
                       onClick={() => {
                         if (statusPresenca === 'VOU') {
@@ -183,13 +192,13 @@ export function HomePage() {
                         }
                       }}
                       disabled={actionLoading}
-                      className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
+                      className={`flex-1 font-label-bold text-[13px] py-3 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm ${
                         statusPresenca === 'VOU' 
-                        ? 'bg-primary text-on-primary shadow-md' 
-                        : 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80'
+                        ? 'bg-primary text-on-primary font-bold shadow-bento' 
+                        : 'bg-surface-variant/50 text-on-surface-variant hover:bg-surface-variant'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
                       Vou
                     </button>
 
@@ -199,13 +208,13 @@ export function HomePage() {
                         setShowPositionSelection(false);
                       }}
                       disabled={actionLoading}
-                      className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
+                      className={`flex-1 font-label-bold text-[13px] py-3 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm ${
                         statusPresenca === 'PENDENTE'
-                        ? 'bg-tertiary text-on-tertiary shadow-md'
-                        : 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80'
+                        ? 'bg-[#FF9500] text-white font-bold shadow-bento'
+                        : 'bg-surface-variant/50 text-on-surface-variant hover:bg-surface-variant'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[20px]">help</span>
+                      <span className="material-symbols-outlined text-[18px]">help</span>
                       Pendente
                     </button>
 
@@ -215,34 +224,34 @@ export function HomePage() {
                         setShowPositionSelection(false);
                       }}
                       disabled={actionLoading}
-                      className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${
+                      className={`flex-1 font-label-bold text-[13px] py-3 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm ${
                         statusPresenca === 'NAO_VOU'
-                        ? 'bg-error text-on-error shadow-md'
-                        : 'bg-surface-variant text-on-surface-variant hover:bg-surface-variant/80'
+                        ? 'bg-error text-white font-bold shadow-bento'
+                        : 'bg-surface-variant/50 text-on-surface-variant hover:bg-surface-variant'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[20px]">cancel</span>
+                      <span className="material-symbols-outlined text-[18px]">cancel</span>
                       Não Vou
                     </button>
                   </div>
 
                   {/* Seleção de Posição Expansível */}
                   {showPositionSelection && statusPresenca === 'VOU' && (
-                    <div className="flex flex-col gap-2 mt-2 bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
-                      <span className="font-label-bold text-label-bold text-on-surface-variant uppercase text-center mb-1">Qual posição?</span>
-                      <div className="flex gap-2">
+                    <div className="flex flex-col gap-3 mt-1 bg-surface-variant/20 p-4 rounded-2xl border border-outline/10">
+                      <span className="font-label-bold text-[11px] text-on-surface-variant uppercase text-center font-bold tracking-wider">Qual posição?</span>
+                      <div className="flex gap-3">
                         <button 
                           onClick={() => handlePresenca('VOU', 'LINHA')}
-                          className={`flex-1 font-body-md text-body-md py-2 rounded-md transition-colors ${
-                            minhaPosicao === 'LINHA' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-lowest text-on-surface border border-outline-variant hover:border-primary hover:text-primary'
+                          className={`flex-1 font-body-md font-bold py-2.5 rounded-xl transition-colors shadow-sm ${
+                            minhaPosicao === 'LINHA' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-surface text-on-surface-variant border border-outline/10 hover:border-primary/50'
                           }`}
                         >
                           Linha
                         </button>
                         <button 
                           onClick={() => handlePresenca('VOU', 'GOL')}
-                          className={`flex-1 font-body-md text-body-md py-2 rounded-md transition-colors ${
-                            minhaPosicao === 'GOL' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-lowest text-on-surface border border-outline-variant hover:border-primary hover:text-primary'
+                          className={`flex-1 font-body-md font-bold py-2.5 rounded-xl transition-colors shadow-sm ${
+                            minhaPosicao === 'GOL' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-surface text-on-surface-variant border border-outline/10 hover:border-primary/50'
                           }`}
                         >
                           Goleiro
@@ -254,7 +263,7 @@ export function HomePage() {
               )}
             </>
           ) : (
-            <div className="py-6 text-center text-on-surface-variant">
+            <div className="py-8 text-center text-on-surface-variant">
               Nenhuma pelada agendada.
             </div>
           )}
@@ -267,33 +276,38 @@ export function HomePage() {
         {/* Barbecue Card */}
         {!nenhumEventoAtivo && evento?.flag_churrasco && (
           <section>
-            <div className="rounded-xl p-4 md:p-6 shadow-ambient-1 relative overflow-hidden bg-gradient-to-br from-secondary-container to-barbecue-fire text-on-primary" style={{boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)"}}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined icon-fill">local_fire_department</span>
-                <h3 className="font-headline-md text-headline-md" style={{textShadow: "0 1px 2px rgba(0,0,0,0.2)"}}>Churrasco Pós-Jogo</h3>
+            <div className="bento-card p-6 relative overflow-hidden bg-gradient-to-br from-[#FF9500] to-[#FF3B30] text-white">
+              <div className="absolute -right-6 -top-6 opacity-30 pointer-events-none">
+                <img src="/assets/barbecue_3d.png" alt="Churrasco" className="w-40 h-40 object-contain drop-shadow-lg filter blur-[2px]" />
               </div>
-              <p className="font-display-lg text-display-lg font-bold mb-4" style={{textShadow: "0 2px 4px rgba(0,0,0,0.2)"}}>
-                R$ {Math.floor(evento.valor_churrasco)}<span className="text-[24px]">,{(evento.valor_churrasco % 1).toFixed(2).substring(2)}</span>
-              </p>
-              <div className="flex gap-2">
-                <button 
-                  onClick={handleToggleChurrasco}
-                  disabled={actionLoading}
-                  className={`flex-1 font-label-bold text-label-bold py-2 rounded-lg transition-all shadow-sm ${
-                    vaiChurrasco ? 'bg-white text-secondary' : 'bg-transparent border border-white text-white hover:bg-white/10'
-                  }`}
-                >
-                  {vaiChurrasco ? 'Tô dentro ✅' : 'Participar'}
-                </button>
-                {vaiChurrasco && (
-                   <button 
-                     onClick={handleToggleChurrasco}
-                     disabled={actionLoading}
-                     className="flex-1 bg-transparent border border-white text-white font-label-bold text-label-bold py-2 rounded-lg hover:bg-white/10 transition-all"
-                   >
-                     Passo
-                   </button>
-                )}
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-2">
+                  <img src="/assets/barbecue_3d.png" alt="Churrasco" className="w-10 h-10 object-contain drop-shadow-md" />
+                  <h3 className="font-headline-md text-title-lg font-bold drop-shadow-sm">Churrasco</h3>
+                </div>
+                <p className="font-display-lg text-[40px] font-extrabold mb-5 tracking-tight drop-shadow-sm">
+                  R$ {Math.floor(evento.valor_churrasco)}<span className="text-[20px]">,{(evento.valor_churrasco % 1).toFixed(2).substring(2)}</span>
+                </p>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={handleToggleChurrasco}
+                    disabled={actionLoading}
+                    className={`flex-1 font-label-bold text-label-bold py-3 rounded-2xl transition-all shadow-sm ${
+                      vaiChurrasco ? 'bg-white text-[#FF3B30] font-bold' : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+                    }`}
+                  >
+                    {vaiChurrasco ? 'Tô dentro ✅' : 'Participar'}
+                  </button>
+                  {vaiChurrasco && (
+                     <button 
+                       onClick={handleToggleChurrasco}
+                       disabled={actionLoading}
+                       className="px-5 bg-black/20 text-white font-label-bold text-label-bold py-3 rounded-2xl hover:bg-black/30 backdrop-blur-sm transition-all"
+                     >
+                       Sair
+                     </button>
+                  )}
+                </div>
               </div>
             </div>
           </section>
@@ -332,17 +346,17 @@ export function HomePage() {
       {/* Lista Completa de Confirmados */}
       {!nenhumEventoAtivo && presencasConfirmadas.length > 0 && (
         <section className="col-span-4 md:col-span-12 mt-2 mb-8">
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 md:p-6 shadow-ambient-1">
-            <div className="flex items-center gap-2 mb-4 border-b border-outline-variant/20 pb-3">
-              <span className="material-symbols-outlined text-primary text-[24px]">group</span>
-              <h3 className="font-headline-md text-headline-md text-on-surface">Quem já confirmou ({presencasConfirmadas.length})</h3>
+          <div className="bento-card p-6 border border-outline/10 bg-surface">
+            <div className="flex items-center gap-3 mb-5 pb-4 border-b border-outline/10">
+              <span className="material-symbols-outlined text-primary text-[28px] icon-fill">group</span>
+              <h3 className="font-headline-md text-title-lg text-on-surface font-bold">Quem já confirmou <span className="text-primary">({presencasConfirmadas.length})</span></h3>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {presencasConfirmadas.map(jogador => (
-                <div key={jogador.usuario_id} className="flex items-center justify-between p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant/20">
+                <div key={jogador.usuario_id} className="bento-card bg-surface-variant/30 p-3 flex items-center justify-between border border-outline/10 hover:border-primary/30 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold shrink-0 overflow-hidden shadow-sm">
+                    <div className="w-12 h-12 rounded-full bg-surface shadow-sm flex items-center justify-center text-on-surface-variant font-bold shrink-0 overflow-hidden border-2 border-surface">
                       {jogador.usuario_foto_url ? (
                         <img src={getFotoUrl(jogador.usuario_foto_url)} alt={jogador.usuario_nome} className="w-full h-full object-cover" />
                       ) : (
@@ -350,13 +364,13 @@ export function HomePage() {
                       )}
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-label-lg text-label-lg font-bold text-on-surface truncate max-w-[120px]" title={jogador.usuario_nome}>{jogador.usuario_nome}</span>
-                      <span className="font-body-sm text-body-sm text-tertiary">{jogador.posicao === 'GOL' ? 'Goleiro' : 'Linha'}</span>
+                      <span className="font-headline-md text-body-lg font-bold text-on-surface truncate max-w-[130px]" title={jogador.usuario_nome}>{jogador.usuario_nome}</span>
+                      <span className="font-label-bold text-[11px] text-primary uppercase tracking-wider">{jogador.posicao === 'GOL' ? 'Goleiro' : 'Linha'}</span>
                     </div>
                   </div>
                   {jogador.vai_churrasco && (
-                    <div className="bg-secondary-container/20 text-secondary-container px-2 py-1 rounded-full flex items-center justify-center" title="Confirmado no Churrasco">
-                      <span className="material-symbols-outlined text-[16px]">local_fire_department</span>
+                    <div className="w-8 h-8 rounded-full bg-[#FF9500]/20 flex items-center justify-center text-[#FF9500]" title="Confirmado no Churrasco">
+                      <span className="material-symbols-outlined text-[18px] icon-fill">local_fire_department</span>
                     </div>
                   )}
                 </div>

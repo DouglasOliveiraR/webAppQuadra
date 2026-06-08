@@ -9,7 +9,6 @@ from domain.eventos.enums import StatusEvento
 from core.exceptions import RegraDeNegocioError
 from core.security import get_password_hash
 from datetime import datetime
-import secrets
 import logging
 
 class CriarUsuarioUseCase:

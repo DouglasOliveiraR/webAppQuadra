@@ -35,9 +35,7 @@ class UsuarioRepository(ABC):
     async def deletar(self, usuario_id: int) -> bool:
         pass
 
-    @abstractmethod
-    async def deletar_lote(self, usuario_ids: List[int]) -> bool:
-        pass
+
 
     @abstractmethod
     async def deletar_por_perfil(self, perfil: 'PerfilUsuario') -> bool:

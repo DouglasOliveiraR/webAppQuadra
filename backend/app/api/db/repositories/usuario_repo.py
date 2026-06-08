@@ -217,12 +217,6 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             return True
         return False
 
-    async def deletar_lote(self, usuario_ids: List[int]) -> bool:
-        if not usuario_ids:
-            return False
-        result = self.session.query(UsuarioModel).filter(UsuarioModel.id.in_(usuario_ids)).delete(synchronize_session=False)
-        self.session.commit()
-        return result > 0
 
     async def deletar_por_perfil(self, perfil: 'PerfilUsuario') -> bool:
         result = self.session.query(UsuarioModel).filter(UsuarioModel.perfil == perfil).delete(synchronize_session=False)

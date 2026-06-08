@@ -83,7 +83,14 @@ class ViradaMesUseCase:
                 novas_mensalidades.append(nova_mensalidade)
                 
         # 4. Salvar todas as novas mensalidades em lote
+        # ⚡ Bolt: Salvar em batches de 50 registros.
+        # Impacto: Previne que a transação no banco (e a sessão SQLAlchemy) fique presa por
+        # muito tempo e estoure a memória em grupos com centenas de jogadores, particionando
+        # a persistência em blocos menores.
         if novas_mensalidades:
-            await self.financeiro_repo.salvar_lote(novas_mensalidades)
+            batch_size = 50
+            for i in range(0, len(novas_mensalidades), batch_size):
+                batch = novas_mensalidades[i:i + batch_size]
+                await self.financeiro_repo.salvar_lote(batch)
             
         return len(novas_mensalidades)

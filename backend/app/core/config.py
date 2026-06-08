@@ -28,8 +28,8 @@ class Settings(BaseSettings):
         if self.VAPID_PRIVATE_KEY and (self.VAPID_PRIVATE_KEY == "your_vapid_private_key_here" or len(self.VAPID_PRIVATE_KEY) < 40):
             raise ValueError("CRÍTICO: VAPID_PRIVATE_KEY inválida ou insegura.")
     ALGORITHM: str = "HS256"
-    # Revertido para 30 dias para não prejudicar a usabilidade do MVP semanal (sem refresh token).
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30 # 30 days
+    # [Security Fix] Reduzido para 24h para mitigar riscos de roubo de token.
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 horas
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     
     # Push Notifications

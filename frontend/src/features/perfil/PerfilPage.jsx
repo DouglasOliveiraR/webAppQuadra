@@ -234,9 +234,10 @@ export function PerfilPage() {
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadingFoto}
-            className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-md border-2 border-surface hover:bg-primary/90 transition-colors disabled:opacity-50"
+            aria-label="Alterar foto de perfil"
+            className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-md border-2 border-surface hover:bg-primary/90 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">photo_camera</span>
           </button>
           <input 
             type="file" 

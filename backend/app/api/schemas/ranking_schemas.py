@@ -13,6 +13,7 @@ class RankingResponse(BaseModel):
     nota_galera_media: float
     foto_url: Optional[str] = None
     premios: List[PremioCount] = []
+    gols_total: int = 0
 
     class Config:
         from_attributes = True

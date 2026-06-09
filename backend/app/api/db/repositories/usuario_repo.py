@@ -8,7 +8,7 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def _obter_usuarios_com_notas(self):
+    def _obter_usuarios_com_notas(self, limit: int = 50):
         from api.db.models import NotaModel, TipoNota
         from domain.usuarios.enums import StatusUsuario
         from sqlalchemy import func
@@ -25,7 +25,10 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             subq_notas, UsuarioModel.id == subq_notas.c.uid
         ).filter(
             UsuarioModel.status == StatusUsuario.ATIVO
-        ).all()
+        ).order_by(
+            UsuarioModel.pontos_ranking.desc(),
+            subq_notas.c.media.desc()
+        ).limit(limit).all()
 
     def _obter_premios_agrupados(self, usuarios_ids: List[int]):
         from api.db.models import PremioModel
@@ -54,11 +57,11 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             PresencaModel.usuario_id
         ).all()
 
-    async def obter_ranking_agrupado(self) -> List[UsuarioRanking]:
+    async def obter_ranking_agrupado(self, limit: int = 50) -> List[UsuarioRanking]:
         from collections import defaultdict
 
         # 1. Fetch the aggregated data directly using SQLAlchemy
-        usuarios_com_notas = self._obter_usuarios_com_notas()
+        usuarios_com_notas = self._obter_usuarios_com_notas(limit)
 
         if not usuarios_com_notas:
             return []
@@ -99,7 +102,6 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
             )
             resultado.append(ranking_obj)
 
-        resultado.sort(key=lambda u: (u.pontos_ranking, u.nota_galera_media), reverse=True)
         return resultado
 
     def _to_entity(self, model: UsuarioModel) -> Usuario:

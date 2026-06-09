@@ -172,9 +172,9 @@ export function FinanceiroPage() {
           {!isPago && (
             <button 
               onClick={handleCopiarPix}
-              className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all"
+              className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <span className="material-symbols-outlined text-[20px]">content_copy</span>
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">content_copy</span>
               Copiar Chave Pix do Admin
             </button>
           )}

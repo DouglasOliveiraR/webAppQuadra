@@ -58,6 +58,16 @@ from fastapi import Request
 
 logger = logging.getLogger(__name__)
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    # [Security Fix] Camada de defesa adicionada para mitigar ataques de injecao e clickjacking
+    return response
+
 # Handler global para Exceptions não tratadas (Prevenção de vazamento de stack traces HTTP 500)
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

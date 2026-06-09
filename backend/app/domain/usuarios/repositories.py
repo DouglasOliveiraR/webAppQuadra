@@ -4,7 +4,7 @@ from domain.usuarios.entities import Usuario, UsuarioRanking
 
 class UsuarioRepository(ABC):
     @abstractmethod
-    async def obter_ranking_agrupado(self) -> List[UsuarioRanking]:
+    async def obter_ranking_agrupado(self, limit: int = 50) -> List[UsuarioRanking]:
         pass
 
     @abstractmethod

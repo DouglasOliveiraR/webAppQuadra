@@ -8,6 +8,6 @@ class ListarRankingUseCase:
         self.usuario_repo = usuario_repo
         self.premio_repo = premio_repo
 
-    async def executar(self) -> List[Dict]:
-        ranking = await self.usuario_repo.obter_ranking_agrupado()
+    async def executar(self, limit: int = 50) -> List[Dict]:
+        ranking = await self.usuario_repo.obter_ranking_agrupado(limit)
         return [dataclasses.asdict(u) for u in ranking]

@@ -50,16 +50,20 @@ async def get_current_user(
         usuario_id: str = payload.get("sub")
         token_sid: str = payload.get("sid")
         if usuario_id is None:
+            logger.warning("Falha de autenticação: Token JWT sem 'sub' (usuario_id)")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         # Rejeita tokens emitidos em sessões anteriores do servidor
         if token_sid != SERVER_SESSION_ID:
+            logger.warning(f"Falha de autenticação: Sessão expirada para usuario_id={usuario_id}")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sessão expirada. Faça login novamente.")
-    except jwt.PyJWTError:
+    except jwt.PyJWTError as e:
+        logger.warning(f"Falha de autenticação: Erro na decodificação do JWT: {e}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         
     repo = SQLAlchemyUsuarioRepository(db)
     usuario = await repo.buscar_por_id(int(usuario_id))
     if usuario is None:
+        logger.warning(f"Falha de autenticação: Usuário não encontrado no banco de dados (ID: {usuario_id})")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
     return usuario
 

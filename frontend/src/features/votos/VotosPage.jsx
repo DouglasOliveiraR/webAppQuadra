@@ -140,7 +140,7 @@ export function VotosPage() {
             return (
               <div 
                 key={cat.id} 
-                onClick={() => !hasVoted && setActiveCategory(cat.id)}
+                onClick={() => setActiveCategory(cat.id)}
                 className={`bento-card p-4 relative transition-transform ${
                   hasVoted 
                     ? 'border-2 border-primary shadow-[0_0_20px_rgba(52,199,89,0.15)] bg-primary-container/20' 

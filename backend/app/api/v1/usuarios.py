@@ -117,6 +117,14 @@ async def upload_foto_perfil(
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in [".png", ".jpg", ".jpeg", ".webp"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Apenas imagens (.png, .jpg, .jpeg, .webp) são permitidas.")
+
+    # [Security Fix] Validação de tamanho máximo do arquivo (ex: 5MB) para evitar DoS
+    MAX_FILE_SIZE = 5 * 1024 * 1024
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    await file.seek(0)
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Tamanho do arquivo excede o limite de 5MB.")
     
     # Validação do conteúdo do arquivo (Magic Numbers)
     header = await file.read(12)

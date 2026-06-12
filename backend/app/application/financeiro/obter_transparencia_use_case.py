@@ -13,7 +13,7 @@ class ObterTransparenciaUseCase:
             r for r in todos 
             if r.mes_referencia == mes 
             and r.status_pagamento == StatusPagamento.PAGO
-            and r.tipo != 'CHURRASCO'
+            and not r.tipo.startswith('CHURRASCO')
         ]
         
         arrecadado = sum(r.valor for r in do_mes)
@@ -27,10 +27,19 @@ class ObterTransparenciaUseCase:
                 ultimo = eventos_ordenados[0]
                 custo_quadra = ultimo.custo_quadra or 0.0
                 
+        do_mes_churrasco = [
+            r for r in todos 
+            if r.mes_referencia == mes 
+            and r.status_pagamento == StatusPagamento.PAGO
+            and r.tipo.startswith('CHURRASCO')
+        ]
+        arrecadado_churrasco = sum(r.valor for r in do_mes_churrasco)
+        
         saldo = arrecadado - custo_quadra
         return {
             "arrecadado": arrecadado,
             "custo_quadra": custo_quadra,
             "saldo": saldo,
-            "mes_referencia": mes
+            "mes_referencia": mes,
+            "arrecadado_churrasco": arrecadado_churrasco
         }

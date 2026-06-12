@@ -64,12 +64,13 @@ export function FinanceiroPage() {
     ? mensalidade.valor 
     : (eventoDoMes?.valor_mensalidade !== undefined && eventoDoMes?.valor_mensalidade !== null ? eventoDoMes.valor_mensalidade : 60.00);
 
-  const transacaoChurrasco = transacoes?.find(t => t.tipo === 'CHURRASCO' && t.mes_referencia === selectedMonth);
+  const transacaoChurrasco = transacoes?.find(t => t.tipo.startsWith('CHURRASCO') && t.mes_referencia === selectedMonth);
   const temChurrasco = !!transacaoChurrasco || eventoDoMes?.flag_churrasco;
   const isChurrascoPago = transacaoChurrasco ? transacaoChurrasco.status_pagamento === 'PAGO' : false;
   const valorChurrasco = transacaoChurrasco ? transacaoChurrasco.valor : (eventoDoMes?.valor_churrasco || 0);
 
   const saldo = transparencia ? transparencia.saldo : 0;
+  const arrecadadoChurrasco = transparencia?.arrecadado_churrasco || 0;
 
   const formatarSaldo = (valor) => {
     const absoluto = Math.abs(valor).toFixed(2).replace('.', ',');
@@ -217,6 +218,25 @@ export function FinanceiroPage() {
               Copiar Chave Pix do Admin
             </button>
           )}
+        </section>
+      )}
+
+      {/* Transparência do Churrasco */}
+      {arrecadadoChurrasco > 0 && (
+        <section className="rounded-3xl shadow-bento border border-outline/10 p-6 bg-tertiary text-on-tertiary flex flex-col gap-4 relative overflow-hidden mt-2">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white to-transparent pointer-events-none"></div>
+          
+          <div className="relative z-10 flex items-center gap-2 mb-1">
+            <span className="material-symbols-outlined text-white/90">outdoor_grill</span>
+            <h3 className="font-label-bold text-label-bold uppercase tracking-wider text-white/90">Caixa do Churrasco (Transparência)</h3>
+          </div>
+          
+          <div className="relative z-10">
+            <p className="font-body-sm text-body-sm text-white/80 mb-1">Total arrecadado</p>
+            <p className="font-display-lg text-display-lg font-extrabold text-white">
+              {formatarSaldo(arrecadadoChurrasco).replace('-', '')}
+            </p>
+          </div>
         </section>
       )}
 

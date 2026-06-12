@@ -35,3 +35,4 @@ class TransparenciaResponse(BaseModel):
     custo_quadra: float
     saldo: float
     mes_referencia: str
+    arrecadado_churrasco: float = 0.0

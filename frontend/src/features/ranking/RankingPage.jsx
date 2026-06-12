@@ -4,7 +4,7 @@ import { showToast } from '../../components/ui/Toast';
 
 function PremioCard({ titulo, icone, imgSrc, subtitulo, pontos, estilo, vencedores }) {
   return (
-    <div className={`bento-card bg-gradient-to-br ${estilo} border border-outline/10 p-6 flex flex-col justify-between min-h-[180px]`}>
+    <div className={`bento-card bg-gradient-to-br ${estilo} border border-outline/10 p-6 flex flex-col justify-between min-h-[180px] transition-all duration-300 hover:-translate-y-1 hover:shadow-ambient-2`}>
       <div>
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center gap-3">

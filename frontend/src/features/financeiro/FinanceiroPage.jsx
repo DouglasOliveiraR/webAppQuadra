@@ -65,8 +65,9 @@ export function FinanceiroPage() {
     : (eventoDoMes?.valor_mensalidade !== undefined && eventoDoMes?.valor_mensalidade !== null ? eventoDoMes.valor_mensalidade : 60.00);
 
   const transacaoChurrasco = transacoes?.find(t => t.tipo === 'CHURRASCO' && t.mes_referencia === selectedMonth);
-  const temChurrasco = !!transacaoChurrasco;
-  const isChurrascoPago = temChurrasco ? transacaoChurrasco.status_pagamento === 'PAGO' : false;
+  const temChurrasco = !!transacaoChurrasco || eventoDoMes?.flag_churrasco;
+  const isChurrascoPago = transacaoChurrasco ? transacaoChurrasco.status_pagamento === 'PAGO' : false;
+  const valorChurrasco = transacaoChurrasco ? transacaoChurrasco.valor : (eventoDoMes?.valor_churrasco || 0);
 
   const saldo = transparencia ? transparencia.saldo : 0;
 
@@ -205,7 +206,7 @@ export function FinanceiroPage() {
           </div>
           <div className="flex items-end gap-2 mt-2">
             <span className="font-body-sm text-body-sm text-on-surface-variant">Valor:</span>
-            <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {transacaoChurrasco.valor.toFixed(2).replace('.', ',')}</span>
+            <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {valorChurrasco.toFixed(2).replace('.', ',')}</span>
           </div>
           {!isChurrascoPago && (
             <button 

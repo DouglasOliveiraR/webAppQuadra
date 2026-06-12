@@ -33,8 +33,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     
     # Push Notifications
-    VAPID_PRIVATE_KEY: str = ""
-    VAPID_PUBLIC_KEY: str = ""
+    VAPID_PRIVATE_KEY: str
+    VAPID_PUBLIC_KEY: str
     VAPID_CLAIMS_EMAIL: str = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:admin@futpeladafc.com")
 
     @property

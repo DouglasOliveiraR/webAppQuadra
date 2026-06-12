@@ -64,6 +64,10 @@ export function FinanceiroPage() {
     ? mensalidade.valor 
     : (eventoDoMes?.valor_mensalidade !== undefined && eventoDoMes?.valor_mensalidade !== null ? eventoDoMes.valor_mensalidade : 60.00);
 
+  const transacaoChurrasco = transacoes?.find(t => t.tipo === 'CHURRASCO' && t.mes_referencia === selectedMonth);
+  const temChurrasco = !!transacaoChurrasco;
+  const isChurrascoPago = temChurrasco ? transacaoChurrasco.status_pagamento === 'PAGO' : false;
+
   const saldo = transparencia ? transparencia.saldo : 0;
 
   const formatarSaldo = (valor) => {
@@ -170,6 +174,40 @@ export function FinanceiroPage() {
             <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {valorMensalidade.toFixed(2).replace('.', ',')}</span>
           </div>
           {!isPago && (
+            <button 
+              onClick={handleCopiarPix}
+              className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">content_copy</span>
+              Copiar Chave Pix do Admin
+            </button>
+          )}
+        </section>
+      )}
+
+      {/* Status do Churrasco Card */}
+      {temChurrasco && (
+        <section className="bento-card p-5 bg-surface border border-outline/10 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-ambient-2 hover:-translate-y-[2px] mt-2">
+          {/* Subtle indicator line */}
+          <div className={`absolute top-0 left-0 w-full h-1 ${isChurrascoPago ? 'bg-primary' : 'bg-error'}`}></div>
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="material-symbols-outlined text-on-surface-variant text-[18px]">outdoor_grill</span>
+                <h3 className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Churrasco</h3>
+              </div>
+              <p className="font-body-md text-body-md text-on-surface font-bold">{formatarMesAno(selectedMonth)}</p>
+            </div>
+            <div className={`${isChurrascoPago ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error'} px-3 py-1.5 rounded-full flex items-center gap-1 border ${isChurrascoPago ? 'border-primary/20' : 'border-error/20'}`}>
+              <span className="material-symbols-outlined text-[16px]">{isChurrascoPago ? 'check_circle' : 'warning'}</span>
+              <span className="font-label-bold text-label-bold">{isChurrascoPago ? 'Pago' : 'Pendente'}</span>
+            </div>
+          </div>
+          <div className="flex items-end gap-2 mt-2">
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Valor:</span>
+            <span className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight">R$ {transacaoChurrasco.valor.toFixed(2).replace('.', ',')}</span>
+          </div>
+          {!isChurrascoPago && (
             <button 
               onClick={handleCopiarPix}
               className="mt-2 w-full bg-primary text-on-primary font-body-md text-body-md font-bold py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 duration-100 flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

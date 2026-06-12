@@ -9,7 +9,12 @@ class ObterTransparenciaUseCase:
 
     async def executar(self, mes: str) -> dict:
         todos = await self.financeiro_repo.listar_todos()
-        do_mes = [r for r in todos if r.mes_referencia == mes and r.status_pagamento == StatusPagamento.PAGO]
+        do_mes = [
+            r for r in todos 
+            if r.mes_referencia == mes 
+            and r.status_pagamento == StatusPagamento.PAGO
+            and r.tipo != 'CHURRASCO'
+        ]
         
         arrecadado = sum(r.valor for r in do_mes)
         

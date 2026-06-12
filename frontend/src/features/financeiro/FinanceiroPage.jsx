@@ -223,7 +223,7 @@ export function FinanceiroPage() {
 
       {/* Transparência do Churrasco */}
       {arrecadadoChurrasco > 0 && (
-        <section className="rounded-3xl shadow-bento border border-outline/10 p-6 bg-tertiary text-on-tertiary flex flex-col gap-4 relative overflow-hidden mt-2">
+        <section className="rounded-3xl shadow-bento border border-outline/10 p-6 bg-gradient-to-br from-orange-500 to-red-600 text-white flex flex-col gap-4 relative overflow-hidden mt-2">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white to-transparent pointer-events-none"></div>
           
           <div className="relative z-10 flex items-center gap-2 mb-1">

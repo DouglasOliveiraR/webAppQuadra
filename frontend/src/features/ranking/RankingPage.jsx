@@ -4,14 +4,14 @@ import { showToast } from '../../components/ui/Toast';
 
 function PremioCard({ titulo, icone, imgSrc, subtitulo, pontos, estilo, vencedores }) {
   return (
-    <div className={`bento-card bg-gradient-to-br ${estilo} border border-outline/10 p-6 flex flex-col justify-between min-h-[180px]`}>
+    <div className={`bento-card bg-gradient-to-br ${estilo} border border-outline/10 p-6 flex flex-col justify-between min-h-[180px] transition-all duration-300 hover:shadow-ambient-2 hover:-translate-y-[2px] group`}>
       <div>
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center gap-3">
             {imgSrc ? (
-              <img src={imgSrc} alt={titulo} className="w-12 h-12 object-contain drop-shadow-md" />
+              <img src={imgSrc} alt={titulo} className="w-12 h-12 object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" />
             ) : (
-              <span className="material-symbols-outlined text-[32px] icon-fill text-surface" aria-hidden="true">{icone}</span>
+              <span className="material-symbols-outlined text-[32px] icon-fill text-surface transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" aria-hidden="true">{icone}</span>
             )}
             <div>
               <h4 className="font-headline-md text-title-md font-bold text-surface drop-shadow-sm">{titulo}</h4>

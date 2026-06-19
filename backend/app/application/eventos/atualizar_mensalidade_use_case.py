@@ -20,10 +20,10 @@ class AtualizarMensalidadeUseCase:
         # Propaga a alteração de mensalidade para os registros pendentes do mês de referência
         if valor_mensalidade > 0:
             mes_ref = evento.data_jogo.strftime("%Y-%m")
-            registros = await self.financeiro_repo.listar_todos()
+            registros = await self.financeiro_repo.listar_por_mes(mes_ref)
             registros_para_atualizar = []
             for r in registros:
-                if r.tipo == "MENSALIDADE" and r.mes_referencia == mes_ref and r.status_pagamento == StatusPagamento.PENDENTE:
+                if r.tipo == "MENSALIDADE" and r.status_pagamento == StatusPagamento.PENDENTE:
                     r.valor = valor_mensalidade
                     registros_para_atualizar.append(r)
 

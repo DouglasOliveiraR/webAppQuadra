@@ -1,7 +1,5 @@
-import os
 import base64
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import serialization
 
 def generate_vapid_keys():
     # Generate an Elliptic Curve private key (P-256 is required for Web Push)

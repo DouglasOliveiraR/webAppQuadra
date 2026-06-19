@@ -21,10 +21,10 @@ class CriarEventoUseCase:
         # Propaga a alteração de mensalidade do novo evento para registros pendentes do mês de referência
         if evento_salvo.valor_mensalidade is not None and evento_salvo.valor_mensalidade > 0:
             mes_ref = evento_salvo.data_jogo.strftime("%Y-%m")
-            registros = await self.financeiro_repo.listar_todos()
+            registros = await self.financeiro_repo.listar_por_mes(mes_ref)
             registros_atualizados = []
             for r in registros:
-                if r.tipo == "MENSALIDADE" and r.mes_referencia == mes_ref and r.status_pagamento == StatusPagamento.PENDENTE:
+                if r.tipo == "MENSALIDADE" and r.status_pagamento == StatusPagamento.PENDENTE:
                     r.valor = evento_salvo.valor_mensalidade
                     registros_atualizados.append(r)
             if registros_atualizados:

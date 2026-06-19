@@ -114,6 +114,15 @@ async def upload_foto_perfil(
     current_user: Usuario = Depends(get_current_user),
     use_case: AtualizarFotoPerfilUseCase = Depends(get_atualizar_foto_perfil_use_case)
 ):
+    # [Security Fix] Verifica o tamanho do arquivo para evitar DoS (limite de 5MB)
+    MAX_FILE_SIZE = 5 * 1024 * 1024 # 5MB
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    await file.seek(0)
+
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="O arquivo é muito grande. O limite é 5MB.")
+
     # Validação da extensão do arquivo
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in [".png", ".jpg", ".jpeg", ".webp"]:

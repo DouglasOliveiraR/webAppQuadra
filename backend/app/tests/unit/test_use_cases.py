@@ -201,3 +201,179 @@ async def test_registrar_voto_candidato_avulso_erro():
             candidato_id=2,
             categoria=CategoriaVoto.BOLA_CHEIA
         )
+
+from application.votos.use_cases import EncerrarVotacaoUseCase
+from domain.votos.entities import Voto
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_sucesso():
+    evento_repo = AsyncMock()
+    voto_repo = AsyncMock()
+    usuario_repo = AsyncMock()
+    premio_repo = AsyncMock()
+
+    evento = Evento(
+        id=1,
+        data_jogo=date(2026, 6, 1),
+        hora_inicio=time(19, 0),
+        hora_fim=time(21, 0),
+        status_evento=StatusEvento.VOTACAO_ABERTA,
+        flag_churrasco=False,
+        valor_churrasco=0.0
+    )
+    evento_repo.buscar_por_id.return_value = evento
+
+    votos = [
+        Voto(id=1, evento_id=1, eleitor_id=1, candidato_id=2, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=2, evento_id=1, eleitor_id=3, candidato_id=2, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=3, evento_id=1, eleitor_id=2, candidato_id=3, categoria=CategoriaVoto.BOLA_MURCHA),
+    ]
+    voto_repo.listar_por_evento.return_value = votos
+
+    usuarios = [
+        Usuario(id=2, nome="Cand1", telefone="11999999991", senha_hash="", perfil=PerfilUsuario.MENSALISTA, status=StatusUsuario.ATIVO, nota_admin=8, nota_galera_media=8.0, pontos_ranking=0),
+        Usuario(id=3, nome="Cand2", telefone="11999999992", senha_hash="", perfil=PerfilUsuario.MENSALISTA, status=StatusUsuario.ATIVO, nota_admin=8, nota_galera_media=8.0, pontos_ranking=0)
+    ]
+    usuario_repo.buscar_por_ids.return_value = usuarios
+
+    use_case = EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo, premio_repo)
+    result = await use_case.executar(evento_id=1)
+
+    assert result == {
+        CategoriaVoto.BOLA_CHEIA.value: {2: 2},
+        CategoriaVoto.BOLA_MURCHA.value: {3: 1}
+    }
+
+    assert evento.status_evento == StatusEvento.ENCERRADO
+    evento_repo.salvar.assert_any_call(evento)
+
+    # Should schedule next event
+    assert evento_repo.salvar.call_count == 2
+
+    usuario_repo.salvar_lote.assert_called_once()
+    usuarios_salvos = usuario_repo.salvar_lote.call_args[0][0]
+    assert len(usuarios_salvos) == 2
+    # Bola cheia gets 3 points
+    assert any(u.id == 2 and u.pontos_ranking == 3 for u in usuarios_salvos)
+    # Bola murcha gets -1 points
+    assert any(u.id == 3 and u.pontos_ranking == -1 for u in usuarios_salvos)
+
+    premio_repo.salvar_lote.assert_called_once()
+    premios = premio_repo.salvar_lote.call_args[0][0]
+    assert len(premios) == 2
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_evento_nao_encontrado():
+    evento_repo = AsyncMock()
+    voto_repo = AsyncMock()
+    usuario_repo = AsyncMock()
+    premio_repo = AsyncMock()
+
+    evento_repo.buscar_por_id.return_value = None
+
+    use_case = EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo, premio_repo)
+    with pytest.raises(RegraDeNegocioError, match="Evento não encontrado"):
+        await use_case.executar(evento_id=1)
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_ja_encerrada():
+    evento_repo = AsyncMock()
+    voto_repo = AsyncMock()
+    usuario_repo = AsyncMock()
+    premio_repo = AsyncMock()
+
+    evento = Evento(
+        id=1,
+        data_jogo=date(2026, 6, 1),
+        hora_inicio=time(19, 0),
+        hora_fim=time(21, 0),
+        status_evento=StatusEvento.ENCERRADO,
+        flag_churrasco=False,
+        valor_churrasco=0.0
+    )
+    evento_repo.buscar_por_id.return_value = evento
+
+    use_case = EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo, premio_repo)
+    with pytest.raises(RegraDeNegocioError, match="Votação já foi encerrada"):
+        await use_case.executar(evento_id=1)
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_empate():
+    evento_repo = AsyncMock()
+    voto_repo = AsyncMock()
+    usuario_repo = AsyncMock()
+    premio_repo = AsyncMock()
+
+    evento = Evento(
+        id=1,
+        data_jogo=date(2026, 6, 1),
+        hora_inicio=time(19, 0),
+        hora_fim=time(21, 0),
+        status_evento=StatusEvento.VOTACAO_ABERTA,
+        flag_churrasco=False,
+        valor_churrasco=0.0
+    )
+    evento_repo.buscar_por_id.return_value = evento
+
+    # Empate entre 2 e 3 na Bola Cheia (2 votos cada)
+    votos = [
+        Voto(id=1, evento_id=1, eleitor_id=1, candidato_id=2, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=2, evento_id=1, eleitor_id=4, candidato_id=2, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=3, evento_id=1, eleitor_id=5, candidato_id=3, categoria=CategoriaVoto.BOLA_CHEIA),
+        Voto(id=4, evento_id=1, eleitor_id=6, candidato_id=3, categoria=CategoriaVoto.BOLA_CHEIA),
+    ]
+    voto_repo.listar_por_evento.return_value = votos
+
+    usuarios = [
+        Usuario(id=2, nome="Cand1", telefone="11999999991", senha_hash="", perfil=PerfilUsuario.MENSALISTA, status=StatusUsuario.ATIVO, nota_admin=8, nota_galera_media=8.0, pontos_ranking=0),
+        Usuario(id=3, nome="Cand2", telefone="11999999992", senha_hash="", perfil=PerfilUsuario.MENSALISTA, status=StatusUsuario.ATIVO, nota_admin=8, nota_galera_media=8.0, pontos_ranking=0)
+    ]
+    usuario_repo.buscar_por_ids.return_value = usuarios
+
+    use_case = EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo, premio_repo)
+    result = await use_case.executar(evento_id=1)
+
+    assert result == {
+        CategoriaVoto.BOLA_CHEIA.value: {2: 2, 3: 2}
+    }
+
+    usuario_repo.salvar_lote.assert_called_once()
+    usuarios_salvos = usuario_repo.salvar_lote.call_args[0][0]
+    assert len(usuarios_salvos) == 2
+    # Ambos recebem 3 pontos
+    assert any(u.id == 2 and u.pontos_ranking == 3 for u in usuarios_salvos)
+    assert any(u.id == 3 and u.pontos_ranking == 3 for u in usuarios_salvos)
+
+    premio_repo.salvar_lote.assert_called_once()
+    premios = premio_repo.salvar_lote.call_args[0][0]
+    assert len(premios) == 2
+
+@pytest.mark.asyncio
+async def test_encerrar_votacao_sem_votos():
+    evento_repo = AsyncMock()
+    voto_repo = AsyncMock()
+    usuario_repo = AsyncMock()
+    premio_repo = AsyncMock()
+
+    evento = Evento(
+        id=1,
+        data_jogo=date(2026, 6, 1),
+        hora_inicio=time(19, 0),
+        hora_fim=time(21, 0),
+        status_evento=StatusEvento.VOTACAO_ABERTA,
+        flag_churrasco=False,
+        valor_churrasco=0.0
+    )
+    evento_repo.buscar_por_id.return_value = evento
+    voto_repo.listar_por_evento.return_value = []
+
+    use_case = EncerrarVotacaoUseCase(evento_repo, voto_repo, usuario_repo, premio_repo)
+    result = await use_case.executar(evento_id=1)
+
+    assert result == {}
+
+    assert evento.status_evento == StatusEvento.ENCERRADO
+    evento_repo.salvar.assert_any_call(evento)
+
+    usuario_repo.salvar_lote.assert_not_called()
+    premio_repo.salvar_lote.assert_not_called()

@@ -152,6 +152,9 @@ class SQLAlchemyUsuarioRepository(UsuarioRepository):
         return model
 
     async def buscar_por_id(self, usuario_id: int) -> Optional[Usuario]:
+        return self.buscar_por_id_sync(usuario_id)
+
+    def buscar_por_id_sync(self, usuario_id: int) -> Optional[Usuario]:
         model = self.session.query(UsuarioModel).filter(UsuarioModel.id == usuario_id).first()
         return self._to_entity(model)
 

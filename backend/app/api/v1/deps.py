@@ -41,7 +41,11 @@ from domain.usuarios.entities import Usuario
 
 security = HTTPBearer()
 
-async def get_current_user(
+# ⚡ Bolt: Substituído 'async def' por 'def' e uso de abordagem síncrona.
+# Como o SQLAlchemy faz chamadas I/O síncronas bloqueantes, rodar get_current_user
+# nativamente em um ThreadPool (o que o FastAPI faz para dependências 'def')
+# previne que o Event Loop seja bloqueado em toda requisição autenticada.
+def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> Usuario:
@@ -58,12 +62,12 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         
     repo = SQLAlchemyUsuarioRepository(db)
-    usuario = await repo.buscar_por_id(int(usuario_id))
+    usuario = repo.buscar_por_id_sync(int(usuario_id))
     if usuario is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
     return usuario
 
-async def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
+def get_admin_user(current_user: Usuario = Depends(get_current_user)) -> Usuario:
     if current_user.perfil.value != "ADMIN":
         logger.warning(f"Tentativa de acesso não autorizado por {current_user.telefone} (ID: {current_user.id})")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Privilégios insuficientes")

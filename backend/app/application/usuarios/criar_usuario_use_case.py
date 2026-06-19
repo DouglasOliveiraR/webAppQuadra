@@ -10,6 +10,8 @@ from core.exceptions import RegraDeNegocioError
 from core.security import get_password_hash
 from datetime import datetime
 import logging
+import secrets
+import string
 
 class CriarUsuarioUseCase:
     def __init__(
@@ -39,7 +41,8 @@ class CriarUsuarioUseCase:
                 raise RegraDeNegocioError("Um jogador com este telefone já está cadastrado.")
 
         if not senha:
-            senha = "123456"
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            senha = ''.join(secrets.choice(alphabet) for i in range(16))
 
         senha_hash = get_password_hash(senha)
 

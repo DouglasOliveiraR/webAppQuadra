@@ -1,7 +1,6 @@
 from collections import defaultdict
 from typing import Optional, Dict, Any
 from domain.eventos.repositories import EventoRepository
-from domain.eventos.enums import StatusEvento
 from domain.votos.repositories import VotoRepository
 from domain.usuarios.repositories import UsuarioRepository
 from domain.notas.repositories import NotaRepository

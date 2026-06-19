@@ -78,10 +78,10 @@ export function ElencoTab() {
   };
 
   const handleResetarSenha = async () => {
-    if (!window.confirm("Deseja resetar a senha deste usuário para '123456'?")) return;
+    if (!window.confirm("Deseja resetar a senha deste usuário? Uma nova senha segura será gerada.")) return;
     try {
-      await api.put(`/usuarios/${idEdicao}/admin-edit`, { resetar_senha: true });
-      showToast("Senha resetada com sucesso para 123456!");
+      const response = await api.put(`/usuarios/${idEdicao}/admin-edit`, { resetar_senha: true });
+      showToast(`Senha resetada! Nova senha: ${response.data.nova_senha}`, "success", 10000);
     } catch (err) {
       showToast("Erro ao resetar senha.", "error");
     }
@@ -110,16 +110,24 @@ export function ElencoTab() {
           ...payload,
           status: statusJogador
         });
-        await api.put(`/usuarios/${idEdicao}/admin-edit`, {
+        const adminEditResponse = await api.put(`/usuarios/${idEdicao}/admin-edit`, {
           pontos_ranking: parseInt(pontosRanking) || 0
         });
-        showToast('Jogador atualizado com sucesso!');
+        if (adminEditResponse.data && adminEditResponse.data.nova_senha) {
+          showToast(`Jogador atualizado! Nova senha: ${adminEditResponse.data.nova_senha}`, 'success', 10000);
+        } else {
+          showToast('Jogador atualizado com sucesso!');
+        }
       } else {
         if (senha.trim()) {
           payload.senha = senha;
         }
-        await api.post('/usuarios', payload);
-        showToast('Jogador cadastrado com sucesso!');
+        const response = await api.post('/usuarios', payload);
+        if (response.data.nova_senha) {
+          showToast(`Jogador cadastrado! Nova senha: ${response.data.nova_senha}`, "success", 10000);
+        } else {
+          showToast('Jogador cadastrado com sucesso!');
+        }
       }
       
       setModalOpen(false);
@@ -383,7 +391,7 @@ export function ElencoTab() {
                     className="w-full mt-3 py-3 border-2 border-error text-error rounded-xl font-label-bold text-label-bold hover:bg-error/10 transition-colors flex items-center justify-center gap-2"
                   >
                     <span className="material-symbols-outlined text-[18px]">key</span>
-                    Resetar Senha para 123456
+                    Gerar Nova Senha
                   </button>
                 </div>
               )}

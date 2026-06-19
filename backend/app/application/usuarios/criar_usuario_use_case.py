@@ -10,6 +10,7 @@ from core.exceptions import RegraDeNegocioError
 from core.security import get_password_hash
 from datetime import datetime
 import logging
+import secrets
 
 class CriarUsuarioUseCase:
     def __init__(
@@ -38,8 +39,10 @@ class CriarUsuarioUseCase:
             if existente:
                 raise RegraDeNegocioError("Um jogador com este telefone já está cadastrado.")
 
+        senha_gerada = False
         if not senha:
-            senha = "123456"
+            senha = secrets.token_urlsafe(8)
+            senha_gerada = True
 
         senha_hash = get_password_hash(senha)
 
@@ -56,6 +59,8 @@ class CriarUsuarioUseCase:
         )
 
         usuario_salvo = await self.usuario_repo.salvar(novo_usuario)
+        if senha_gerada:
+            usuario_salvo.nova_senha = senha
 
         # Se o perfil for avulso, criamos automaticamente a confirmação de presença no evento ativo
         if perfil == PerfilUsuario.AVULSO:

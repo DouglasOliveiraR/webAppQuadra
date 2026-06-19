@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from typing import List
 from api.schemas.usuario_schemas import NotaAdminRequest, UsuarioCreateRequest, UsuarioUpdateRequest, UsuarioResponse, AlterarSenhaRequest
@@ -144,9 +145,13 @@ async def upload_foto_perfil(
     filename = f"usuario_{current_user.id}{ext}"
     filepath = os.path.join(fotos_dir, filename)
     
+    def write_file_sync(path, data):
+        with open(path, "wb") as buffer:
+            buffer.write(data)
+
     try:
-        with open(filepath, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        file_data = await file.read()
+        await asyncio.to_thread(write_file_sync, filepath, file_data)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Erro ao salvar arquivo: {str(e)}")
         

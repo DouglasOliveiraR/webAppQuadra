@@ -38,3 +38,7 @@ class FinanceiroRepository(ABC):
     @abstractmethod
     async def alternar_status_pagamento(self, pagamento_id: int) -> Optional[Financeiro]:
         pass
+
+    @abstractmethod
+    async def listar_pendentes_por_mes(self, mes_referencia: str) -> List[Financeiro]:
+        pass

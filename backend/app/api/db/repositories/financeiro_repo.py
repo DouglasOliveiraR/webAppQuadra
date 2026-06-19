@@ -127,3 +127,11 @@ class SQLAlchemyFinanceiroRepository(FinanceiroRepository):
         self.session.query(FinanceiroModel).filter(FinanceiroModel.usuario_id == usuario_id, FinanceiroModel.status_pagamento == StatusPagamento.PENDENTE).delete(synchronize_session=False)
         self.session.commit()
         return True
+
+    async def listar_pendentes_por_mes(self, mes_referencia: str) -> List[Financeiro]:
+        models = self.session.query(FinanceiroModel).filter(
+            FinanceiroModel.mes_referencia == mes_referencia,
+            FinanceiroModel.status_pagamento == StatusPagamento.PENDENTE,
+            FinanceiroModel.tipo == "MENSALIDADE"
+        ).all()
+        return [self._to_entity(m) for m in models]

@@ -19,13 +19,11 @@ class NotificarMensalidadeAtrasadaUseCase:
     async def executar(self):
         logger.info("Executando job de lembrete de mensalidade...")
         mes_atual = datetime.now().strftime("%Y-%m")
-        todos_financeiros = await self.financeiro_repo.listar_todos()
         
-        usuarios_pendentes = set()
-        for f in todos_financeiros:
-            if f.tipo == "MENSALIDADE" and f.mes_referencia == mes_atual and f.status_pagamento == StatusPagamento.PENDENTE:
-                if f.usuario_id:
-                    usuarios_pendentes.add(f.usuario_id)
+        # ⚡ Bolt: Removido over-fetching de listar todos os financeiros e filtrado direto no banco
+        financeiros_pendentes = await self.financeiro_repo.listar_pendentes_por_mes(mes_referencia=mes_atual)
+
+        usuarios_pendentes = set(f.usuario_id for f in financeiros_pendentes if f.usuario_id)
 
         if usuarios_pendentes:
             logger.info(f"Notificando {len(usuarios_pendentes)} usuarios sobre mensalidade atrasada.")

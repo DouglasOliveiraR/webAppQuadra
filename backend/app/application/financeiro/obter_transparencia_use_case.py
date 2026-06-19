@@ -8,11 +8,10 @@ class ObterTransparenciaUseCase:
         self.evento_repo = evento_repo
 
     async def executar(self, mes: str) -> dict:
-        todos = await self.financeiro_repo.listar_todos()
+        todos = await self.financeiro_repo.listar_por_mes(mes)
         do_mes = [
             r for r in todos 
-            if r.mes_referencia == mes 
-            and r.status_pagamento == StatusPagamento.PAGO
+            if r.status_pagamento == StatusPagamento.PAGO
             and not r.tipo.startswith('CHURRASCO')
         ]
         
@@ -29,8 +28,7 @@ class ObterTransparenciaUseCase:
                 
         do_mes_churrasco = [
             r for r in todos 
-            if r.mes_referencia == mes 
-            and r.status_pagamento == StatusPagamento.PAGO
+            if r.status_pagamento == StatusPagamento.PAGO
             and r.tipo.startswith('CHURRASCO')
         ]
         arrecadado_churrasco = sum(r.valor for r in do_mes_churrasco)

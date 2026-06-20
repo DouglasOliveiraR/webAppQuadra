@@ -209,8 +209,19 @@ async def admin_edit_usuario(
     if payload.pontos_ranking is not None:
         usuario.pontos_ranking = payload.pontos_ranking
     
+    nova_senha_gerada = None
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        import secrets
+        import string
+        import logging
+        logger = logging.getLogger(__name__)
+        alphabet = string.ascii_letters + string.digits
+        nova_senha_gerada = ''.join(secrets.choice(alphabet) for i in range(8))
+        usuario.senha_hash = get_password_hash(nova_senha_gerada)
+        logger.info(f"Senha do usuario {usuario.id} resetada pelo admin {admin_user.id}. Nova senha gerada: {nova_senha_gerada}")
         
     await repo.salvar(usuario)
+    # Atribui temporariamente ao modelo para retornar no response model
+    if nova_senha_gerada:
+        setattr(usuario, 'nova_senha_gerada', nova_senha_gerada)
     return usuario

@@ -25,8 +25,14 @@ class SorteioUseCase:
 
         goleiros, linhas = self._separar_jogadores_por_posicao(confirmados, usuarios, criterio)
 
-        import math
-        num_times = max(2, math.ceil(len(confirmados) / 6.0))
+        qtd = len(confirmados)
+        if qtd < 15:
+            num_times = 2
+        elif qtd < 21:
+            num_times = 3
+        else:
+            num_times = max(2, qtd // 6)
+            
         times = self._inicializar_times(num_times, len(linhas))
 
         self._distribuir_jogadores(times, goleiros, linhas)
@@ -67,43 +73,22 @@ class SorteioUseCase:
         return goleiros, linhas
 
     def _inicializar_times(self, num_times: int, num_linhas: int) -> list:
-        times = [{"id": i, "nome": f"Time {chr(65+i)}", "jogadores": [], "soma_notas": 0.0, "target_linhas": 0, "target_total": 0} for i in range(num_times)]
-        linhas_restantes = num_linhas
-
-        for i in range(num_times):
-            if linhas_restantes >= 5:
-                times[i]["target_linhas"] = 5
-                linhas_restantes -= 5
-            else:
-                times[i]["target_linhas"] = linhas_restantes
-                linhas_restantes = 0
-
-        return times
+        return [{"id": i, "nome": f"Time {chr(65+i)}", "jogadores": [], "soma_notas": 0.0} for i in range(num_times)]
 
     def _distribuir_jogadores(self, times: list, goleiros: list, linhas: list) -> None:
-        num_times = len(times)
-
-        # Distribuir goleiros (um por vez em cada time)
-        for i, gol in enumerate(goleiros):
-            time_alvo = times[i % num_times]
+        # Distribuir goleiros balanceando a quantidade por time
+        for gol in goleiros:
+            min_goleiros = min(sum(1 for p in t["jogadores"] if p["posicao"] == "GOL") for t in times)
+            times_disp = [t for t in times if sum(1 for p in t["jogadores"] if p["posicao"] == "GOL") == min_goleiros]
+            time_alvo = min(times_disp, key=lambda t: t["soma_notas"])
             time_alvo["jogadores"].append(gol)
             time_alvo["soma_notas"] += gol["nota"]
 
-        # Calcula a capacidade total de cada time para a métrica de balanceamento
-        for t in times:
-            num_gol = sum(1 for p in t["jogadores"] if p["posicao"] == "GOL")
-            t["target_total"] = t["target_linhas"] + num_gol
-
-        # Distribuir linhas balanceando a média projetada final
+        # Distribuir linhas balanceando o TOTAL de jogadores no time
         for j in linhas:
-            # Encontrar os times que ainda não atingiram sua cota exata de linhas
-            times_disponiveis = [t for t in times if sum(1 for p in t["jogadores"] if p["posicao"] != "GOL") < t["target_linhas"]]
-            if not times_disponiveis:
-                # Fallback de segurança
-                times_disponiveis = times
-            
-            # Escolhe o time com a MENOR média projetada
-            time_alvo = min(times_disponiveis, key=lambda t: t["soma_notas"] / max(1, t["target_total"]))
+            min_jogadores = min(len(t["jogadores"]) for t in times)
+            times_disp = [t for t in times if len(t["jogadores"]) == min_jogadores]
+            time_alvo = min(times_disp, key=lambda t: t["soma_notas"])
             time_alvo["jogadores"].append(j)
             time_alvo["soma_notas"] += j["nota"]
 

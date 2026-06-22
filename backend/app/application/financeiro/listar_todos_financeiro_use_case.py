@@ -21,11 +21,10 @@ class ListarTodosFinanceiroUseCase:
         self.presenca_repo = presenca_repo
 
     async def executar(self, mes: str) -> List[Financeiro]:
-        # 1. Buscar todos os registros financeiros
-        registros_financeiros = await self.financeiro_repo.listar_todos()
-        
-        # Filtra os registros que já existem para o mês especificado
-        registros_do_mes = [r for r in registros_financeiros if r.mes_referencia == mes]
+        # ⚡ Bolt: Removido over-fetching de listar todos os financeiros.
+        # Impacto: Otimiza a query empurrando o filtro de mês para o banco de dados.
+        # 1. Buscar apenas os registros financeiros do mês especificado
+        registros_do_mes = await self.financeiro_repo.listar_por_mes(mes)
 
         # 2. Garantir que todos os mensalistas e admins ativos tenham um registro de MENSALIDADE para o mês selecionado
         todos_usuarios = await self.usuario_repo.listar_todos()
@@ -88,7 +87,7 @@ class ListarTodosFinanceiroUseCase:
                     tipo_churrasco = f"CHURRASCO_{evento.id}"
                     
                     usuarios_com_churrasco = {
-                        reg.usuario_id for reg in registros_financeiros 
+                        reg.usuario_id for reg in registros_do_mes
                         if reg.tipo == tipo_churrasco and reg.usuario_id is not None
                     }
                     
@@ -106,8 +105,7 @@ class ListarTodosFinanceiroUseCase:
 
         if novos_registros:
             await self.financeiro_repo.salvar_lote(novos_registros)
-            registros_financeiros = await self.financeiro_repo.listar_todos()
-            registros_do_mes = [r for r in registros_financeiros if r.mes_referencia == mes]
+            registros_do_mes = await self.financeiro_repo.listar_por_mes(mes)
 
         # Filtra os registros para retornar apenas os de usuários ATIVOS
         ids_usuarios_ativos = {u.id for u in todos_usuarios if u.status == StatusUsuario.ATIVO}

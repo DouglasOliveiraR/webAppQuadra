@@ -149,9 +149,6 @@ export function RankingPage() {
           }`}
         >
           Tabela Geral
-          {activeTab === 'tabela' && (
-            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full animate-fade-in" aria-hidden="true"></span>
-          )}
         </button>
         <button 
           onClick={() => setActiveTab('ultimo')}
@@ -162,9 +159,6 @@ export function RankingPage() {
           }`}
         >
           Último Jogo
-          {activeTab === 'ultimo' && (
-            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full animate-fade-in" aria-hidden="true"></span>
-          )}
         </button>
       </div>
 

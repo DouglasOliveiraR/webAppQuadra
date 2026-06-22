@@ -10,6 +10,17 @@
     <title>Pelada FC Manager</title>
   </head>
   <body>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let r of registrations) {
+            if (r.active && r.active.scriptURL.endsWith('service-worker.js')) {
+              r.unregister().then(() => console.log('Legacy service-worker.js unregistered.'));
+            }
+          }
+        });
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

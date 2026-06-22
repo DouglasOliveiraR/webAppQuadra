@@ -54,7 +54,9 @@ export function ElencoTab() {
     setIsEditing(true);
     setIdEdicao(jogador.id);
     setNome(jogador.nome);
-    setTelefone(jogador.telefone || '');
+    let tel = jogador.telefone || '';
+    if (tel.startsWith('AVULSO_')) tel = '';
+    setTelefone(tel);
     setSenha('');
     setPerfil(jogador.perfil || 'AVULSO');
     setStatusJogador(jogador.status || 'ATIVO');
@@ -72,7 +74,14 @@ export function ElencoTab() {
       showToast('Jogador deletado com sucesso!');
       fetchElenco();
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Erro ao deletar jogador.';
+      let msg = 'Erro ao deletar jogador.';
+      if (err.response?.data?.detail) {
+        if (Array.isArray(err.response.data.detail)) {
+          msg = err.response.data.detail.map(d => d.msg).join(', ');
+        } else {
+          msg = err.response.data.detail;
+        }
+      }
       showToast(msg, 'error');
     }
   };
@@ -98,9 +107,14 @@ export function ElencoTab() {
     }
 
     try {
+      let finalTelefone = telefone.trim();
+      if (perfil === 'AVULSO' && !finalTelefone) {
+        finalTelefone = `AVULSO_${new Date().getTime()}`;
+      }
+
       const payload = {
         nome,
-        telefone,
+        telefone: finalTelefone,
         perfil,
         nota_admin: notaAdmin
       };
@@ -125,7 +139,14 @@ export function ElencoTab() {
       setModalOpen(false);
       fetchElenco();
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Erro ao salvar jogador.';
+      let msg = 'Erro ao salvar jogador.';
+      if (err.response?.data?.detail) {
+        if (Array.isArray(err.response.data.detail)) {
+          msg = err.response.data.detail.map(d => d.msg).join(', ');
+        } else {
+          msg = err.response.data.detail;
+        }
+      }
       showToast(msg, 'error');
     }
   };

@@ -98,9 +98,10 @@ export function AdminArtilhariaTab({ eventoId, presencas }) {
               <button
                 onClick={() => handleAjustarGols(jogador.usuario_id, -1)}
                 disabled={loading[jogador.usuario_id] || jogador.gols <= 0}
-                className="w-8 h-8 flex items-center justify-center rounded-md bg-surface hover:bg-surface-variant disabled:opacity-30 transition-colors text-on-surface-variant"
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-surface hover:bg-surface-variant disabled:opacity-30 transition-colors text-on-surface-variant focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={`Diminuir gol de ${jogador.nome}`}
               >
-                <span className="material-symbols-outlined text-[20px]">remove</span>
+                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">remove</span>
               </button>
               
               <div className="w-8 flex items-center justify-center font-bold text-[16px] text-on-surface">
@@ -114,9 +115,10 @@ export function AdminArtilhariaTab({ eventoId, presencas }) {
               <button
                 onClick={() => handleAjustarGols(jogador.usuario_id, 1)}
                 disabled={loading[jogador.usuario_id]}
-                className="w-8 h-8 flex items-center justify-center rounded-md bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm"
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={`Adicionar gol para ${jogador.nome}`}
               >
-                <span className="material-symbols-outlined text-[20px]">add</span>
+                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">add</span>
               </button>
             </div>
           </div>

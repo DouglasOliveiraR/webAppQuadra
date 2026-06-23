@@ -63,10 +63,11 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
         text += `${medalhas[index]} ${jogador.nome} (${(jogador.nota_galera_media || 0).toFixed(1)})\n`;
       });
 
-      if (ultimoData && ultimoData.top5_medias && ultimoData.top5_medias.length > 0) {
-        text += `\n*${E.FIRE} Top 5 - Último Jogo (Média)*\n`;
-        ultimoData.top5_medias.slice(0, 5).forEach((jogador, index) => {
-          text += `${medalhas[index]} ${jogador.nome} (${jogador.media.toFixed(1)})\n`;
+      if (ultimoData && ultimoData.medias_jogadores && ultimoData.medias_jogadores.length > 0) {
+        text += `\n*${E.FIRE} Último Jogo (Média)*\n`;
+        ultimoData.medias_jogadores.forEach((jogador, index) => {
+          const rankLabel = index < 5 ? medalhas[index] : `${index + 1}º`;
+          text += `${rankLabel} ${jogador.nome} (${jogador.media.toFixed(1)})\n`;
         });
       }
 

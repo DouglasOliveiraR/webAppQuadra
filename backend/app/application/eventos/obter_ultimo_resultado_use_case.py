@@ -100,11 +100,11 @@ class ObterUltimoResultadoUseCase:
             usuarios_dit = {u.id: u for u in usuarios}
             
         medias_evento.sort(key=lambda x: x["media"], reverse=True)
-        top5_medias = []
-        for m in medias_evento[:5]:
+        medias_jogadores = []
+        for m in medias_evento:
             u = usuarios_dit.get(m["id"])
             if u:
-                top5_medias.append({
+                medias_jogadores.append({
                     "id": u.id,
                     "nome": u.nome,
                     "foto_url": u.foto_url,
@@ -116,5 +116,5 @@ class ObterUltimoResultadoUseCase:
             "data_jogo": ultimo_evento.data_jogo,
             "endereco": ultimo_evento.endereco,
             "vencedores": vencedores,
-            "top5_medias": top5_medias
+            "medias_jogadores": medias_jogadores
         }

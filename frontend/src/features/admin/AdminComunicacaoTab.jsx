@@ -219,7 +219,7 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
 
       if (data.inimigo_pessoal) {
         text += `⚔️ *Inimigo Pessoal:*\n`;
-        text += `E se tem uma pessoa que não vai com a cara do ${data.inimigo_pessoal.avaliado_nome}, é o *${data.inimigo_pessoal.avaliador_nome}*, que simplesmente odeia o futebol do *${data.inimigo_pessoal.avaliado_nome}*! A média de notas que ele deu pra esse pobre coitado foram humilhantes, *${data.inimigo_pessoal.media}* de média esse mês! Vai lá ${data.inimigo_pessoal.avaliador_nome}, faça amigos, não inimigos...\n\n`;
+        text += `E se tem uma pessoa que não vai com a cara do ${data.inimigo_pessoal.avaliado_nome}, é o *${data.inimigo_pessoal.avaliador_nome}*, que simplesmente odeia o futebol do *${data.inimigo_pessoal.avaliado_nome}!* A média de notas que ele deu pra esse pobre coitado foram humilhantes, *${data.inimigo_pessoal.media}* de média esse mês! Vai lá ${data.inimigo_pessoal.avaliador_nome}, faça amigos, não inimigos...\n\n`;
       }
 
       sendToWhatsApp(text);

@@ -240,6 +240,15 @@ def get_obter_ultimo_resultado_use_case(db: Session = Depends(get_db)) -> ObterU
     nota_repo = SQLAlchemyNotaRepository(db)
     return ObterUltimoResultadoUseCase(evento_repo, voto_repo, usuario_repo, nota_repo)
 
+def get_obter_resenha_mensal_use_case(db: Session = Depends(get_db)):
+    from application.ranking.obter_resenha_mensal_use_case import ObterResenhaMensalUseCase
+    from api.db.repositories.nota_repo import SQLAlchemyNotaRepository
+    evento_repo = SQLAlchemyEventoRepository(db)
+    voto_repo = SQLAlchemyVotoRepository(db)
+    usuario_repo = SQLAlchemyUsuarioRepository(db)
+    nota_repo = SQLAlchemyNotaRepository(db)
+    return ObterResenhaMensalUseCase(evento_repo, voto_repo, usuario_repo, nota_repo)
+
 def get_deletar_usuario_use_case(db: Session = Depends(get_db)) -> DeletarUsuarioUseCase:
     usuario_repo = SQLAlchemyUsuarioRepository(db)
     financeiro_repo = SQLAlchemyFinanceiroRepository(db)

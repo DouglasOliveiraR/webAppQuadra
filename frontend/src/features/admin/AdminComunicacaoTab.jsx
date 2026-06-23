@@ -182,8 +182,58 @@ export function AdminComunicacaoTab({ eventoId, evento }) {
     sendToWhatsApp(text);
   };
 
+  const handleShareResenhaMensal = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/ranking/resenha-mensal');
+      const data = res.data;
+
+      if (!data || !data.total_eventos) {
+        showToast('Nenhum jogo encerrado neste mês ainda.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      let text = `${E.MASK} *Resenha Curiosa do Mês!* ${E.MASK}\n\n`;
+      text += `Já tivemos *${data.total_eventos} jogos* encerrados este mês. Confira as estatísticas polêmicas:\n\n`;
+
+      if (data.carrasco) {
+        text += `🪨 *Coração Peludo:*\n`;
+        text += `O Coração Peludo do mês até agora é o *${data.carrasco.nome}*, que esmagou a auto-estima da galera dando uma nota média de apenas *${data.carrasco.media}* para os colegas. Tá exigente o professor!\n\n`;
+      }
+
+      if (data.generoso) {
+        text += `😇 *Uma Mãe!!:*\n`;
+        text += `Já aqui temos uma Mãe!! Que nesse mês é o *${data.generoso.nome}*, distribuindo amor pra todo mundo! A média que ele deu pra galera foi de *${data.generoso.media}*. Um fofo <3!\n\n`;
+      }
+
+      if (data.mais_votado) {
+        text += `🎯 *O Mais Badalado:*\n`;
+        text += `O jogador que não sai da boca do povo é o *${data.mais_votado.nome}* com incríveis *${data.mais_votado.total_votos}* votos nas urnas. Fale bem ou fale mal, mas falem de mim!\n\n`;
+      }
+
+      if (data.paixao_platonica) {
+        text += `😍 *Paixão Platônica:*\n`;
+        text += `Uma pessoa incompreendida, um amante solitário, ele *${data.paixao_platonica.avaliador_nome}*, secretamente vem subindo a moral de seu colega *${data.paixao_platonica.avaliado_nome}* com uma média perfeita de *${data.paixao_platonica.media}* nos jogos! Tem romance no ar!\n\n`;
+      }
+
+      if (data.inimigo_pessoal) {
+        text += `⚔️ *Inimigo Pessoal:*\n`;
+        text += `E se tem uma pessoa que não vai com a cara do ${data.inimigo_pessoal.avaliado_nome}, é o *${data.inimigo_pessoal.avaliador_nome}*, que simplesmente odeia o futebol do ${data.inimigo_pessoal.avaliado_nome}! A média de notas que ele deu pra esse pobre coitado foram humilhantes, *${data.inimigo_pessoal.media}* de média esse mês! Vai lá ${data.inimigo_pessoal.avaliador_nome}, faça amigos, não inimigos...\n\n`;
+      }
+
+      sendToWhatsApp(text);
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao gerar resenha', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const buttons = [
     { label: 'Compartilhar Resultados', icon: 'emoji_events', desc: 'Ranking Geral e Destaques', action: handleShareResultados },
+    { label: 'Resenha Curiosa', icon: 'theater_comedy', desc: 'Estatísticas polêmicas do mês', action: handleShareResenhaMensal },
     { label: 'Lista de Presença', icon: 'list_alt', desc: 'Confirmados, Goleiros e Ausentes', action: handleSharePresenca },
     { label: 'Sorteio dos Times', icon: 'sports_soccer', desc: 'Times formados do último sorteio', action: handleShareSorteio },
     { label: 'Convite para Avulsos', icon: 'person_add', desc: 'Aviso de vagas sobrando', action: handleShareConvite },

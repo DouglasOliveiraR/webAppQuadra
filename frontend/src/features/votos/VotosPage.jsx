@@ -84,6 +84,15 @@ export function VotosPage() {
             Seus votos para esta partida foram computados com sucesso.
           </p>
         </div>
+        {!evento?.usuario_ja_avaliou && (
+          <button 
+            onClick={() => window.location.href = '/avaliacao-galera'}
+            className="mt-6 bg-primary text-on-primary font-headline-md font-bold py-3 px-6 rounded-full shadow-bento flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-95"
+          >
+            Continuar para Avaliação da Galera
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </button>
+        )}
       </div>
     );
   }

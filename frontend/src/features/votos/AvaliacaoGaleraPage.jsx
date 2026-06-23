@@ -68,6 +68,15 @@ export function AvaliacaoGaleraPage() {
             Suas notas para esta partida foram salvas com sucesso.
           </p>
         </div>
+        {!evento?.usuario_ja_votou && (
+          <button 
+            onClick={() => navigate('/votos')}
+            className="mt-6 bg-primary-fixed text-on-primary-fixed font-headline-md text-[16px] font-bold py-3 px-6 rounded-full shadow-[0_4px_20px_rgba(107,255,143,0.3)] flex items-center justify-center gap-2 hover:bg-inverse-primary transition-colors active:scale-95"
+          >
+            Ir para Votação de Craque/Bagre
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </button>
+        )}
       </div>
     );
   }

@@ -57,7 +57,10 @@ class ObterResenhaMensalUseCase:
             mais_votado_id = max(votos_por_candidato, key=votos_por_candidato.get)
             mais_votado_votos = votos_por_candidato[mais_votado_id]
 
-        minimo_eventos = 2 if len(eventos_ids) > 1 else 1
+        import math
+        minimo_eventos = math.ceil(len(eventos_ids) * 0.6666)
+        if minimo_eventos < 1:
+            minimo_eventos = 1
 
         # Médias dadas por cada avaliador (Carrasco / Generoso)
         notas_dadas_por_avaliador = defaultdict(list)

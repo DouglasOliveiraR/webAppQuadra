@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 from domain.usuarios.repositories import UsuarioRepository
-from domain.usuarios.enums import StatusUsuario
+from domain.usuarios.enums import StatusUsuario, PerfilUsuario
 from core.security import verify_password, create_access_token
 from core.config import settings
 from core.exceptions import CredenciaisInvalidasError

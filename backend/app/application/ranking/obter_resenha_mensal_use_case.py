@@ -57,18 +57,29 @@ class ObterResenhaMensalUseCase:
             mais_votado_id = max(votos_por_candidato, key=votos_por_candidato.get)
             mais_votado_votos = votos_por_candidato[mais_votado_id]
 
+        minimo_eventos = 2 if len(eventos_ids) > 1 else 1
+
         # Médias dadas por cada avaliador (Carrasco / Generoso)
         notas_dadas_por_avaliador = defaultdict(list)
+        eventos_por_avaliador = defaultdict(set)
+        
         # Notas dadas por cada par (Avaliador -> Avaliado) para Paixão / Inimigo
         notas_por_par = defaultdict(list)
+        eventos_por_par = defaultdict(set)
 
         for n in todas_notas:
             notas_dadas_por_avaliador[n.avaliador_id].append(n.nota)
+            if n.evento_id:
+                eventos_por_avaliador[n.avaliador_id].add(n.evento_id)
+            
             notas_por_par[(n.avaliador_id, n.avaliado_id)].append(n.nota)
+            if n.evento_id:
+                eventos_por_par[(n.avaliador_id, n.avaliado_id)].add(n.evento_id)
 
         medias_avaliador = {}
         for av_id, notas_lista in notas_dadas_por_avaliador.items():
-            if notas_lista:
+            qtd_eventos = len(eventos_por_avaliador[av_id])
+            if notas_lista and qtd_eventos >= minimo_eventos:
                 medias_avaliador[av_id] = sum(notas_lista) / len(notas_lista)
 
         carrasco_id = None
@@ -83,11 +94,10 @@ class ObterResenhaMensalUseCase:
             generoso_media = medias_avaliador[generoso_id]
 
         # Paixão Platônica e Inimigo Pessoal
-        # Para evitar pares de 1 jogo apenas, podemos filtrar len(lista) >= 1 ou 2. 
-        # Vamos manter >= 1 para não quebrar se houver poucos jogos.
         medias_pares = {}
         for (avaliador_id, avaliado_id), notas_lista in notas_por_par.items():
-            if notas_lista:
+            qtd_eventos_par = len(eventos_por_par[(avaliador_id, avaliado_id)])
+            if notas_lista and qtd_eventos_par >= minimo_eventos:
                 medias_pares[(avaliador_id, avaliado_id)] = sum(notas_lista) / len(notas_lista)
 
         paixao_platonica = None

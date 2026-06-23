@@ -21,7 +21,7 @@ export function AvaliacaoGaleraPage() {
     }
   }
 
-  const candidatos = evento?.presencas?.filter(p => p.checkin_validado && p.usuario_id !== currentUserId) || [];
+  const candidatos = evento?.presencas?.filter(p => p.checkin_validado && p.usuario_id !== currentUserId && p.usuario_perfil !== 'AVULSO') || [];
 
   const handleSliderChange = (id, value) => {
     setNotas(prev => ({ ...prev, [id]: parseInt(value, 10) }));

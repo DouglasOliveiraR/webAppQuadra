@@ -17,6 +17,10 @@ class LoginUseCase:
         if not usuario:
             logger.warning(f"Tentativa de login falha: Usuário não encontrado para o telefone {telefone}")
             raise CredenciaisInvalidasError("Telefone ou senha incorretos")
+            
+        if usuario.perfil == PerfilUsuario.AVULSO:
+            logger.warning(f"Tentativa de login bloqueada: Usuários avulsos não têm acesso ao app (telefone {telefone})")
+            raise CredenciaisInvalidasError("Usuários avulsos não têm acesso ao aplicativo")
         
         if not verify_password(senha_plain, usuario.senha_hash):
             logger.warning(f"Tentativa de login falha: Senha incorreta para o telefone {telefone}")

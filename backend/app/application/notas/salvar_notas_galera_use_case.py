@@ -16,10 +16,22 @@ class SalvarNotasGaleraUseCase:
         if not evento:
             raise RegraDeNegocioError("Evento não encontrado")
 
+        avaliador = await self.usuario_repo.buscar_por_id(avaliador_id)
+        if not avaliador:
+            raise RegraDeNegocioError("Avaliador não encontrado")
+            
+        from domain.usuarios.enums import PerfilUsuario
+        if avaliador.perfil == PerfilUsuario.AVULSO:
+            raise RegraDeNegocioError("Jogadores avulsos não podem avaliar a galera")
+
         notas_entities = []
         for avaliado_id, valor_nota in notas.items():
             if avaliado_id == avaliador_id:
                 raise RegraDeNegocioError("Você não pode avaliar a si mesmo")
+            
+            avaliado = await self.usuario_repo.buscar_por_id(avaliado_id)
+            if avaliado and avaliado.perfil == PerfilUsuario.AVULSO:
+                raise RegraDeNegocioError("Jogadores avulsos não podem ser avaliados na nota da galera")
             
             if valor_nota < 0 or valor_nota > 10:
                 raise RegraDeNegocioError("Notas devem estar entre 0 e 10")

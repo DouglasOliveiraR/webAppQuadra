@@ -116,5 +116,6 @@ class ObterUltimoResultadoUseCase:
             "data_jogo": ultimo_evento.data_jogo,
             "endereco": ultimo_evento.endereco,
             "vencedores": vencedores,
-            "medias_jogadores": medias_jogadores
+            "medias_jogadores": medias_jogadores,
+            "top5_medias": medias_jogadores
         }

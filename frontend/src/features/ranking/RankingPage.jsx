@@ -311,12 +311,12 @@ export function RankingPage() {
 
             <div className="divide-y divide-outline-variant/50">
               {restOfRanking.map((jogador, index) => (
-                <div key={jogador.id} className="flex items-center px-4 py-3 hover:bg-surface-container hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200">
-                  <div className="w-8 font-headline-md text-body-md text-on-surface-variant">{index + 4}º</div>
+                <div key={jogador.id} className="group flex items-center px-4 py-3 hover:bg-surface-container hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200">
+                  <div className="w-8 font-headline-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">{index + 4}º</div>
                   <div className="flex-1 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold overflow-hidden">
+                    <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold overflow-hidden group-hover:ring-2 group-hover:ring-primary/30 transition-all">
                       {jogador.foto_url ? (
-                        <img src={getFotoUrl(jogador.foto_url)} alt={jogador.nome} className="w-full h-full object-cover" />
+                        <img src={getFotoUrl(jogador.foto_url)} alt={jogador.nome} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                       ) : (
                         jogador.nome.charAt(0)
                       )}

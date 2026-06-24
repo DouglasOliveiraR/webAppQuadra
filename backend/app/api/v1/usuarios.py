@@ -27,6 +27,11 @@ from sqlalchemy.orm import Session
 from api.schemas.usuario_schemas import AdminEditUsuarioRequest
 from domain.usuarios.entities import Usuario
 from core.exceptions import RegraDeNegocioError
+import secrets
+import string
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/usuarios", tags=["Usuários"])
 
@@ -210,7 +215,11 @@ async def admin_edit_usuario(
         usuario.pontos_ranking = payload.pontos_ranking
     
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        nova_senha_plain = "".join(secrets.choice(string.ascii_letters + string.digits) for i in range(10))
+        usuario.senha_hash = get_password_hash(nova_senha_plain)
+        # Dynamically append for the response
+        usuario.nova_senha = nova_senha_plain
+        logger.info(f"Senha resetada para usuário {usuario_id} via admin. Nova senha temporária gerada.")
         
     await repo.salvar(usuario)
     return usuario

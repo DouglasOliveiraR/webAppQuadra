@@ -212,17 +212,19 @@ export function ElencoTab() {
               <div className="flex gap-1 shrink-0">
                 <button 
                   onClick={() => handleEditarJogador(jogador)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   title="Editar jogador"
+                  aria-label={`Editar jogador ${jogador.nome}`}
                 >
-                  <span className="material-symbols-outlined text-[20px]">edit_note</span>
+                  <span className="material-symbols-outlined text-[20px]" aria-hidden="true">edit_note</span>
                 </button>
                 <button 
                   onClick={() => handleDeletarJogador(jogador)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   title="Excluir jogador"
+                  aria-label={`Excluir jogador ${jogador.nome}`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>
                 </button>
               </div>
             </div>
@@ -255,17 +257,19 @@ export function ElencoTab() {
               <div className="flex gap-1 shrink-0">
                 <button 
                   onClick={() => handleEditarJogador(jogador)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   title="Editar jogador"
+                  aria-label={`Editar jogador ${jogador.nome}`}
                 >
-                  <span className="material-symbols-outlined text-[20px]">edit_note</span>
+                  <span className="material-symbols-outlined text-[20px]" aria-hidden="true">edit_note</span>
                 </button>
                 <button 
                   onClick={() => handleDeletarJogador(jogador)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-error hover:bg-error/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   title="Excluir jogador"
+                  aria-label={`Excluir jogador ${jogador.nome}`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">delete</span>
                 </button>
               </div>
             </div>
@@ -290,9 +294,10 @@ export function ElencoTab() {
               </div>
               <button 
                 onClick={() => setModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors"
+                className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label="Fechar"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
               </button>
             </div>
 

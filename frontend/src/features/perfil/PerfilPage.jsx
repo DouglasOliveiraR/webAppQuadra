@@ -330,7 +330,7 @@ export function PerfilPage() {
       <section className="flex flex-col gap-3">
         <button 
           onClick={handleAbrirModalSenha}
-          className="flex items-center justify-between glass-panel rounded-xl p-4 shadow-ambient-1 hover:bg-surface-container-low transition-colors text-left w-full"
+          className="flex items-center justify-between glass-panel rounded-xl p-4 shadow-ambient-1 hover:bg-surface-container-low transition-colors text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <div className="flex items-center gap-3 text-on-surface">
             <span className="material-symbols-outlined">lock</span>
@@ -343,7 +343,7 @@ export function PerfilPage() {
           <button 
             onClick={subscribeToPush}
             disabled={loadingPush}
-            className="flex items-center justify-between bg-primary/10 border border-primary/20 text-primary rounded-xl p-4 shadow-ambient-1 hover:bg-primary/20 transition-colors mb-3 disabled:opacity-50"
+            className="flex items-center justify-between bg-primary/10 border border-primary/20 text-primary rounded-xl p-4 shadow-ambient-1 hover:bg-primary/20 transition-colors mb-3 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined">notifications_active</span>
@@ -384,7 +384,7 @@ export function PerfilPage() {
 
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 bg-error/10 border border-error/20 text-error rounded-xl p-4 shadow-ambient-1 hover:bg-error/20 transition-colors w-full text-left"
+          className="flex items-center gap-3 bg-error/10 border border-error/20 text-error rounded-xl p-4 shadow-ambient-1 hover:bg-error/20 transition-colors w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <span className="material-symbols-outlined">logout</span>
           <span className="font-body-md text-body-md font-medium">Sair do Aplicativo</span>

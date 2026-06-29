@@ -209,8 +209,21 @@ async def admin_edit_usuario(
     if payload.pontos_ranking is not None:
         usuario.pontos_ranking = payload.pontos_ranking
     
+    nova_senha_gerada = None
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        import secrets
+        import string
+        import logging
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        nova_senha_gerada = ''.join(secrets.choice(alphabet) for _ in range(12))
+        usuario.senha_hash = get_password_hash(nova_senha_gerada)
+        # Loga apenas o evento sem expor a senha gerada para evitar CWE-532
+        logging.getLogger(__name__).info(f"Senha do usuario {usuario_id} resetada pelo admin.")
         
     await repo.salvar(usuario)
-    return usuario
+
+    # [Security Fix] Atribui temporariamente a senha gerada para exibição única ao administrador
+    response = UsuarioResponse.model_validate(usuario)
+    if nova_senha_gerada:
+        response.nova_senha = nova_senha_gerada
+    return response

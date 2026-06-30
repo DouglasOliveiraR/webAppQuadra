@@ -210,7 +210,16 @@ async def admin_edit_usuario(
         usuario.pontos_ranking = payload.pontos_ranking
     
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        import secrets
+        import string
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        senha_plana = ''.join(secrets.choice(alphabet) for _ in range(16))
+        usuario.senha_hash = get_password_hash(senha_plana)
         
     await repo.salvar(usuario)
-    return usuario
+
+    # Criamos um schema Pydantic temporário para expor a nova senha gerada com segurança.
+    usuario_response = UsuarioResponse.model_validate(usuario)
+    if payload.resetar_senha:
+        usuario_response.nova_senha = senha_plana
+    return usuario_response

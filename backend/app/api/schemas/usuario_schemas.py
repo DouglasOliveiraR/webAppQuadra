@@ -39,6 +39,7 @@ class UsuarioResponse(BaseModel):
     foto_url: Optional[str] = None
     criado_em: Optional[datetime] = None
     atualizado_em: Optional[datetime] = None
+    nova_senha: Optional[str] = None
 
     class Config:
         from_attributes = True

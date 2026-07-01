@@ -148,7 +148,10 @@ export function RankingPage() {
             activeTab === 'tabela' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'
           }`}
         >
-          Tabela Geral
+          <span className="relative z-10">Tabela Geral</span>
+          {activeTab === 'tabela' && (
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full animate-scale-up" aria-hidden="true"></span>
+          )}
         </button>
         <button 
           onClick={() => setActiveTab('ultimo')}
@@ -158,7 +161,10 @@ export function RankingPage() {
             activeTab === 'ultimo' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'
           }`}
         >
-          Último Jogo
+          <span className="relative z-10">Último Jogo</span>
+          {activeTab === 'ultimo' && (
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full animate-scale-up" aria-hidden="true"></span>
+          )}
         </button>
       </div>
 

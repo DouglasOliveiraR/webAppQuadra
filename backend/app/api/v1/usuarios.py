@@ -1,7 +1,7 @@
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from typing import List
-from api.schemas.usuario_schemas import NotaAdminRequest, UsuarioCreateRequest, UsuarioUpdateRequest, UsuarioResponse, AlterarSenhaRequest
+from api.schemas.usuario_schemas import NotaAdminRequest, UsuarioCreateRequest, UsuarioUpdateRequest, UsuarioResponse, AlterarSenhaRequest, AdminEditUsuarioResponse
 from application.usuarios.atualizar_nota_admin_use_case import AtualizarNotaAdminUseCase
 from application.usuarios.listar_usuarios_use_case import ListarUsuariosUseCase
 from application.usuarios.criar_usuario_use_case import CriarUsuarioUseCase
@@ -194,7 +194,10 @@ async def deletar_usuario(
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
 
-@router.put("/{usuario_id}/admin-edit", response_model=UsuarioResponse)
+import secrets
+import string
+
+@router.put("/{usuario_id}/admin-edit", response_model=AdminEditUsuarioResponse)
 async def admin_edit_usuario(
     usuario_id: int,
     payload: AdminEditUsuarioRequest,
@@ -209,8 +212,14 @@ async def admin_edit_usuario(
     if payload.pontos_ranking is not None:
         usuario.pontos_ranking = payload.pontos_ranking
     
+    nova_senha_gerada = None
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        nova_senha_gerada = ''.join(secrets.choice(alphabet) for _ in range(12))
+        usuario.senha_hash = get_password_hash(nova_senha_gerada)
         
     await repo.salvar(usuario)
-    return usuario
+
+    response_data = UsuarioResponse.model_validate(usuario).model_dump()
+    response_data["nova_senha"] = nova_senha_gerada
+    return response_data

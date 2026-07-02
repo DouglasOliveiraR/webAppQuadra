@@ -87,10 +87,11 @@ export function ElencoTab() {
   };
 
   const handleResetarSenha = async () => {
-    if (!window.confirm("Deseja resetar a senha deste usuário para '123456'?")) return;
+    if (!window.confirm("Deseja resetar a senha deste usuário? Uma nova senha segura será gerada.")) return;
     try {
-      await api.put(`/usuarios/${idEdicao}/admin-edit`, { resetar_senha: true });
-      showToast("Senha resetada com sucesso para 123456!");
+      const res = await api.put(`/usuarios/${idEdicao}/admin-edit`, { resetar_senha: true });
+      const novaSenha = res.data.nova_senha;
+      showToast(`Senha resetada com sucesso! Nova senha: ${novaSenha}`);
     } catch (err) {
       showToast("Erro ao resetar senha.", "error");
     }

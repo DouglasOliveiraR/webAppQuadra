@@ -24,9 +24,11 @@ from api.v1.deps import (
 from core.security import get_password_hash
 from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from sqlalchemy.orm import Session
-from api.schemas.usuario_schemas import AdminEditUsuarioRequest
+from api.schemas.usuario_schemas import AdminEditUsuarioRequest, AdminEditUsuarioResponse
 from domain.usuarios.entities import Usuario
 from core.exceptions import RegraDeNegocioError
+import secrets
+import string
 
 router = APIRouter(prefix="/api/usuarios", tags=["Usuários"])
 
@@ -194,7 +196,7 @@ async def deletar_usuario(
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
 
-@router.put("/{usuario_id}/admin-edit", response_model=UsuarioResponse)
+@router.put("/{usuario_id}/admin-edit", response_model=AdminEditUsuarioResponse)
 async def admin_edit_usuario(
     usuario_id: int,
     payload: AdminEditUsuarioRequest,
@@ -206,11 +208,19 @@ async def admin_edit_usuario(
     if not usuario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
     
+    nova_senha_gerada = None
     if payload.pontos_ranking is not None:
         usuario.pontos_ranking = payload.pontos_ranking
     
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        # [Security Fix] Substituição de senha hardcoded por geração de senha segura aleatória usando o módulo secrets
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        nova_senha_gerada = ''.join(secrets.choice(alphabet) for i in range(16))
+        usuario.senha_hash = get_password_hash(nova_senha_gerada)
         
     await repo.salvar(usuario)
-    return usuario
+
+    # Adicionamos a nova_senha apenas na resposta do reset, não vai ser salva em canto nenhum
+    response_data = usuario.dict().copy() if hasattr(usuario, "dict") else dict(usuario.__dict__)
+    response_data["nova_senha"] = nova_senha_gerada
+    return response_data

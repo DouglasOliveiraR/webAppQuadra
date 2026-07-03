@@ -46,3 +46,6 @@ class UsuarioResponse(BaseModel):
 class AdminEditUsuarioRequest(BaseModel):
     pontos_ranking: Optional[int] = None
     resetar_senha: Optional[bool] = False
+
+class AdminEditUsuarioResponse(UsuarioResponse):
+    nova_senha: Optional[str] = None

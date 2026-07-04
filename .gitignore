@@ -22,3 +22,4 @@ backend/app/static/fotos/*
 .venv/
 backend/pelada_vps.db
 DEPLOYMENT.md
+backend/test.db

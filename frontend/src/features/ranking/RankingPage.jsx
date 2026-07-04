@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { VariableSizeList } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import api, { API_URL, getFotoUrl } from '../../services/api';
 import { showToast } from '../../components/ui/Toast';
 
@@ -309,54 +311,75 @@ export function RankingPage() {
               <div className={`w-12 text-center font-label-bold text-label-bold ${criterioOrdenacao === 'gols' ? 'text-primary font-bold' : 'text-on-surface-variant'}`}>Gols</div>
             </div>
 
-            <div className="divide-y divide-outline-variant/50">
-              {restOfRanking.map((jogador, index) => (
-                <div key={jogador.id} className="flex items-center px-4 py-3 hover:bg-surface-container hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200">
-                  <div className="w-8 font-headline-md text-body-md text-on-surface-variant">{index + 4}º</div>
-                  <div className="flex-1 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold overflow-hidden">
-                      {jogador.foto_url ? (
-                        <img src={getFotoUrl(jogador.foto_url)} alt={jogador.nome} className="w-full h-full object-cover" />
-                      ) : (
-                        jogador.nome.charAt(0)
-                      )}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-headline-md text-body-md text-on-surface">{jogador.nome}</span>
-                      {jogador.premios && jogador.premios.length > 0 && (
-                        <div className="flex gap-1 mt-0.5 flex-wrap">
-                          {jogador.premios.map(p => {
-                            let bg = 'bg-surface-variant text-on-surface-variant border-outline-variant/30';
-                            let icon = 'star';
-                            if(p.categoria === 'BOLA_CHEIA') { bg = 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700'; icon = 'emoji_events'; }
-                            if(p.categoria === 'GOL_BONITO') { bg = 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700'; icon = 'sports_soccer'; }
-                            if(p.categoria === 'BOLA_MURCHA') { bg = 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700'; icon = 'thumb_down'; }
-                            if(p.categoria === 'LAFON') { bg = 'bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-700'; icon = 'sentiment_very_dissatisfied'; }
-                            
-                            return (
-                              <div key={p.categoria} className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-bold border ${bg}`}>
-                                <span className="material-symbols-outlined text-[10px]">{icon}</span>
-                                <span>{p.quantidade}x</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className={`w-16 text-center text-sm ${criterioOrdenacao === 'pontos' ? 'font-bold text-primary' : 'font-medium text-on-surface'}`}>
-                    {jogador.pontos_ranking}
-                  </div>
-                  <div className={`w-16 text-center text-sm ${criterioOrdenacao === 'nota' ? 'font-bold text-primary' : 'font-medium text-on-surface-variant'}`}>
-                    {jogador.nota_galera_media ? jogador.nota_galera_media.toFixed(1) : '-'}
-                  </div>
-                  <div className={`w-12 text-center text-sm ${criterioOrdenacao === 'gols' ? 'font-bold text-primary' : 'font-medium text-on-surface-variant'}`}>
-                    {jogador.gols_total || 0}
-                  </div>
-                </div>
-              ))}
-              {restOfRanking.length === 0 && (
+            {/* ⚡ Bolt: Virtualização da lista usando react-window para otimizar
+                a renderização de centenas de jogadores no ranking.
+                AutoSizer ajusta a altura dinamicamente sem usar fixed height no mobile. */}
+            <div className="divide-y divide-outline-variant/50 flex-1 min-h-[60vh] h-[60vh] w-full">
+              {restOfRanking.length === 0 ? (
                  <div className="py-6 text-center text-on-surface-variant text-sm">Sem mais jogadores no ranking.</div>
+              ) : (
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <VariableSizeList
+                      height={height}
+                      width={width}
+                      itemCount={restOfRanking.length}
+                      itemSize={(index) => {
+                        const jogador = restOfRanking[index];
+                        return (jogador.premios && jogador.premios.length > 0) ? 72 : 60;
+                      }}
+                    >
+                      {({ index, style }) => {
+                        const jogador = restOfRanking[index];
+                        return (
+                          <div style={style} className="flex items-center px-4 hover:bg-surface-container hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200 border-b border-outline-variant/50">
+                            <div className="w-8 font-headline-md text-body-md text-on-surface-variant">{index + 4}º</div>
+                            <div className="flex-1 flex items-center gap-3 overflow-hidden">
+                              <div className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant text-xs font-bold overflow-hidden shrink-0">
+                                {jogador.foto_url ? (
+                                  <img src={getFotoUrl(jogador.foto_url)} alt={jogador.nome} className="w-full h-full object-cover" />
+                                ) : (
+                                  jogador.nome.charAt(0)
+                                )}
+                              </div>
+                              <div className="flex flex-col overflow-hidden">
+                                <span className="font-headline-md text-body-md text-on-surface truncate">{jogador.nome}</span>
+                                {jogador.premios && jogador.premios.length > 0 && (
+                                  <div className="flex gap-1 mt-0.5 flex-wrap overflow-hidden h-5">
+                                    {jogador.premios.map(p => {
+                                      let bg = 'bg-surface-variant text-on-surface-variant border-outline-variant/30';
+                                      let icon = 'star';
+                                      if(p.categoria === 'BOLA_CHEIA') { bg = 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700'; icon = 'emoji_events'; }
+                                      if(p.categoria === 'GOL_BONITO') { bg = 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700'; icon = 'sports_soccer'; }
+                                      if(p.categoria === 'BOLA_MURCHA') { bg = 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700'; icon = 'thumb_down'; }
+                                      if(p.categoria === 'LAFON') { bg = 'bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-700'; icon = 'sentiment_very_dissatisfied'; }
+
+                                      return (
+                                        <div key={p.categoria} className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-bold border ${bg}`}>
+                                          <span className="material-symbols-outlined text-[10px]">{icon}</span>
+                                          <span>{p.quantidade}x</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className={`w-16 text-center text-sm shrink-0 ${criterioOrdenacao === 'pontos' ? 'font-bold text-primary' : 'font-medium text-on-surface'}`}>
+                              {jogador.pontos_ranking}
+                            </div>
+                            <div className={`w-16 text-center text-sm shrink-0 ${criterioOrdenacao === 'nota' ? 'font-bold text-primary' : 'font-medium text-on-surface-variant'}`}>
+                              {jogador.nota_galera_media ? jogador.nota_galera_media.toFixed(1) : '-'}
+                            </div>
+                            <div className={`w-12 text-center text-sm shrink-0 ${criterioOrdenacao === 'gols' ? 'font-bold text-primary' : 'font-medium text-on-surface-variant'}`}>
+                              {jogador.gols_total || 0}
+                            </div>
+                          </div>
+                        );
+                      }}
+                    </VariableSizeList>
+                  )}
+                </AutoSizer>
               )}
             </div>
           </div>

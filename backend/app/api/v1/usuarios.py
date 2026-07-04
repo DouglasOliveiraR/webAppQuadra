@@ -24,7 +24,7 @@ from api.v1.deps import (
 from core.security import get_password_hash
 from api.db.repositories.usuario_repo import SQLAlchemyUsuarioRepository
 from sqlalchemy.orm import Session
-from api.schemas.usuario_schemas import AdminEditUsuarioRequest
+from api.schemas.usuario_schemas import AdminEditUsuarioRequest, AdminEditUsuarioResponse
 from domain.usuarios.entities import Usuario
 from core.exceptions import RegraDeNegocioError
 
@@ -194,7 +194,10 @@ async def deletar_usuario(
     except RegraDeNegocioError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
 
-@router.put("/{usuario_id}/admin-edit", response_model=UsuarioResponse)
+import string
+import secrets
+
+@router.put("/{usuario_id}/admin-edit", response_model=AdminEditUsuarioResponse)
 async def admin_edit_usuario(
     usuario_id: int,
     payload: AdminEditUsuarioRequest,
@@ -209,8 +212,15 @@ async def admin_edit_usuario(
     if payload.pontos_ranking is not None:
         usuario.pontos_ranking = payload.pontos_ranking
     
+    nova_senha_plain = None
     if payload.resetar_senha:
-        usuario.senha_hash = get_password_hash("123456")
+        # [Security Fix] Generate a cryptographically secure random password instead of a hardcoded one.
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        nova_senha_plain = ''.join(secrets.choice(alphabet) for i in range(16))
+        usuario.senha_hash = get_password_hash(nova_senha_plain)
         
     await repo.salvar(usuario)
+
+    # Use Pydantic's from_attributes feature by temporarily assigning to the model object
+    usuario.nova_senha = nova_senha_plain
     return usuario

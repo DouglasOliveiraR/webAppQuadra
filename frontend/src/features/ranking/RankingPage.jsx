@@ -144,21 +144,23 @@ export function RankingPage() {
           onClick={() => setActiveTab('tabela')}
           role="tab"
           aria-selected={activeTab === 'tabela'}
-          className={`relative flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+          className={`relative flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden ${
             activeTab === 'tabela' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'
           }`}
         >
-          Tabela Geral
+          <span className="relative z-10">Tabela Geral</span>
+          <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full transition-all duration-300 ${activeTab === 'tabela' ? 'bg-primary scale-100 opacity-100' : 'bg-transparent scale-0 opacity-0'}`} aria-hidden="true"></span>
         </button>
         <button 
           onClick={() => setActiveTab('ultimo')}
           role="tab"
           aria-selected={activeTab === 'ultimo'}
-          className={`relative flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+          className={`relative flex-1 py-2 rounded-md font-label-bold text-label-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden ${
             activeTab === 'ultimo' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container'
           }`}
         >
-          Último Jogo
+          <span className="relative z-10">Último Jogo</span>
+          <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full transition-all duration-300 ${activeTab === 'ultimo' ? 'bg-primary scale-100 opacity-100' : 'bg-transparent scale-0 opacity-0'}`} aria-hidden="true"></span>
         </button>
       </div>
 
